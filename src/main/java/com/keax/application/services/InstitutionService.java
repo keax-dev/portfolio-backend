@@ -45,4 +45,9 @@ public class InstitutionService implements CreateInstitutionUseCase, UpdateInsti
         return retrieveInstitutionUseCase.getListInstitution();
     }
 
+    @Override
+    public Boolean existsByInstitutionNameIgnoreCase(String institution_name) {
+        return retrieveInstitutionUseCase.existsByInstitutionNameIgnoreCase(institution_name);
+    }
+
 }

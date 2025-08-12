@@ -52,7 +52,7 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
         if (optional.isPresent()){
 
             InstitutionEntity institutionEntity = optional.get();
-            institutionEntity.setInstitution_deleted(true);
+            institutionEntity.setInstitutionDeleted(true);
 
             jpaInstitutionRepository.save(institutionEntity);
 
@@ -61,4 +61,10 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
 
         return false;
     }
+
+    @Override
+    public Boolean existsByInstitutionNameIgnoreCase(String institution_name) {
+        return jpaInstitutionRepository.existsByInstitutionNameIgnoreCase(institution_name);
+    }
+
 }

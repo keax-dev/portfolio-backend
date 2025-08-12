@@ -19,4 +19,9 @@ public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCas
         return institutionRepositoryPort.getListInstitution();
     }
 
+    @Override
+    public Boolean existsByInstitutionNameIgnoreCase(String institution_name) {
+        return institutionRepositoryPort.existsByInstitutionNameIgnoreCase(institution_name);
+    }
+
 }

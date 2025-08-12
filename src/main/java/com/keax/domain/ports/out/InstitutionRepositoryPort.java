@@ -10,4 +10,5 @@ public interface InstitutionRepositoryPort {
     Optional<Institution> updateInstitution(Long institution_id, Institution institution);
     List<Institution> getListInstitution();
     Boolean deleteInstitution(Long institution_id);
+    Boolean existsByInstitutionNameIgnoreCase(String institution_name);
 }

@@ -16,16 +16,21 @@ public class InstitutionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long institution_id;
-    private String institution_name;
-    private Boolean institution_deleted;
+    @Column(name = "institution_id")
+    private Long institutionId;
+
+    @Column(name = "institution_name")
+    private String institutionName;
+
+    @Column(name = "institution_deleted")
+    private Boolean institutionDeleted;
 
     public static InstitutionEntity fromDomainModel(Institution institution){
         return  new InstitutionEntity(institution.getInstitution_id(), institution.getInstitution_name(), institution.getInstitution_deleted());
     }
 
     public Institution toDomainModel(){
-        return new Institution(institution_id, institution_name, institution_deleted);
+        return new Institution(institutionId, institutionName, institutionDeleted);
     }
 
 }

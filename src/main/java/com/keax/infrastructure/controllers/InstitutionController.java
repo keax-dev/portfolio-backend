@@ -1,7 +1,9 @@
 package com.keax.infrastructure.controllers;
 
 import com.keax.application.services.InstitutionService;
+import com.keax.domain.models.ApiResponse;
 import com.keax.domain.models.Institution;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +21,16 @@ public class InstitutionController {
     }
 
     @PostMapping
-    public ResponseEntity<Institution> create(@RequestBody Institution institution){
-        Institution create = institutionService.createInstitution(institution);
-        return new ResponseEntity<>(create, HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<Institution>> create(@Valid @RequestBody Institution institution){
+        Institution created = institutionService.createInstitution(institution);
+
+        ApiResponse<Institution> response = new ApiResponse<>(
+                true,
+                "Se creo la institución exitosamente.",
+                created
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{institution_id}")
