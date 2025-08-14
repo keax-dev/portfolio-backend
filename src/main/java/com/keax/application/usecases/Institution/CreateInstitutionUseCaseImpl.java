@@ -1,6 +1,6 @@
 package com.keax.application.usecases.Institution;
 
-import com.keax.domain.exceptions.ExceptionGlobal;
+import com.keax.domain.exceptions.ExceptionAlert;
 import com.keax.domain.models.Institution;
 import com.keax.domain.ports.in.Institution.CreateInstitutionUseCase;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
@@ -15,8 +15,11 @@ public class CreateInstitutionUseCaseImpl implements CreateInstitutionUseCase {
 
     @Override
     public Institution createInstitution(Institution institution) {
-        if (institutionRepositoryPort.existsByInstitutionNameIgnoreCase(institution.getInstitution_name())){
-            throw new ExceptionGlobal("Ya existe una institución con el nombre ingresado.");
+
+        institution.setInstitution_name(institution.getInstitution_name().toUpperCase());
+
+        if (institutionRepositoryPort.existsByInstitutionNameAndInstitutionDeleted(institution.getInstitution_name(),false)){
+            throw new ExceptionAlert("Ya existe una institución con el nombre ingresado");
         }
         return institutionRepositoryPort.save(institution);
     }

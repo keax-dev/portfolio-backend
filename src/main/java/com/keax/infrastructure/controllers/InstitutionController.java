@@ -1,59 +1,82 @@
 package com.keax.infrastructure.controllers;
 
-import com.keax.application.services.InstitutionService;
-import com.keax.domain.models.ApiResponse;
+import com.keax.application.services.Interfaces.IInstitutionService;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import com.keax.infrastructure.controllers.DTO.ApiResponse;
 import com.keax.domain.models.Institution;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/institution")
 public class InstitutionController {
 
-    private final InstitutionService institutionService;
+    private final IInstitutionService institutionServiceImpl;
 
-    public InstitutionController(InstitutionService institutionService) {
-        this.institutionService = institutionService;
+    public InstitutionController(IInstitutionService institutionServiceImpl) {
+        this.institutionServiceImpl = institutionServiceImpl;
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<Institution>> create(@Valid @RequestBody Institution institution){
-        Institution created = institutionService.createInstitution(institution);
 
         ApiResponse<Institution> response = new ApiResponse<>(
                 true,
-                "Se creo la institución exitosamente.",
-                created
+                "Se creo la institución exitosamente",
+                institutionServiceImpl.createInstitution(institution)
         );
 
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{institution_id}")
-    public ResponseEntity<Institution> update(@PathVariable Long institution_id,@RequestBody Institution institution){
-        return institutionService.updateInstitution(institution_id, institution)
-                .map(task -> new ResponseEntity<>(task, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<ApiResponse<Institution>> update(@PathVariable Long institution_id, @Valid @RequestBody Institution institution){
+        ApiResponse<Institution> response = new ApiResponse<>(
+                true,
+                "Se actualizo la institución exitosamente",
+                institutionServiceImpl.updateInstitution(institution_id, institution)
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<Institution>>> listInstitution(){
+
+        ApiResponse<List<Institution>> response = new ApiResponse<>(
+                true,
+                "Se encontraron las instituciones exitosamente",
+                institutionServiceImpl.getListInstitution()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/by-deleted/{deleted}")
+    public ResponseEntity<ApiResponse<List<Institution>>> listInstitutionByDeleted(@PathVariable Boolean deleted){
+
+        ApiResponse<List<Institution>> response = new ApiResponse<>(
+                true,
+                "Se encontraron las instituciones exitosamente",
+                institutionServiceImpl.findByInstitutionDeleted(deleted)
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{institution_id}")
-    private ResponseEntity<Boolean> delete(@PathVariable Long institution_id){
-        if (institutionService.deleteInstitution(institution_id)){
-            return  new ResponseEntity<>(true, HttpStatus.OK);
-        }else{
-            return  new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        }
-    }
+    private ResponseEntity<?> delete(@PathVariable Long institution_id){
 
+        institutionServiceImpl.deleteInstitution(institution_id);
 
-    @GetMapping
-    public ResponseEntity<List<Institution>> listInstitution(){
-        List<Institution> institutions = institutionService.getListInstitution();
-        return new ResponseEntity<>(institutions, HttpStatus.OK);
+        ApiResponse<Boolean> response = new ApiResponse<>(
+                true,
+                "Se elimino la institución exitosamente",
+                null
+        );
+
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -1,13 +1,13 @@
 package com.keax.infrastructure.adapters;
 
-import com.keax.domain.models.Institution;
+import com.keax.infrastructure.repositories.JpaInstitutionRepository;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.infrastructure.entities.InstitutionEntity;
-import com.keax.infrastructure.repositories.JpaInstitutionRepository;
+import com.keax.domain.models.Institution;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.List;
 
 public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPort {
 
@@ -19,29 +19,19 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
 
     @Override
     public Institution save(Institution institution) {
-        InstitutionEntity institutionEntity = InstitutionEntity.fromDomainModel(institution);
-        InstitutionEntity saved = jpaInstitutionRepository.save(institutionEntity);
-        return saved.toDomainModel();
+        InstitutionEntity saved = jpaInstitutionRepository.save(fromDomainModel(institution));
+        return toDomainModel(saved);
     }
 
     @Override
-    public Optional<Institution> updateInstitution(Long institution_id, Institution institution) {
-
-        if (jpaInstitutionRepository.existsById(institution_id)){
-            institution.setInstitution_id(institution_id);
-            InstitutionEntity institutionEntity = InstitutionEntity.fromDomainModel(institution);
-            InstitutionEntity updateInstitutionEntity = jpaInstitutionRepository.save(institutionEntity);
-            return Optional.of(updateInstitutionEntity.toDomainModel());
-        }
-
-        return Optional.empty();
+    public Institution updateInstitution(Long institution_id, Institution institution) {
+        InstitutionEntity saved = jpaInstitutionRepository.save(fromDomainModel(institution));
+        return  toDomainModel(saved);
     }
 
     @Override
     public List<Institution> getListInstitution() {
-        return jpaInstitutionRepository.findAll().stream().map(
-                InstitutionEntity::toDomainModel
-        ).collect(Collectors.toList());
+        return jpaInstitutionRepository.findAll().stream().map(this::toDomainModel).collect(Collectors.toList());
     }
 
     @Override
@@ -50,12 +40,9 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
         Optional<InstitutionEntity> optional = jpaInstitutionRepository.findById(institution_id);
 
         if (optional.isPresent()){
-
             InstitutionEntity institutionEntity = optional.get();
             institutionEntity.setInstitutionDeleted(true);
-
             jpaInstitutionRepository.save(institutionEntity);
-
             return true;
         }
 
@@ -63,8 +50,55 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Boolean existsByInstitutionNameIgnoreCase(String institution_name) {
-        return jpaInstitutionRepository.existsByInstitutionNameIgnoreCase(institution_name);
+    public Boolean existsByInstitutionName(String institution_name) {
+        return jpaInstitutionRepository.existsByInstitutionName(institution_name);
+    }
+
+    @Override
+    public Boolean existsByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted) {
+        return jpaInstitutionRepository.existsByInstitutionNameAndInstitutionDeleted(institutionName, deleted);
+    }
+
+    @Override
+    public Boolean existsById(Long institution_id) {
+        return jpaInstitutionRepository.existsById(institution_id);
+    }
+
+    @Override
+    public Boolean existsByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted) {
+        return jpaInstitutionRepository.existsByInstitutionIdAndInstitutionDeleted(institution_id, deleted);
+    }
+
+    @Override
+    public List<Institution> findByInstitutionDeleted(Boolean deleted) {
+        return jpaInstitutionRepository.findByInstitutionDeleted(deleted)
+                .stream().map(this::toDomainModel).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Institution> findById(Long institution_id) {
+        return jpaInstitutionRepository.findById(institution_id).map(this::toDomainModel);
+    }
+
+    @Override
+    public Optional<Institution> findByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted) {
+        return jpaInstitutionRepository.findByInstitutionNameAndInstitutionDeleted(institutionName, deleted).map(this::toDomainModel);
+    }
+
+    private Institution toDomainModel(InstitutionEntity institutionEntity){
+        return new Institution(
+                institutionEntity.getInstitutionId(),
+                institutionEntity.getInstitutionName(),
+                institutionEntity.getInstitutionDeleted()
+        );
+    }
+
+    private InstitutionEntity fromDomainModel(Institution institution){
+        return  new InstitutionEntity(
+                institution.getInstitution_id(),
+                institution.getInstitution_name(),
+                institution.getInstitution_deleted()
+        );
     }
 
 }

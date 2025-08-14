@@ -1,24 +1,23 @@
-package com.keax.application.services;
+package com.keax.application.services.Implementation;
 
+import com.keax.application.services.Interfaces.IInstitutionService;
 import com.keax.domain.models.Institution;
 import com.keax.domain.ports.in.Institution.CreateInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.DeleteInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.RetrieveInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.UpdateInstitutionUseCase;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-public class InstitutionService implements CreateInstitutionUseCase, UpdateInstitutionUseCase, RetrieveInstitutionUseCase, DeleteInstitutionUseCase {
-
+public class InstitutionServiceImpl implements IInstitutionService {
 
     private final CreateInstitutionUseCase createInstitutionUseCase;
     private final UpdateInstitutionUseCase updateInstitutionUseCase;
     private final RetrieveInstitutionUseCase retrieveInstitutionUseCase;
     private final DeleteInstitutionUseCase deleteInstitutionUseCase;
 
-    public InstitutionService(CreateInstitutionUseCase createInstitutionUseCase, UpdateInstitutionUseCase updateInstitutionUseCase, RetrieveInstitutionUseCase retrieveInstitutionUseCase, DeleteInstitutionUseCase deleteInstitutionUseCase) {
+    public InstitutionServiceImpl(CreateInstitutionUseCase createInstitutionUseCase, UpdateInstitutionUseCase updateInstitutionUseCase, RetrieveInstitutionUseCase retrieveInstitutionUseCase, DeleteInstitutionUseCase deleteInstitutionUseCase) {
         this.createInstitutionUseCase = createInstitutionUseCase;
         this.updateInstitutionUseCase = updateInstitutionUseCase;
         this.retrieveInstitutionUseCase = retrieveInstitutionUseCase;
@@ -31,13 +30,8 @@ public class InstitutionService implements CreateInstitutionUseCase, UpdateInsti
     }
 
     @Override
-    public Optional<Institution> updateInstitution(Long institution_id, Institution institution) {
+    public Institution updateInstitution(Long institution_id, Institution institution) {
         return updateInstitutionUseCase.updateInstitution(institution_id, institution);
-    }
-
-    @Override
-    public Boolean deleteInstitution(Long institution_id) {
-        return deleteInstitutionUseCase.deleteInstitution(institution_id);
     }
 
     @Override
@@ -46,8 +40,13 @@ public class InstitutionService implements CreateInstitutionUseCase, UpdateInsti
     }
 
     @Override
-    public Boolean existsByInstitutionNameIgnoreCase(String institution_name) {
-        return retrieveInstitutionUseCase.existsByInstitutionNameIgnoreCase(institution_name);
+    public List<Institution> findByInstitutionDeleted(Boolean deleted) {
+        return retrieveInstitutionUseCase.findByInstitutionDeleted(deleted);
+    }
+
+    @Override
+    public Boolean deleteInstitution(Long institution_id) {
+        return deleteInstitutionUseCase.deleteInstitution(institution_id);
     }
 
 }

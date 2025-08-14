@@ -1,4 +1,4 @@
-package com.keax.domain.models;
+package com.keax.infrastructure.controllers.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,7 +1,8 @@
-package com.keax.infrastructure.config;
+package com.keax.infrastructure.exceptions;
 
-import com.keax.domain.exceptions.ExceptionGlobal;
-import com.keax.domain.models.ApiResponse;
+import com.keax.domain.exceptions.ExceptionAlert;
+import com.keax.domain.exceptions.ExceptionMessage;
+import com.keax.infrastructure.controllers.DTO.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,11 +38,20 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    @ExceptionHandler(ExceptionGlobal.class)
-    public ResponseEntity<ApiResponse<Object>> handleDuplicateName(ExceptionGlobal ex) {
+    @ExceptionHandler(ExceptionAlert.class)
+    public ResponseEntity<ApiResponse<Object>> handleExceptionAlert(ExceptionAlert ex) {
         return ResponseEntity.ok(new ApiResponse<>(
                 false,
-                "Se ha producido una excepción.",
+                ex.getMessage(),
+                null
+        ));
+    }
+
+    @ExceptionHandler(ExceptionMessage.class)
+    public ResponseEntity<ApiResponse<Object>> handleExceptionMessage(ExceptionMessage ex) {
+        return ResponseEntity.ok(new ApiResponse<>(
+                false,
+                ex.getMessage(),
                 null,
                 List.of(ex.getMessage())
         ));

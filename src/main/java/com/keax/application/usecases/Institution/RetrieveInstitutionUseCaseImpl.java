@@ -1,5 +1,6 @@
 package com.keax.application.usecases.Institution;
 
+import com.keax.domain.exceptions.ExceptionAlert;
 import com.keax.domain.models.Institution;
 import com.keax.domain.ports.in.Institution.RetrieveInstitutionUseCase;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
@@ -16,12 +17,26 @@ public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCas
 
     @Override
     public List<Institution> getListInstitution() {
-        return institutionRepositoryPort.getListInstitution();
+
+        List<Institution> institutions = institutionRepositoryPort.getListInstitution();
+
+        if (institutions.isEmpty()){
+            throw new ExceptionAlert("No existen instituciones creadas");
+        }
+
+        return institutions;
     }
 
     @Override
-    public Boolean existsByInstitutionNameIgnoreCase(String institution_name) {
-        return institutionRepositoryPort.existsByInstitutionNameIgnoreCase(institution_name);
+    public List<Institution> findByInstitutionDeleted(Boolean deleted) {
+
+        List<Institution> institutions = institutionRepositoryPort.findByInstitutionDeleted(deleted);
+
+        if (institutions.isEmpty()){
+            throw new ExceptionAlert("No existen instituciones creadas");
+        }
+
+        return institutions;
     }
 
 }

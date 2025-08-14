@@ -1,6 +1,6 @@
 package com.keax.infrastructure.config;
 
-import com.keax.application.services.InstitutionService;
+import com.keax.application.services.Implementation.InstitutionServiceImpl;
 import com.keax.application.usecases.Institution.CreateInstitutionUseCaseImpl;
 import com.keax.application.usecases.Institution.DeleteInstitutionUseCaseImpl;
 import com.keax.application.usecases.Institution.RetrieveInstitutionUseCaseImpl;
@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration;
 public class ApplicationConfig {
 
     @Bean
-    public InstitutionService institutionService(InstitutionRepositoryPort institutionRepositoryPort){
-        return new InstitutionService(
+    public InstitutionServiceImpl institutionService(InstitutionRepositoryPort institutionRepositoryPort){
+        return new InstitutionServiceImpl(
                 new CreateInstitutionUseCaseImpl(institutionRepositoryPort),
                 new UpdateInstitutionUseCaseImpl(institutionRepositoryPort),
                 new RetrieveInstitutionUseCaseImpl(institutionRepositoryPort),
