@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InstitutionRepositoryPort {
-    Institution save(Institution institution);
+    Institution saveInstitution(Institution institution);
     Institution updateInstitution(Long institution_id, Institution institution);
     List<Institution> getListInstitution();
     Boolean deleteInstitution(Long institution_id);

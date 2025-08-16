@@ -12,13 +12,13 @@ import lombok.Data;
 public class Institution {
 
     @JsonProperty("id")
-    private Long institution_id;
+    private Long institutionId;
 
     @JsonProperty("name")
     @NotBlank(message = "El nombre de la institución es obligatorio")
-    private String institution_name;
+    private String institutionName;
 
     @JsonProperty("deleted")
-    private Boolean institution_deleted = false;
+    private Boolean institutionDeleted = false;
 
 }

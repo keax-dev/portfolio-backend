@@ -18,15 +18,15 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Institution save(Institution institution) {
+    public Institution saveInstitution(Institution institution) {
         InstitutionEntity saved = jpaInstitutionRepository.save(fromDomainModel(institution));
         return toDomainModel(saved);
     }
 
     @Override
     public Institution updateInstitution(Long institution_id, Institution institution) {
-        InstitutionEntity saved = jpaInstitutionRepository.save(fromDomainModel(institution));
-        return  toDomainModel(saved);
+        InstitutionEntity update = jpaInstitutionRepository.save(fromDomainModel(institution));
+        return  toDomainModel(update);
     }
 
     @Override
@@ -95,9 +95,9 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
 
     private InstitutionEntity fromDomainModel(Institution institution){
         return  new InstitutionEntity(
-                institution.getInstitution_id(),
-                institution.getInstitution_name(),
-                institution.getInstitution_deleted()
+                institution.getInstitutionId(),
+                institution.getInstitutionName(),
+                institution.getInstitutionDeleted()
         );
     }
 

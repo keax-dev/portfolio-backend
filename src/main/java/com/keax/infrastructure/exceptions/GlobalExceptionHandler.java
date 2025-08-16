@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.ok(new ApiResponse<>(
                 false,
-                "Error de validación",
+                "Validation error",
                 messages,
                 null
         ));
