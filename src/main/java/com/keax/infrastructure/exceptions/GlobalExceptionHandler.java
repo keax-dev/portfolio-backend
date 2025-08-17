@@ -51,9 +51,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleExceptionMessage(ExceptionMessage ex) {
         return ResponseEntity.ok(new ApiResponse<>(
                 false,
-                ex.getMessage(),
-                null,
-                List.of(ex.getMessage())
+                "An error has occurred",
+                List.of(ex.getMessage()),
+                null
         ));
     }
 

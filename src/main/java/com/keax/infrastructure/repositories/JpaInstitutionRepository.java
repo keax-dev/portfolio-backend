@@ -10,6 +10,7 @@ public interface JpaInstitutionRepository extends JpaRepository<InstitutionEntit
     Boolean existsByInstitutionName(String institutionName);
     Boolean existsByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted);
     Boolean existsByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted);
+    Optional<InstitutionEntity> findByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted);
     Optional<InstitutionEntity> findByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted);
     List<InstitutionEntity> findByInstitutionDeleted(Boolean deleted);
 }

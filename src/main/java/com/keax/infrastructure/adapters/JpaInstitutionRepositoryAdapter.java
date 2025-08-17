@@ -50,18 +50,8 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Boolean existsByInstitutionName(String institution_name) {
-        return jpaInstitutionRepository.existsByInstitutionName(institution_name);
-    }
-
-    @Override
     public Boolean existsByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted) {
         return jpaInstitutionRepository.existsByInstitutionNameAndInstitutionDeleted(institutionName, deleted);
-    }
-
-    @Override
-    public Boolean existsById(Long institution_id) {
-        return jpaInstitutionRepository.existsById(institution_id);
     }
 
     @Override
@@ -85,10 +75,16 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
         return jpaInstitutionRepository.findByInstitutionNameAndInstitutionDeleted(institutionName, deleted).map(this::toDomainModel);
     }
 
+    @Override
+    public Optional<Institution> findByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted) {
+        return jpaInstitutionRepository.findByInstitutionIdAndInstitutionDeleted(institution_id, deleted).map(this::toDomainModel);
+    }
+
     private Institution toDomainModel(InstitutionEntity institutionEntity){
         return new Institution(
                 institutionEntity.getInstitutionId(),
                 institutionEntity.getInstitutionName(),
+                institutionEntity.getInstitutionUrl(),
                 institutionEntity.getInstitutionDeleted()
         );
     }
@@ -97,6 +93,7 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
         return  new InstitutionEntity(
                 institution.getInstitutionId(),
                 institution.getInstitutionName(),
+                institution.getInstitutionUrl(),
                 institution.getInstitutionDeleted()
         );
     }

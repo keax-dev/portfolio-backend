@@ -18,6 +18,9 @@ public class Institution {
     @NotBlank(message = "El nombre de la institución es obligatorio")
     private String institutionName;
 
+    @JsonProperty("url")
+    private String institutionUrl;
+
     @JsonProperty("deleted")
     private Boolean institutionDeleted = false;
 

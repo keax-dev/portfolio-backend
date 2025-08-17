@@ -1,7 +1,9 @@
 package com.keax.infrastructure.config;
 
+import com.cloudinary.Cloudinary;
 import com.keax.application.services.Implementation.EducationServiceImpl;
 import com.keax.application.services.Implementation.InstitutionServiceImpl;
+import com.keax.application.services.Implementation.UploadImageServiceImpl;
 import com.keax.application.usecases.Education.CreateEducationUseCaseImpl;
 import com.keax.application.usecases.Education.DeleteEducationUseCaseImpl;
 import com.keax.application.usecases.Education.RetrieveEducationUseCaseImpl;
@@ -10,6 +12,7 @@ import com.keax.application.usecases.Institution.CreateInstitutionUseCaseImpl;
 import com.keax.application.usecases.Institution.DeleteInstitutionUseCaseImpl;
 import com.keax.application.usecases.Institution.RetrieveInstitutionUseCaseImpl;
 import com.keax.application.usecases.Institution.UpdateInstitutionUseCaseImpl;
+import com.keax.application.usecases.UploadImage.UploadImageUseCaseImpl;
 import com.keax.domain.ports.out.EducationRepositoryPort;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.infrastructure.adapters.JpaEducationRepositoryAdapter;
@@ -21,6 +24,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ApplicationConfig {
+
+    //UploadImage Bean
+    @Bean
+    public UploadImageServiceImpl uploadImageService(InstitutionRepositoryPort institutionRepositoryPort, Cloudinary cloudinary){
+        return new UploadImageServiceImpl(
+                new UploadImageUseCaseImpl(institutionRepositoryPort, cloudinary)
+        );
+    }
 
     //Institution Bean
     @Bean
