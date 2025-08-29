@@ -1,16 +1,15 @@
 package com.keax.infrastructure.exceptions;
 
-import com.keax.domain.exceptions.ExceptionAlert;
-import com.keax.domain.exceptions.ExceptionMessage;
-import com.keax.infrastructure.controllers.DTO.ApiResponse;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.List;
+import com.keax.infrastructure.controllers.DTO.ApiResponse;
+import com.keax.domain.exceptions.ExceptionMessage;
+import com.keax.domain.exceptions.ExceptionAlert;
+import org.springframework.validation.FieldError;
+import org.springframework.http.ResponseEntity;
 import java.util.stream.Collectors;
+import java.util.List;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

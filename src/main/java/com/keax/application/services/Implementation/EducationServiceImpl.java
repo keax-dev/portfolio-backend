@@ -1,27 +1,29 @@
 package com.keax.application.services.Implementation;
 
+import com.keax.domain.ports.in.Education.RetrieveEducationUseCase;
 import com.keax.application.services.Interfaces.IEducationService;
-import com.keax.domain.models.Education;
 import com.keax.domain.ports.in.Education.CreateEducationUseCase;
 import com.keax.domain.ports.in.Education.DeleteEducationUseCase;
-import com.keax.domain.ports.in.Education.RetrieveEducationUseCase;
 import com.keax.domain.ports.in.Education.UpdateEducationUseCase;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.keax.domain.models.Education;
 import java.util.List;
 
+@Service
 public class EducationServiceImpl implements IEducationService {
 
-    private final CreateEducationUseCase createEducationUseCase;
-    private final UpdateEducationUseCase updateEducationUseCase;
-    private final RetrieveEducationUseCase retrieveEducationUseCase;
-    private  final DeleteEducationUseCase deleteEducationUseCase;
+    @Autowired
+    private CreateEducationUseCase createEducationUseCase;
 
-    public EducationServiceImpl(CreateEducationUseCase createEducationUseCase, UpdateEducationUseCase updateEducationUseCase, RetrieveEducationUseCase retrieveEducationUseCase, DeleteEducationUseCase deleteEducationUseCase) {
-        this.createEducationUseCase = createEducationUseCase;
-        this.updateEducationUseCase = updateEducationUseCase;
-        this.retrieveEducationUseCase = retrieveEducationUseCase;
-        this.deleteEducationUseCase = deleteEducationUseCase;
-    }
+    @Autowired
+    private UpdateEducationUseCase updateEducationUseCase;
+
+    @Autowired
+    private RetrieveEducationUseCase retrieveEducationUseCase;
+
+    @Autowired
+    private DeleteEducationUseCase deleteEducationUseCase;
 
     @Override
     public Education createEducation(Education education) {

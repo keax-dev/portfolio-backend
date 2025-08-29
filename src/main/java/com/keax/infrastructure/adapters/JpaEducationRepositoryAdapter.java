@@ -1,22 +1,21 @@
 package com.keax.infrastructure.adapters;
 
-import com.keax.domain.models.Education;
+import com.keax.infrastructure.repositories.JpaEducationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.keax.infrastructure.entities.InstitutionEntity;
 import com.keax.domain.ports.out.EducationRepositoryPort;
 import com.keax.infrastructure.entities.EducationEntity;
-import com.keax.infrastructure.entities.InstitutionEntity;
-import com.keax.infrastructure.repositories.JpaEducationRepository;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.stereotype.Repository;
+import com.keax.domain.models.Education;
 import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.List;
 
+@Repository
 public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
 
-    private final JpaEducationRepository jpaEducationRepository;
-
-    public JpaEducationRepositoryAdapter(JpaEducationRepository jpaEducationRepository) {
-        this.jpaEducationRepository = jpaEducationRepository;
-    }
+    @Autowired
+    private JpaEducationRepository jpaEducationRepository;
 
     @Override
     public Education createEducation(Education education) {

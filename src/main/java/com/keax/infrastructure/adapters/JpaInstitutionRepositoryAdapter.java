@@ -1,21 +1,20 @@
 package com.keax.infrastructure.adapters;
 
 import com.keax.infrastructure.repositories.JpaInstitutionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.infrastructure.entities.InstitutionEntity;
+import org.springframework.stereotype.Repository;
 import com.keax.domain.models.Institution;
-
 import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.List;
 
+@Repository
 public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPort {
 
-    private final JpaInstitutionRepository jpaInstitutionRepository;
-
-    public JpaInstitutionRepositoryAdapter(JpaInstitutionRepository jpaInstitutionRepository) {
-        this.jpaInstitutionRepository = jpaInstitutionRepository;
-    }
+    @Autowired
+    private JpaInstitutionRepository jpaInstitutionRepository;
 
     @Override
     public Institution saveInstitution(Institution institution) {

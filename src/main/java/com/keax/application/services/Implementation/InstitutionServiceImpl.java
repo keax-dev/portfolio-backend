@@ -1,15 +1,15 @@
 package com.keax.application.services.Implementation;
 
-import com.keax.application.services.Interfaces.IInstitutionService;
-import com.keax.domain.models.Institution;
+import com.keax.domain.ports.in.Institution.RetrieveInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.CreateInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.DeleteInstitutionUseCase;
-import com.keax.domain.ports.in.Institution.RetrieveInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.UpdateInstitutionUseCase;
-
+import com.keax.application.services.Interfaces.IInstitutionService;
+import org.springframework.stereotype.Service;
+import com.keax.domain.models.Institution;
 import java.util.List;
-import java.util.Optional;
 
+@Service
 public class InstitutionServiceImpl implements IInstitutionService {
 
     private final CreateInstitutionUseCase createInstitutionUseCase;

@@ -1,22 +1,20 @@
 package com.keax.infrastructure.controllers;
 
 import com.keax.application.services.Interfaces.IUploadImageService;
-import com.keax.domain.models.Institution;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.infrastructure.controllers.DTO.ApiResponse;
-import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import com.keax.domain.models.Institution;
 
 @RestController
 @RequestMapping("/api/image")
 public class UploadImageController {
 
-    private final IUploadImageService uploadImageService;
-
-    public UploadImageController(IUploadImageService uploadImageService) {
-        this.uploadImageService = uploadImageService;
-    }
+    @Autowired
+    private IUploadImageService uploadImageService;
 
     @PostMapping(
             value = "/institution/{institution_id}",

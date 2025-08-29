@@ -1,9 +1,10 @@
 package com.keax.infrastructure.controllers;
 
 import com.keax.application.services.Interfaces.IEducationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.infrastructure.controllers.DTO.ApiResponse;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import com.keax.domain.models.Education;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -12,11 +13,8 @@ import java.util.List;
 @RequestMapping("/api/education")
 public class EducationController {
 
-    private final IEducationService educationService;
-
-    public EducationController(IEducationService educationService) {
-        this.educationService = educationService;
-    }
+    @Autowired
+    private IEducationService educationService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<Education>> create(@Valid @RequestBody Education education){

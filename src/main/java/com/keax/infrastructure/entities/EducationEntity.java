@@ -1,9 +1,9 @@
 package com.keax.infrastructure.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "education")

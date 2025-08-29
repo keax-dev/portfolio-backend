@@ -1,17 +1,17 @@
 package com.keax.application.usecases.Institution;
 
-import com.keax.domain.exceptions.ExceptionAlert;
-import com.keax.domain.models.Institution;
 import com.keax.domain.ports.in.Institution.CreateInstitutionUseCase;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
+import com.keax.domain.exceptions.ExceptionAlert;
+import org.springframework.stereotype.Component;
+import com.keax.domain.models.Institution;
 
+@Component
 public class CreateInstitutionUseCaseImpl implements CreateInstitutionUseCase {
 
-    private final InstitutionRepositoryPort institutionRepositoryPort;
-
-    public CreateInstitutionUseCaseImpl(InstitutionRepositoryPort institutionRepositoryPort) {
-        this.institutionRepositoryPort = institutionRepositoryPort;
-    }
+    @Autowired
+    private InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
     public Institution createInstitution(Institution institution) {

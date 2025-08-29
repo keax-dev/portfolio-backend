@@ -1,20 +1,21 @@
 package com.keax.application.usecases.Education;
 
-import com.keax.domain.exceptions.ExceptionAlert;
-import com.keax.domain.models.Education;
 import com.keax.domain.ports.in.Education.CreateEducationUseCase;
-import com.keax.domain.ports.out.EducationRepositoryPort;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
+import com.keax.domain.ports.out.EducationRepositoryPort;
+import com.keax.domain.exceptions.ExceptionAlert;
+import org.springframework.stereotype.Component;
+import com.keax.domain.models.Education;
 
+@Component
 public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
 
-    private final EducationRepositoryPort educationRepositoryPort;
-    private final InstitutionRepositoryPort institutionRepositoryPort;
+    @Autowired
+    private EducationRepositoryPort educationRepositoryPort;
 
-    public CreateEducationUseCaseImpl(EducationRepositoryPort educationRepositoryPort, InstitutionRepositoryPort institutionRepositoryPort) {
-        this.educationRepositoryPort = educationRepositoryPort;
-        this.institutionRepositoryPort = institutionRepositoryPort;
-    }
+    @Autowired
+    private InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
     public Education createEducation(Education education) {
@@ -36,4 +37,5 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
 
         return educationRepositoryPort.createEducation(education);
     }
+
 }

@@ -1,9 +1,10 @@
 package com.keax.infrastructure.controllers;
 
 import com.keax.application.services.Interfaces.IInstitutionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.keax.infrastructure.controllers.DTO.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import com.keax.infrastructure.controllers.DTO.ApiResponse;
 import com.keax.domain.models.Institution;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -12,11 +13,8 @@ import java.util.List;
 @RequestMapping("/api/institution")
 public class InstitutionController {
 
-    private final IInstitutionService institutionServiceImpl;
-
-    public InstitutionController(IInstitutionService institutionServiceImpl) {
-        this.institutionServiceImpl = institutionServiceImpl;
-    }
+    @Autowired
+    private IInstitutionService institutionServiceImpl;
 
     @PostMapping
     public ResponseEntity<ApiResponse<Institution>> create(@Valid @RequestBody Institution institution){
