@@ -8,7 +8,6 @@ import java.util.List;
 public interface JpaEducationRepository extends JpaRepository<EducationEntity, Long> {
 
     List<EducationEntity> findByEducationDeleted(Boolean deleted);
-    Boolean existsByEducationIdAndEducationDeleted(Long education_id, Boolean deleted);
     Optional<EducationEntity> findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(String educationTitle, Boolean deleted, Long institutionId);
     Optional<EducationEntity> findByEducationIdAndEducationDeleted(Long education_id, Boolean deleted);
 

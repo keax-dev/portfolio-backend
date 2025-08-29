@@ -20,7 +20,7 @@ public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCas
         List<Institution> institutions = institutionRepositoryPort.getListInstitution();
 
         if (institutions.isEmpty()){
-            throw new ExceptionAlert("No existen instituciones creadas");
+            throw new ExceptionAlert("There are no created institutions");
         }
 
         return institutions;
@@ -32,7 +32,7 @@ public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCas
         List<Institution> institutions = institutionRepositoryPort.findByInstitutionDeleted(deleted);
 
         if (institutions.isEmpty()){
-            throw new ExceptionAlert("No existen instituciones creadas");
+            throw new ExceptionAlert("There are no created institutions");
         }
 
         return institutions;

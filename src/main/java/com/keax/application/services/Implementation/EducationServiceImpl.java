@@ -46,7 +46,7 @@ public class EducationServiceImpl implements IEducationService {
     }
 
     @Override
-    public Boolean deleteEducation(Long education_id) {
+    public Education deleteEducation(Long education_id) {
         return deleteEducationUseCase.deleteEducation(education_id);
     }
 

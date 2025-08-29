@@ -8,6 +8,6 @@ public interface IEducationService {
     Education createEducation(Education education);
     Education updateEducation(Long education_id, Education education);
     List<Education> getListEducation();
-    Boolean deleteEducation(Long education_id);
+    Education deleteEducation(Long education_id);
     List<Education> findByEducationDeleted(Boolean deleted);
 }

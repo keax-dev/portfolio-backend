@@ -21,7 +21,7 @@ public class InstitutionController {
 
         ApiResponse<Institution> response = new ApiResponse<>(
                 true,
-                "Se creo la institución exitosamente",
+                "The institution was successfully created",
                 institutionServiceImpl.createInstitution(institution)
         );
 
@@ -32,7 +32,7 @@ public class InstitutionController {
     public ResponseEntity<ApiResponse<Institution>> update(@PathVariable Long institution_id, @Valid @RequestBody Institution institution){
         ApiResponse<Institution> response = new ApiResponse<>(
                 true,
-                "Se actualizo la institución exitosamente",
+                "The institution was successfully updated",
                 institutionServiceImpl.updateInstitution(institution_id, institution)
         );
 
@@ -44,7 +44,7 @@ public class InstitutionController {
 
         ApiResponse<List<Institution>> response = new ApiResponse<>(
                 true,
-                "Se encontraron las instituciones exitosamente",
+                "The institutions were successfully found",
                 institutionServiceImpl.getListInstitution()
         );
 
@@ -56,7 +56,7 @@ public class InstitutionController {
 
         ApiResponse<List<Institution>> response = new ApiResponse<>(
                 true,
-                "Se encontraron las instituciones exitosamente",
+                "The institutions were successfully found",
                 institutionServiceImpl.findByInstitutionDeleted(deleted)
         );
 
@@ -70,7 +70,7 @@ public class InstitutionController {
 
         ApiResponse<Boolean> response = new ApiResponse<>(
                 true,
-                "Se elimino la institución exitosamente",
+                "The institution was successfully eliminated",
                 null
         );
 

@@ -21,13 +21,13 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
     @Override
     public Education updateEducation(Long education_id, Education education) {
 
-        if(!institutionRepositoryPort.existsByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false)){
-            throw new ExceptionAlert("The institution entered was not found");
-        }
+        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false).orElseThrow(
+                () -> new ExceptionAlert("The institution entered was not found")
+        );
 
-        if (!educationRepositoryPort.existsByEducationIdAndEducationDeleted(education_id, false)){
-            throw new ExceptionAlert("The education to be updated was not found");
-        }
+        educationRepositoryPort.findByEducationIdAndEducationDeleted(education_id, false).orElseThrow(
+                () -> new ExceptionAlert("The education to be updated was not found")
+        );
 
         education.setEducationTitle(education.getEducationTitle().toUpperCase());
         education.setEducationPlace(education.getEducationPlace().toUpperCase());

@@ -18,9 +18,12 @@ public class CreateInstitutionUseCaseImpl implements CreateInstitutionUseCase {
 
         institution.setInstitutionName(institution.getInstitutionName().toUpperCase());
 
-        if (institutionRepositoryPort.existsByInstitutionNameAndInstitutionDeleted(institution.getInstitutionName(),false)){
-            throw new ExceptionAlert("Ya existe una institución con el nombre ingresado");
-        }
+        institutionRepositoryPort.findByInstitutionNameAndInstitutionDeleted(institution.getInstitutionName(),false).ifPresent(
+                e ->{
+                    throw new ExceptionAlert("An institution with the entered name already exists");
+                }
+        );
+
         return institutionRepositoryPort.saveInstitution(institution);
     }
 

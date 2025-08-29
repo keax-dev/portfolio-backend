@@ -20,9 +20,9 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
     @Override
     public Education createEducation(Education education) {
 
-        if(!institutionRepositoryPort.existsByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false)){
-            throw new ExceptionAlert("The institution entered was not found");
-        }
+        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false).orElseThrow(
+                () -> new ExceptionAlert("The institution entered was not found")
+        );
 
         education.setEducationTitle(education.getEducationTitle().toUpperCase());
         education.setEducationPlace(education.getEducationPlace().toUpperCase());

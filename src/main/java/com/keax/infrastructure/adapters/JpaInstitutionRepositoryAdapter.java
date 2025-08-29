@@ -49,16 +49,6 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Boolean existsByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted) {
-        return jpaInstitutionRepository.existsByInstitutionNameAndInstitutionDeleted(institutionName, deleted);
-    }
-
-    @Override
-    public Boolean existsByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted) {
-        return jpaInstitutionRepository.existsByInstitutionIdAndInstitutionDeleted(institution_id, deleted);
-    }
-
-    @Override
     public List<Institution> findByInstitutionDeleted(Boolean deleted) {
         return jpaInstitutionRepository.findByInstitutionDeleted(deleted)
                 .stream().map(this::toDomainModel).collect(Collectors.toList());

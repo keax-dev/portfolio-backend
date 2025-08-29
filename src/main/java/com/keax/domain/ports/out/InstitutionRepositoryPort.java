@@ -11,8 +11,6 @@ public interface InstitutionRepositoryPort {
     List<Institution> getListInstitution();
     List<Institution> findByInstitutionDeleted(Boolean deleted);
     Boolean deleteInstitution(Long institution_id);
-    Boolean existsByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted);
-    Boolean existsByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted);
     Optional<Institution> findById(Long institution_id);
     Optional<Institution> findByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted);
     Optional<Institution> findByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted);

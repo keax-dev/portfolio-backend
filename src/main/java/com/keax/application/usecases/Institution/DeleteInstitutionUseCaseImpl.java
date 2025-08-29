@@ -14,11 +14,12 @@ public class DeleteInstitutionUseCaseImpl implements DeleteInstitutionUseCase {
 
     @Override
     public Boolean deleteInstitution(Long institution_id) {
-        if (institutionRepositoryPort.existsByInstitutionIdAndInstitutionDeleted(institution_id, false)){
-            return institutionRepositoryPort.deleteInstitution(institution_id);
-        }
 
-        throw new ExceptionAlert("No existe la institución a eliminar.");
+        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institution_id, false).orElseThrow(
+                () -> new ExceptionAlert("The institution to be eliminated does not exist")
+        );
+
+        return institutionRepositoryPort.deleteInstitution(institution_id);
     }
 
 }

@@ -5,6 +5,7 @@ import com.keax.domain.ports.in.Institution.CreateInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.DeleteInstitutionUseCase;
 import com.keax.domain.ports.in.Institution.UpdateInstitutionUseCase;
 import com.keax.application.services.Interfaces.IInstitutionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.keax.domain.models.Institution;
 import java.util.List;
@@ -12,17 +13,17 @@ import java.util.List;
 @Service
 public class InstitutionServiceImpl implements IInstitutionService {
 
-    private final CreateInstitutionUseCase createInstitutionUseCase;
-    private final UpdateInstitutionUseCase updateInstitutionUseCase;
-    private final RetrieveInstitutionUseCase retrieveInstitutionUseCase;
-    private final DeleteInstitutionUseCase deleteInstitutionUseCase;
+    @Autowired
+    private CreateInstitutionUseCase createInstitutionUseCase;
 
-    public InstitutionServiceImpl(CreateInstitutionUseCase createInstitutionUseCase, UpdateInstitutionUseCase updateInstitutionUseCase, RetrieveInstitutionUseCase retrieveInstitutionUseCase, DeleteInstitutionUseCase deleteInstitutionUseCase) {
-        this.createInstitutionUseCase = createInstitutionUseCase;
-        this.updateInstitutionUseCase = updateInstitutionUseCase;
-        this.retrieveInstitutionUseCase = retrieveInstitutionUseCase;
-        this.deleteInstitutionUseCase = deleteInstitutionUseCase;
-    }
+    @Autowired
+    private UpdateInstitutionUseCase updateInstitutionUseCase;
+
+    @Autowired
+    private RetrieveInstitutionUseCase retrieveInstitutionUseCase;
+
+    @Autowired
+    private DeleteInstitutionUseCase deleteInstitutionUseCase;
 
     @Override
     public Institution createInstitution(Institution institution) {

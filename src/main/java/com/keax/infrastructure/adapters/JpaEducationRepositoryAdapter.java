@@ -36,7 +36,6 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
 
     @Override
     public Education deleteEducation(Education education) {
-        education.setEducationDeleted(true);
         EducationEntity deleted = jpaEducationRepository.save(fromDomainModel(education));
         return toDomainModel(deleted);
     }
@@ -49,11 +48,6 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
     @Override
     public List<Education> findByEducationDeleted(Boolean deleted) {
         return jpaEducationRepository.findByEducationDeleted(deleted).stream().map(this::toDomainModel).collect(Collectors.toList());
-    }
-
-    @Override
-    public Boolean existsByEducationIdAndEducationDeleted(Long education_id, Boolean deleted) {
-        return jpaEducationRepository.existsByEducationIdAndEducationDeleted(education_id, deleted);
     }
 
     @Override

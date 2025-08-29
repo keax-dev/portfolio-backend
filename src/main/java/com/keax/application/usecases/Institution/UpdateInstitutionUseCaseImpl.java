@@ -6,6 +6,8 @@ import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Component;
 import com.keax.domain.models.Institution;
+
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -19,14 +21,14 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
 
         institution.setInstitutionName(institution.getInstitutionName().toUpperCase());
 
-        if (!institutionRepositoryPort.existsByInstitutionIdAndInstitutionDeleted(institution_id, false)){
-            throw new ExceptionAlert("No existe la institución a actualizar");
-        }
+        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institution_id, false).orElseThrow(
+                () -> new ExceptionAlert("The institution to be updated does not exist")
+        );
 
         Optional<Institution> findName = institutionRepositoryPort.findByInstitutionNameAndInstitutionDeleted(institution.getInstitutionName(), false);
 
-        if (findName.isPresent() && findName.get().getInstitutionId() != institution_id){
-            throw new ExceptionAlert("El nombre de la institución a actualizar ya se encuentra registrado");
+        if (findName.isPresent() && !Objects.equals(findName.get().getInstitutionId(), institution_id)){
+            throw new ExceptionAlert("The name of the institution to be updated is already registered");
         }
 
         institution.setInstitutionId(institution_id);

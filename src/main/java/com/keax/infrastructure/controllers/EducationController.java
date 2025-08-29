@@ -67,7 +67,7 @@ public class EducationController {
     @DeleteMapping("/{education_id}")
     public ResponseEntity<ApiResponse<Education>> delete(@PathVariable Long education_id){
 
-        educationService.deleteEducation(education_id);
+        Education education = educationService.deleteEducation(education_id);
 
         ApiResponse<Education> response = new ApiResponse<>(
                 true,
