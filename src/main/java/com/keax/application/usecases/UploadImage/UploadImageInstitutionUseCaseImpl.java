@@ -1,6 +1,6 @@
 package com.keax.application.usecases.UploadImage;
 
-import com.keax.domain.ports.in.UploadImage.UploadImageUseCase;
+import com.keax.domain.ports.in.UploadImage.UploadImageInstitutionUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +13,7 @@ import com.cloudinary.Cloudinary;
 import java.util.Optional;
 
 @Component
-public class UploadImageUseCaseImpl implements UploadImageUseCase {
+public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitutionUseCase {
 
     @Autowired
     private InstitutionRepositoryPort institutionRepositoryPort;

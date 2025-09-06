@@ -15,7 +15,7 @@ public class Institution {
     private Long institutionId;
 
     @JsonProperty("name")
-    @NotBlank(message = "El nombre de la institución es obligatorio")
+    @NotBlank(message = "The name of the institution is required")
     private String institutionName;
 
     @JsonProperty("url")
