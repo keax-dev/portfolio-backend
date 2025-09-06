@@ -17,19 +17,19 @@ public class EducationEntity {
     @Column(name = "education_id")
     private Long educationId;
 
-    @Column(name = "education_title")
+    @Column(name = "education_title", nullable = false)
     private String educationTitle;
 
-    @Column(name = "education_place")
+    @Column(name = "education_place", nullable = false)
     private String educationPlace;
 
-    @Column(name = "education_start")
+    @Column(name = "education_start", nullable = false)
     private String educationStart;
 
-    @Column(name = "education_end")
+    @Column(name = "education_end", nullable = false)
     private  String educationEnd;
 
-    @Column(name = "education_deleted")
+    @Column(name = "education_deleted", nullable = false)
     private Boolean educationDeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)

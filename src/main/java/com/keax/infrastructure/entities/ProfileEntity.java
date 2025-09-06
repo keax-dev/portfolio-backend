@@ -17,13 +17,13 @@ public class ProfileEntity {
     @Column(name = "profile_id")
     private Long profileId;
 
-    @Column(name = "profile_name")
+    @Column(name = "profile_name", nullable = false)
     private String profileName;
 
-    @Column(name = "profile_last_name")
+    @Column(name = "profile_last_name", nullable = false)
     private String profileLastName;
 
-    @Column(name = "profile_title")
+    @Column(name = "profile_title", nullable = false)
     private String profileTitle;
 
     @Column(name = "profile_cv")

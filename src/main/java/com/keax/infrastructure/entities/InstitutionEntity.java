@@ -17,13 +17,13 @@ public class InstitutionEntity {
     @Column(name = "institution_id")
     private Long institutionId;
 
-    @Column(name = "institution_name")
+    @Column(name = "institution_name", nullable = false)
     private String institutionName;
 
     @Column(name = "institution_url")
     private String institutionUrl;
 
-    @Column(name = "institution_deleted")
+    @Column(name = "institution_deleted", nullable = false)
     private Boolean institutionDeleted;
 
 }
