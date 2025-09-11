@@ -6,9 +6,8 @@ import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Component;
 import com.keax.domain.models.Institution;
-
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Objects;
 
 @Component
 public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {

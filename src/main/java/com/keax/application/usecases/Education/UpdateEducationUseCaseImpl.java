@@ -30,11 +30,6 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
         );
 
         education.setEducationTitle(education.getEducationTitle().toUpperCase());
-        education.setEducationPlace(education.getEducationPlace().toUpperCase());
-        education.setEducationStart(education.getEducationStart().toUpperCase());
-        education.setEducationEnd(education.getEducationEnd().toUpperCase());
-        education.setEducationId(education_id);
-        education.setEducationDeleted(false);
 
         educationRepositoryPort.findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(education.getEducationTitle(), false, education.getInstitutionId()).ifPresent(
                 e ->{
@@ -43,6 +38,12 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
                     }
                 }
         );
+
+        education.setEducationPlace(education.getEducationPlace().toUpperCase());
+        education.setEducationStart(education.getEducationStart().toUpperCase());
+        education.setEducationEnd(education.getEducationEnd().toUpperCase());
+        education.setEducationId(education_id);
+        education.setEducationDeleted(false);
 
         return educationRepositoryPort.updateEducation(education);
     }
