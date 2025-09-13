@@ -1,28 +1,28 @@
 package com.keax.application.usecases.UploadImage;
 
-import com.keax.domain.ports.in.UploadImage.UploadImageInstitutionUseCase;
+import com.keax.domain.ports.in.UploadImage.UploadImageSkillUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import org.springframework.web.multipart.MultipartFile;
+import com.keax.domain.ports.out.SkillRepositoryPort;
 import com.keax.domain.exceptions.ExceptionMessage;
 import com.keax.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Component;
-import com.keax.domain.models.Institution;
 import com.cloudinary.utils.ObjectUtils;
+import com.keax.domain.models.Skill;
 import com.cloudinary.Cloudinary;
 import java.util.Optional;
 
 @Component
-public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitutionUseCase {
+public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
 
     @Autowired
-    private InstitutionRepositoryPort institutionRepositoryPort;
+    private SkillRepositoryPort skillRepositoryPort;
 
     @Autowired
     private Cloudinary cloudinary;
 
     @Override
-    public Institution uploadImageInstitution(Long institution_id, MultipartFile img) {
+    public Skill uploadImageSkill(Long skillId, MultipartFile img) {
 
         if (img == null || img.isEmpty()){
             throw new ExceptionMessage("The img is required");
@@ -33,23 +33,22 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
             throw new ExceptionMessage("Image format not allowed (JPG, PNG, WEBP only)");
         }
 
-        Optional<Institution> optional = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institution_id, false);
+        Optional<Skill> optional = skillRepositoryPort.findBySkillIdAndSkillDeleted(skillId, false);
 
         if (optional.isEmpty()){
-            throw new ExceptionAlert("The institution to be updated does not exist");
+            throw new ExceptionAlert("The skill to be updated does not exist");
         }
 
         try {
-
-            var resultUpload = cloudinary.uploader().upload(img.getBytes(), ObjectUtils.asMap("folder", "Institutions"));
+            var resultUpload = cloudinary.uploader().upload(img.getBytes(), ObjectUtils.asMap("folder", "Skills"));
             String imageUrl = resultUpload.get("secure_url").toString();
 
-            Institution institution = optional.get();
-            institution.setInstitutionUrl(imageUrl);
+            Skill skill = optional.get();
+            skill.setSkillPicture(imageUrl);
 
-            return institutionRepositoryPort.updateInstitution(institution_id, institution);
+            return skillRepositoryPort.updateSkill(skill);
         } catch (Exception e) {
-            throw  new ExceptionAlert("An error occurred while uploading the institution's image");
+            throw  new ExceptionAlert("An error occurred while uploading the skill's image");
         }
     }
 

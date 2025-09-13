@@ -1,14 +1,15 @@
 package com.keax.infrastructure.controllers;
 
 import com.keax.application.services.Interfaces.IUploadImageService;
-import com.keax.domain.models.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.infrastructure.controllers.DTO.ApiResponse;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import com.keax.domain.models.Institution;
+import com.keax.domain.models.Profile;
+import com.keax.domain.models.Skill;
 
 @RestController
 @RequestMapping("/api/image")
@@ -47,6 +48,24 @@ public class UploadImageController {
                 true,
                 "The image of the institution has been uploaded successfully",
                 uploadImageService.uploadImageProfile(file)
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(
+            value = "/skill/{skillId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ApiResponse<Skill>> uploadImgSkill(
+            @PathVariable Long skillId,
+            @RequestParam(value = "image", required = false) MultipartFile file
+    ){
+
+        ApiResponse<Skill> response = new ApiResponse<>(
+                true,
+                "The image of the institution has been uploaded successfully",
+                uploadImageService.uploadImageSkill(skillId, file)
         );
 
         return ResponseEntity.ok(response);

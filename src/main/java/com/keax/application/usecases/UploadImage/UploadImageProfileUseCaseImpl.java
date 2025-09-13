@@ -29,6 +29,7 @@ public class UploadImageProfileUseCaseImpl implements UploadImageProfileUseCase 
         }
 
         String contentType = img.getContentType();
+
         if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/webp"))) {
             throw new ExceptionMessage("Image format not allowed (JPG, PNG, WEBP only)");
         }
@@ -40,7 +41,6 @@ public class UploadImageProfileUseCaseImpl implements UploadImageProfileUseCase 
         }
 
         try {
-
             var resultUpload = cloudinary.uploader().upload(img.getBytes(), ObjectUtils.asMap("folder", "Profile"));
             String imageUrl = resultUpload.get("secure_url").toString();
 
@@ -48,7 +48,6 @@ public class UploadImageProfileUseCaseImpl implements UploadImageProfileUseCase 
             profile.setProfilePicture(imageUrl);
 
             return profileRepositoryPort.saveProfile(profile);
-
         } catch (Exception e) {
             throw  new ExceptionAlert("An error occurred while uploading the institution's image");
         }
