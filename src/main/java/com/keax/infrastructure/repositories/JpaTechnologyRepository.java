@@ -1,0 +1,14 @@
+package com.keax.infrastructure.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.keax.infrastructure.entities.TechnologyEntity;
+import java.util.Optional;
+import java.util.List;
+
+public interface JpaTechnologyRepository extends JpaRepository<TechnologyEntity, Long> {
+
+    List<TechnologyEntity> findByTechnologyDeleted(Boolean deleted);
+    Optional<TechnologyEntity> findByTechnologyNameAndTechnologyDeleted(String technologyName, Boolean deleted);
+    Optional<TechnologyEntity> findByTechnologyIdAndTechnologyDeleted(Long technologyId, Boolean deleted);
+
+}
