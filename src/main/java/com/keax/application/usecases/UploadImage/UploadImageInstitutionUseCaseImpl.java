@@ -22,7 +22,7 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
     private Cloudinary cloudinary;
 
     @Override
-    public Institution uploadImageInstitution(Long institution_id, MultipartFile img) {
+    public Institution uploadImageInstitution(Long institutionId, MultipartFile img) {
 
         if (img == null || img.isEmpty()){
             throw new ExceptionMessage("The img is required");
@@ -33,7 +33,7 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
             throw new ExceptionMessage("Image format not allowed (JPG, PNG, WEBP only)");
         }
 
-        Optional<Institution> optional = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institution_id, false);
+        Optional<Institution> optional = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institutionId, false);
 
         if (optional.isEmpty()){
             throw new ExceptionAlert("The institution to be updated does not exist");
@@ -47,7 +47,7 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
             Institution institution = optional.get();
             institution.setInstitutionUrl(imageUrl);
 
-            return institutionRepositoryPort.updateInstitution(institution_id, institution);
+            return institutionRepositoryPort.updateInstitution(institutionId, institution);
         } catch (Exception e) {
             throw  new ExceptionAlert("An error occurred while uploading the institution's image");
         }

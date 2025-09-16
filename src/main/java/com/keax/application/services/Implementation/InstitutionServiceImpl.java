@@ -31,8 +31,8 @@ public class InstitutionServiceImpl implements IInstitutionService {
     }
 
     @Override
-    public Institution updateInstitution(Long institution_id, Institution institution) {
-        return updateInstitutionUseCase.updateInstitution(institution_id, institution);
+    public Institution updateInstitution(Long institutionId, Institution institution) {
+        return updateInstitutionUseCase.updateInstitution(institutionId, institution);
     }
 
     @Override
@@ -46,8 +46,8 @@ public class InstitutionServiceImpl implements IInstitutionService {
     }
 
     @Override
-    public Boolean deleteInstitution(Long institution_id) {
-        return deleteInstitutionUseCase.deleteInstitution(institution_id);
+    public Boolean deleteInstitution(Long institutionId) {
+        return deleteInstitutionUseCase.deleteInstitution(institutionId);
     }
 
 }

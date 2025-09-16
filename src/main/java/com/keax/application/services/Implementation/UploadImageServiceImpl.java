@@ -24,8 +24,8 @@ public class UploadImageServiceImpl implements IUploadImageService {
     private UploadImageSkillUseCase uploadImageSkillUseCase;
 
     @Override
-    public Institution uploadImageInstitution(Long institution_id, MultipartFile img) {
-        return uploadImageInstitutionUseCase.uploadImageInstitution(institution_id, img);
+    public Institution uploadImageInstitution(Long institutionId, MultipartFile img) {
+        return uploadImageInstitutionUseCase.uploadImageInstitution(institutionId, img);
     }
 
     @Override

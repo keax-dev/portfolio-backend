@@ -19,13 +19,13 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
     private InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
-    public Education updateEducation(Long education_id, Education education) {
+    public Education updateEducation(Long educationId, Education education) {
 
         institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false).orElseThrow(
                 () -> new ExceptionAlert("The institution entered was not found")
         );
 
-        educationRepositoryPort.findByEducationIdAndEducationDeleted(education_id, false).orElseThrow(
+        educationRepositoryPort.findByEducationIdAndEducationDeleted(educationId, false).orElseThrow(
                 () -> new ExceptionAlert("The education to be updated was not found")
         );
 
@@ -33,7 +33,7 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
 
         educationRepositoryPort.findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(education.getEducationTitle(), false, education.getInstitutionId()).ifPresent(
                 e ->{
-                    if (!Objects.equals(e.getEducationId(), education_id)){
+                    if (!Objects.equals(e.getEducationId(), educationId)){
                         throw new ExceptionAlert("The educational title to be updated is already registered in this category");
                     }
                 }
@@ -42,7 +42,7 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
         education.setEducationPlace(education.getEducationPlace().toUpperCase());
         education.setEducationStart(education.getEducationStart().toUpperCase());
         education.setEducationEnd(education.getEducationEnd().toUpperCase());
-        education.setEducationId(education_id);
+        education.setEducationId(educationId);
         education.setEducationDeleted(false);
 
         return educationRepositoryPort.updateEducation(education);

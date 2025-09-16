@@ -5,6 +5,6 @@ import com.keax.domain.models.Institution;
 
 public interface UploadImageInstitutionUseCase {
 
-    Institution uploadImageInstitution(Long institution_id,  MultipartFile img);
+    Institution uploadImageInstitution(Long institutionId,  MultipartFile img);
 
 }

@@ -4,6 +4,6 @@ import com.keax.domain.models.Institution;
 
 public interface UpdateInstitutionUseCase {
 
-    Institution updateInstitution(Long institution_id, Institution institution);
+    Institution updateInstitution(Long institutionId, Institution institution);
 
 }

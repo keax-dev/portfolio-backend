@@ -51,8 +51,8 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
     }
 
     @Override
-    public Optional<Education> findByEducationIdAndEducationDeleted(Long education_id, Boolean deleted) {
-        return jpaEducationRepository.findByEducationIdAndEducationDeleted(education_id, deleted).map(this::toDomainModel);
+    public Optional<Education> findByEducationIdAndEducationDeleted(Long educationId, Boolean deleted) {
+        return jpaEducationRepository.findByEducationIdAndEducationDeleted(educationId, deleted).map(this::toDomainModel);
     }
 
     private Education toDomainModel(EducationEntity educationEntity){

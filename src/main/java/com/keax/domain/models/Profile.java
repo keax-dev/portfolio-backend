@@ -2,7 +2,6 @@ package com.keax.domain.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -27,10 +26,10 @@ public class Profile {
     @NotBlank(message = "The profile title is required")
     private String profileTitle;
 
-    @Column(name = "profile_cv")
+    @JsonProperty("cv")
     private String profileCv;
 
-    @Column(name = "profile_picture")
+    @JsonProperty("picture")
     private String profilePicture;
 
 }

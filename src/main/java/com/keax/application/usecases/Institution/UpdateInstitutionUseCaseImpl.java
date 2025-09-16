@@ -16,23 +16,23 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
     private InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
-    public Institution updateInstitution(Long institution_id, Institution institution) {
+    public Institution updateInstitution(Long institutionId, Institution institution) {
 
         institution.setInstitutionName(institution.getInstitutionName().toUpperCase());
 
-        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institution_id, false).orElseThrow(
+        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institutionId, false).orElseThrow(
                 () -> new ExceptionAlert("The institution to be updated does not exist")
         );
 
         Optional<Institution> findName = institutionRepositoryPort.findByInstitutionNameAndInstitutionDeleted(institution.getInstitutionName(), false);
 
-        if (findName.isPresent() && !Objects.equals(findName.get().getInstitutionId(), institution_id)){
+        if (findName.isPresent() && !Objects.equals(findName.get().getInstitutionId(), institutionId)){
             throw new ExceptionAlert("The name of the institution to be updated is already registered");
         }
 
-        institution.setInstitutionId(institution_id);
+        institution.setInstitutionId(institutionId);
         institution.setInstitutionDeleted(false);
-        return institutionRepositoryPort.updateInstitution(institution_id, institution);
+        return institutionRepositoryPort.updateInstitution(institutionId, institution);
     }
 
 }

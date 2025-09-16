@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface IEducationService {
     Education createEducation(Education education);
-    Education updateEducation(Long education_id, Education education);
+    Education updateEducation(Long educationId, Education education);
     List<Education> getListEducation();
-    Education deleteEducation(Long education_id);
+    Education deleteEducation(Long educationId);
     List<Education> findByEducationDeleted(Boolean deleted);
 }

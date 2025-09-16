@@ -31,8 +31,8 @@ public class EducationServiceImpl implements IEducationService {
     }
 
     @Override
-    public Education updateEducation(Long education_id, Education education) {
-        return updateEducationUseCase.updateEducation(education_id, education);
+    public Education updateEducation(Long educationId, Education education) {
+        return updateEducationUseCase.updateEducation(educationId, education);
     }
 
     @Override
@@ -46,8 +46,8 @@ public class EducationServiceImpl implements IEducationService {
     }
 
     @Override
-    public Education deleteEducation(Long education_id) {
-        return deleteEducationUseCase.deleteEducation(education_id);
+    public Education deleteEducation(Long educationId) {
+        return deleteEducationUseCase.deleteEducation(educationId);
     }
 
 }

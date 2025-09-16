@@ -23,7 +23,7 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Institution updateInstitution(Long institution_id, Institution institution) {
+    public Institution updateInstitution(Long institutionId, Institution institution) {
         InstitutionEntity update = jpaInstitutionRepository.save(fromDomainModel(institution));
         return  toDomainModel(update);
     }
@@ -34,9 +34,9 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Boolean deleteInstitution(Long institution_id) {
+    public Boolean deleteInstitution(Long institutionId) {
 
-        Optional<InstitutionEntity> optional = jpaInstitutionRepository.findById(institution_id);
+        Optional<InstitutionEntity> optional = jpaInstitutionRepository.findById(institutionId);
 
         if (optional.isPresent()){
             InstitutionEntity institutionEntity = optional.get();
@@ -55,18 +55,13 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Optional<Institution> findById(Long institution_id) {
-        return jpaInstitutionRepository.findById(institution_id).map(this::toDomainModel);
-    }
-
-    @Override
     public Optional<Institution> findByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted) {
         return jpaInstitutionRepository.findByInstitutionNameAndInstitutionDeleted(institutionName, deleted).map(this::toDomainModel);
     }
 
     @Override
-    public Optional<Institution> findByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted) {
-        return jpaInstitutionRepository.findByInstitutionIdAndInstitutionDeleted(institution_id, deleted).map(this::toDomainModel);
+    public Optional<Institution> findByInstitutionIdAndInstitutionDeleted(Long institutionId, Boolean deleted) {
+        return jpaInstitutionRepository.findByInstitutionIdAndInstitutionDeleted(institutionId, deleted).map(this::toDomainModel);
     }
 
     private Institution toDomainModel(InstitutionEntity institutionEntity){

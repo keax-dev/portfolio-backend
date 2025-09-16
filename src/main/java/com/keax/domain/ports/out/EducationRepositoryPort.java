@@ -12,6 +12,6 @@ public interface EducationRepositoryPort {
     List<Education> findByEducationDeleted(Boolean deleted);
     List<Education> getListEducation();
     Optional<Education> findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(String educationTitle, Boolean deleted, Long institutionId);
-    Optional<Education> findByEducationIdAndEducationDeleted(Long education_id, Boolean deleted);
+    Optional<Education> findByEducationIdAndEducationDeleted(Long educationId, Boolean deleted);
 
 }
