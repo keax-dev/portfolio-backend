@@ -47,7 +47,7 @@ public class UploadImageController {
 
         ApiResponse<Profile> response = new ApiResponse<>(
                 true,
-                "The image of the institution has been uploaded successfully",
+                "The image of the profile has been uploaded successfully",
                 uploadImageService.uploadImageProfile(file)
         );
 
@@ -65,7 +65,7 @@ public class UploadImageController {
 
         ApiResponse<Skill> response = new ApiResponse<>(
                 true,
-                "The image of the institution has been uploaded successfully",
+                "The image of the skill has been uploaded successfully",
                 uploadImageService.uploadImageSkill(skillId, file)
         );
 
