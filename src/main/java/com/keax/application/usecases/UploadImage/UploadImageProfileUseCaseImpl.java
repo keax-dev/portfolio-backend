@@ -49,7 +49,7 @@ public class UploadImageProfileUseCaseImpl implements UploadImageProfileUseCase 
 
             return profileRepositoryPort.saveProfile(profile);
         } catch (Exception e) {
-            throw  new ExceptionAlert("An error occurred while uploading the institution's image");
+            throw  new ExceptionAlert("An error occurred while uploading the profile's image");
         }
     }
 

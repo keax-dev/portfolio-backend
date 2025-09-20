@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import com.keax.domain.models.Institution;
+import com.keax.domain.models.Project;
 import com.keax.domain.models.Profile;
 import com.keax.domain.models.Skill;
 
@@ -19,18 +20,18 @@ public class UploadImageController {
     private IUploadImageService uploadImageService;
 
     @PostMapping(
-            value = "/institution/{institution_id}",
+            value = "/institution/{institutionId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<ApiResponse<Institution>> uploadImgInstitution(
-            @PathVariable Long institution_id,
+            @PathVariable Long institutionId,
             @RequestParam(value = "image", required = false) MultipartFile file
     ){
 
         ApiResponse<Institution> response = new ApiResponse<>(
           true,
           "The image of the institution has been uploaded successfully",
-                uploadImageService.uploadImageInstitution(institution_id, file)
+                uploadImageService.uploadImageInstitution(institutionId, file)
         );
 
         return ResponseEntity.ok(response);
@@ -66,6 +67,24 @@ public class UploadImageController {
                 true,
                 "The image of the institution has been uploaded successfully",
                 uploadImageService.uploadImageSkill(skillId, file)
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(
+            value = "/project/{projectId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ApiResponse<Project>> uploadImgProject(
+            @PathVariable Long projectId,
+            @RequestParam(value = "image", required = false) MultipartFile file
+    ){
+
+        ApiResponse<Project> response = new ApiResponse<>(
+                true,
+                "The image of the project has been uploaded successfully",
+                uploadImageService.uploadImageProject(projectId, file)
         );
 
         return ResponseEntity.ok(response);
