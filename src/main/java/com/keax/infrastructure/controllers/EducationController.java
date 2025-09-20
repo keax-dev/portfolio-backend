@@ -41,7 +41,7 @@ public class EducationController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Education>>> listEducation(){
+    public ResponseEntity<ApiResponse<List<Education>>> list(){
 
         ApiResponse<List<Education>> response = new ApiResponse<>(
                 true,
@@ -53,7 +53,7 @@ public class EducationController {
     }
 
     @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponse<List<Education>>> listEducationByDeleted(@PathVariable Boolean deleted){
+    public ResponseEntity<ApiResponse<List<Education>>> listByDeleted(@PathVariable Boolean deleted){
 
         ApiResponse<List<Education>> response = new ApiResponse<>(
                 true,

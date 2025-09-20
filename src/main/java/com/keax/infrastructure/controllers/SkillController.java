@@ -42,7 +42,7 @@ public class SkillController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Skill>>> listEducation(){
+    public ResponseEntity<ApiResponse<List<Skill>>> list(){
 
         ApiResponse<List<Skill>> response = new ApiResponse<>(
                 true,
@@ -54,7 +54,7 @@ public class SkillController {
     }
 
     @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponse<List<Skill>>> listEducationByDeleted(@PathVariable Boolean deleted){
+    public ResponseEntity<ApiResponse<List<Skill>>> listByDeleted(@PathVariable Boolean deleted){
 
         ApiResponse<List<Skill>> response = new ApiResponse<>(
                 true,

@@ -1,0 +1,18 @@
+package com.keax.domain.ports.out;
+
+import com.keax.domain.models.Project;
+import java.util.Optional;
+import java.util.List;
+
+public interface ProjectRepositoryPort {
+
+    Project createProject(Project project);
+    Project updateProject(Project project);
+    Project deleteProject(Project project);
+    List<Project> findByProjectDeleted(Boolean deleted);
+    List<Project> getListProject();
+    Optional<Project> findByProjectTittleAndProjectDeleted(String projectTittle, Boolean deleted);
+    Optional<Project> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted);
+    Optional<Project> findByProjectPositionAndProjectDeletedAndTechnology_technologyId(int position, Boolean deleted, Long technologyId);
+
+}

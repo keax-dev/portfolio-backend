@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.infrastructure.controllers.DTO.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import com.keax.domain.models.Education;
 import com.keax.domain.models.Technology;
+import com.keax.domain.models.Education;
 import jakarta.validation.Valid;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class TechnologyController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Technology>>> listTechnology(){
+    public ResponseEntity<ApiResponse<List<Technology>>> list(){
 
         ApiResponse<List<Technology>> response = new ApiResponse<>(
                 true,
@@ -54,7 +54,7 @@ public class TechnologyController {
     }
 
     @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponse<List<Technology>>> listTechnologyByDeleted(@PathVariable Boolean deleted){
+    public ResponseEntity<ApiResponse<List<Technology>>> listByDeleted(@PathVariable Boolean deleted){
 
         ApiResponse<List<Technology>> response = new ApiResponse<>(
                 true,
