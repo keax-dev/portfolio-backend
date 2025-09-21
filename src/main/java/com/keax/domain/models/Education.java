@@ -1,6 +1,7 @@
 package com.keax.domain.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,10 @@ public class Education {
     @JsonProperty("end")
     @NotBlank(message = "The end of education is required")
     private  String educationEnd;
+
+    @JsonProperty("position")
+    @Min(value = 1, message = "The education position must be greater than 0")
+    private int educationPosition;
 
     @JsonProperty("deleted")
     private Boolean educationDeleted = false;

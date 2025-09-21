@@ -55,6 +55,11 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
         return jpaEducationRepository.findByEducationIdAndEducationDeleted(educationId, deleted).map(this::toDomainModel);
     }
 
+    @Override
+    public Optional<Education> findByEducationPositionAndEducationDeleted(int position, Boolean deleted) {
+        return jpaEducationRepository.findByEducationPositionAndEducationDeleted(position, deleted).map(this::toDomainModel);
+    }
+
     private Education toDomainModel(EducationEntity educationEntity){
         return new Education(
                 educationEntity.getEducationId(),
@@ -62,6 +67,7 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
                 educationEntity.getEducationPlace(),
                 educationEntity.getEducationStart(),
                 educationEntity.getEducationEnd(),
+                educationEntity.getEducationPosition(),
                 educationEntity.getEducationDeleted(),
                 educationEntity.getInstitution().getInstitutionId(),
                 educationEntity.getInstitution().getInstitutionName()
@@ -79,6 +85,7 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
                 education.getEducationPlace(),
                 education.getEducationStart(),
                 education.getEducationEnd(),
+                education.getEducationPosition(),
                 education.getEducationDeleted(),
                 institutionEntity
         );

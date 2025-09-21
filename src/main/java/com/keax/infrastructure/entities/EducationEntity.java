@@ -29,6 +29,9 @@ public class EducationEntity {
     @Column(name = "education_end", nullable = false)
     private  String educationEnd;
 
+    @Column(name = "education_position", nullable = false)
+    private int educationPosition;
+
     @Column(name = "education_deleted", nullable = false)
     private Boolean educationDeleted;
 
