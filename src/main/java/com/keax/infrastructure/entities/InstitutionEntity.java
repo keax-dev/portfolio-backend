@@ -17,7 +17,7 @@ public class InstitutionEntity {
     @Column(name = "institution_id")
     private Long institutionId;
 
-    @Column(name = "institution_name", nullable = false)
+    @Column(name = "institution_name", unique = true, nullable = false)
     private String institutionName;
 
     @Column(name = "institution_url")

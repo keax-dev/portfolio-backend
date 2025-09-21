@@ -17,7 +17,7 @@ public class EducationEntity {
     @Column(name = "education_id")
     private Long educationId;
 
-    @Column(name = "education_title", nullable = false)
+    @Column(name = "education_title", unique = true, nullable = false)
     private String educationTitle;
 
     @Column(name = "education_place", nullable = false)

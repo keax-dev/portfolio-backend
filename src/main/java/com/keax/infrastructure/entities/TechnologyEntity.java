@@ -17,7 +17,7 @@ public class TechnologyEntity {
     @Column(name = "technology_id")
     private Long technologyId;
 
-    @Column(name = "technology_name", nullable = false)
+    @Column(name = "technology_name", unique = true, nullable = false)
     private String technologyName;
 
     @Column(name = "technology_deleted", nullable = false)
