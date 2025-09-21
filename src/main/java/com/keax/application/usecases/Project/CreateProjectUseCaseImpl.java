@@ -38,9 +38,9 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
                 }
         );
 
-        project.setProjectId(null);
-        project.setProjectPicture(null);
         project.setProjectDescription(project.getProjectDescription().toUpperCase());
+        project.setProjectPicture(null);
+        project.setProjectId(null);
 
         return projectRepositoryPort.createProject(project);
     }

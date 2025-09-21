@@ -20,11 +20,7 @@ public class RetrieveTechnologyUseCaseImpl implements RetrieveTechnologyUseCase 
 
         List<Technology> technologyList =  technologyRepositoryPort.findByTechnologyDeleted(deleted);
 
-        if (technologyList.isEmpty()){
-            throw new ExceptionAlert("There are no created technologies");
-        }
-
-        return technologyList;
+        return validateNotEmpty(technologyList);
     }
 
     @Override
@@ -32,7 +28,12 @@ public class RetrieveTechnologyUseCaseImpl implements RetrieveTechnologyUseCase 
 
         List<Technology> technologyList =  technologyRepositoryPort.getListTechnology();
 
-        if (technologyList.isEmpty()){
+        return validateNotEmpty(technologyList);
+    }
+
+    private List<Technology> validateNotEmpty(List<Technology> technologyList) {
+
+        if (technologyList.isEmpty()) {
             throw new ExceptionAlert("There are no created technologies");
         }
 

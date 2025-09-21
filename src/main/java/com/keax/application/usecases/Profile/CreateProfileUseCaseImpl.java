@@ -26,6 +26,7 @@ public class CreateProfileUseCaseImpl implements CreateProfileUseCase {
         profile.setProfileName(profile.getProfileName().toUpperCase());
         profile.setProfileLastName(profile.getProfileLastName().toUpperCase());
         profile.setProfileTitle(profile.getProfileTitle().toUpperCase());
+        profile.setProfileId(null);
 
         return profileRepositoryPort.saveProfile(profile);
     }

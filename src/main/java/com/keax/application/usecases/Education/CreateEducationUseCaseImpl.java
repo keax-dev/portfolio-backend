@@ -25,15 +25,17 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
         );
 
         education.setEducationTitle(education.getEducationTitle().toUpperCase());
-        education.setEducationPlace(education.getEducationPlace().toUpperCase());
-        education.setEducationStart(education.getEducationStart().toUpperCase());
-        education.setEducationEnd(education.getEducationEnd().toUpperCase());
 
         educationRepositoryPort.findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(education.getEducationTitle(), false, education.getInstitutionId()).ifPresent(
                 e -> {
                     throw new ExceptionAlert("There is already an education with this title and institution");
                 }
         );
+
+        education.setEducationPlace(education.getEducationPlace().toUpperCase());
+        education.setEducationStart(education.getEducationStart().toUpperCase());
+        education.setEducationEnd(education.getEducationEnd().toUpperCase());
+        education.setEducationId(null);
 
         return educationRepositoryPort.createEducation(education);
     }

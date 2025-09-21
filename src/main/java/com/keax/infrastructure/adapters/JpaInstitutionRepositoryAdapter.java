@@ -23,7 +23,7 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Institution updateInstitution(Long institutionId, Institution institution) {
+    public Institution updateInstitution(Institution institution) {
         InstitutionEntity update = jpaInstitutionRepository.save(fromDomainModel(institution));
         return  toDomainModel(update);
     }
@@ -34,18 +34,9 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
     }
 
     @Override
-    public Boolean deleteInstitution(Long institutionId) {
-
-        Optional<InstitutionEntity> optional = jpaInstitutionRepository.findById(institutionId);
-
-        if (optional.isPresent()){
-            InstitutionEntity institutionEntity = optional.get();
-            institutionEntity.setInstitutionDeleted(true);
-            jpaInstitutionRepository.save(institutionEntity);
-            return true;
-        }
-
-        return false;
+    public Institution deleteInstitution(Institution institution) {
+        InstitutionEntity deleted = jpaInstitutionRepository.save(fromDomainModel(institution));
+        return  toDomainModel(deleted);
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.keax.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Component;
 import com.keax.domain.models.Technology;
-import java.util.Optional;
 import java.util.Objects;
 
 @Component
@@ -18,13 +17,10 @@ public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
     @Override
     public Technology updateTechnology(Long technologyId, Technology technology) {
 
-        Optional<Technology> technologyFind = technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(technologyId, false);
+        Technology technologyUpdate = technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(technologyId, false).orElseThrow(
+                () -> new ExceptionAlert("The technology entered was not found")
+        );
 
-        if (technologyFind.isEmpty()){
-            throw new ExceptionAlert("The technology entered was not found");
-        }
-
-        Technology technologyUpdate = technologyFind.get();
         technologyUpdate.setTechnologyName(technology.getTechnologyName().toUpperCase());
 
         technologyRepositoryPort.findByTechnologyNameAndTechnologyDeleted(technologyUpdate.getTechnologyName(), false).ifPresent(

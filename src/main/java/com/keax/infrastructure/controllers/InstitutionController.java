@@ -66,7 +66,7 @@ public class InstitutionController {
     @DeleteMapping("/{institution_id}")
     private ResponseEntity<?> delete(@PathVariable Long institution_id){
 
-        institutionServiceImpl.deleteInstitution(institution_id);
+        Institution institution = institutionServiceImpl.deleteInstitution(institution_id);
 
         ApiResponse<Boolean> response = new ApiResponse<>(
                 true,

@@ -6,7 +6,6 @@ import com.keax.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Component;
 import com.keax.domain.models.Technology;
-import java.util.Optional;
 
 @Component
 public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
@@ -17,13 +16,10 @@ public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
     @Override
     public Technology deleteTechnology(Long technologyId) {
 
-        Optional<Technology> technologyFind = technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(technologyId, false);
+        Technology technology = technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(technologyId, false).orElseThrow(
+                () -> new ExceptionAlert("The technology entered was not found")
+        );
 
-        if (technologyFind.isEmpty()){
-            throw new ExceptionAlert("The technology entered was not found");
-        }
-
-        Technology technology = technologyFind.get();
         technology.setTechnologyDeleted(true);
 
         return technologyRepositoryPort.deleteTechnology(technology);

@@ -33,17 +33,14 @@ public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
             throw new ExceptionMessage("Image format not allowed (JPG, PNG, WEBP only)");
         }
 
-        Optional<Skill> optional = skillRepositoryPort.findBySkillIdAndSkillDeleted(skillId, false);
-
-        if (optional.isEmpty()){
-            throw new ExceptionAlert("The skill to be updated does not exist");
-        }
+        Skill skill = skillRepositoryPort.findBySkillIdAndSkillDeleted(skillId, false).orElseThrow(
+                () -> new ExceptionAlert("The skill to be updated does not exist")
+        );
 
         try {
             var resultUpload = cloudinary.uploader().upload(img.getBytes(), ObjectUtils.asMap("folder", "Skills"));
             String imageUrl = resultUpload.get("secure_url").toString();
 
-            Skill skill = optional.get();
             skill.setSkillPicture(imageUrl);
 
             return skillRepositoryPort.updateSkill(skill);

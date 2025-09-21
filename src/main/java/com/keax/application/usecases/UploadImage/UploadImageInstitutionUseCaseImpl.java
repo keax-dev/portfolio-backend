@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import com.keax.domain.models.Institution;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.Cloudinary;
-import java.util.Optional;
 
 @Component
 public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitutionUseCase {
@@ -33,21 +32,18 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
             throw new ExceptionMessage("Image format not allowed (JPG, PNG, WEBP only)");
         }
 
-        Optional<Institution> optional = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institutionId, false);
-
-        if (optional.isEmpty()){
-            throw new ExceptionAlert("The institution to be updated does not exist");
-        }
+        Institution institution = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institutionId, false).orElseThrow(
+                () -> new ExceptionAlert("The institution to be updated does not exist")
+        );
 
         try {
 
             var resultUpload = cloudinary.uploader().upload(img.getBytes(), ObjectUtils.asMap("folder", "Institutions"));
             String imageUrl = resultUpload.get("secure_url").toString();
 
-            Institution institution = optional.get();
             institution.setInstitutionUrl(imageUrl);
 
-            return institutionRepositoryPort.updateInstitution(institutionId, institution);
+            return institutionRepositoryPort.updateInstitution(institution);
         } catch (Exception e) {
             throw  new ExceptionAlert("An error occurred while uploading the institution's image");
         }

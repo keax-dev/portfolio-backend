@@ -19,11 +19,7 @@ public class RetrieveEducationUseCaseImpl implements RetrieveEducationUseCase {
 
         List<Education> listEducation = educationRepositoryPort.getListEducation();
 
-        if (listEducation.isEmpty()){
-            throw new ExceptionAlert("There are no created educations");
-        }
-
-        return listEducation;
+        return validateNotEmpty(listEducation);
     }
 
     @Override
@@ -31,11 +27,16 @@ public class RetrieveEducationUseCaseImpl implements RetrieveEducationUseCase {
 
         List<Education> listEducation = educationRepositoryPort.findByEducationDeleted(deleted);
 
-        if (listEducation.isEmpty()){
+        return validateNotEmpty(listEducation);
+    }
+
+    private List<Education> validateNotEmpty(List<Education> educationList) {
+
+        if (educationList.isEmpty()) {
             throw new ExceptionAlert("There are no created educations");
         }
 
-        return listEducation;
+        return educationList;
     }
 
 }

@@ -24,6 +24,8 @@ public class CreateInstitutionUseCaseImpl implements CreateInstitutionUseCase {
                 }
         );
 
+        institution.setInstitutionId(null);
+
         return institutionRepositoryPort.saveInstitution(institution);
     }
 

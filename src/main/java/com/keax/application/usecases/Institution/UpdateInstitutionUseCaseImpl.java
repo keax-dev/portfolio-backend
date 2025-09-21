@@ -6,7 +6,6 @@ import com.keax.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Component;
 import com.keax.domain.models.Institution;
-import java.util.Optional;
 import java.util.Objects;
 
 @Component
@@ -18,21 +17,24 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
     @Override
     public Institution updateInstitution(Long institutionId, Institution institution) {
 
-        institution.setInstitutionName(institution.getInstitutionName().toUpperCase());
-
-        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institutionId, false).orElseThrow(
+        Institution institutionUpdate = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(institutionId, false).orElseThrow(
                 () -> new ExceptionAlert("The institution to be updated does not exist")
         );
 
-        Optional<Institution> findName = institutionRepositoryPort.findByInstitutionNameAndInstitutionDeleted(institution.getInstitutionName(), false);
+        institutionUpdate.setInstitutionName(institution.getInstitutionName().toUpperCase());
 
-        if (findName.isPresent() && !Objects.equals(findName.get().getInstitutionId(), institutionId)){
-            throw new ExceptionAlert("The name of the institution to be updated is already registered");
-        }
+        institutionRepositoryPort.findByInstitutionNameAndInstitutionDeleted(institutionUpdate.getInstitutionName(), false).ifPresent(
+                e ->{
+                    if (!Objects.equals(e.getInstitutionId(), institutionUpdate.getInstitutionId())){
+                        throw new ExceptionAlert("The name of the institution to be updated is already registered");
+                    }
+                }
+        );
 
-        institution.setInstitutionId(institutionId);
-        institution.setInstitutionDeleted(false);
-        return institutionRepositoryPort.updateInstitution(institutionId, institution);
+        institutionUpdate.setInstitutionId(institutionId);
+        institutionUpdate.setInstitutionDeleted(false);
+
+        return institutionRepositoryPort.updateInstitution(institutionUpdate);
     }
 
 }

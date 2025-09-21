@@ -25,6 +25,7 @@ public class CreateSkillUseCaseImpl implements CreateSkillUseCase {
         );
 
         skill.setSkillPicture(null);
+        skill.setSkillId(null);
 
         return skillRepositoryPort.createSkill(skill);
     }

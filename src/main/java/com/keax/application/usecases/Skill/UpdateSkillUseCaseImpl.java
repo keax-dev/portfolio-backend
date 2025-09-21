@@ -6,7 +6,6 @@ import com.keax.domain.ports.out.SkillRepositoryPort;
 import com.keax.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Component;
 import com.keax.domain.models.Skill;
-import java.util.Optional;
 import java.util.Objects;
 
 @Component
@@ -18,13 +17,10 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
     @Override
     public Skill updateSkill(Long skillId, Skill skill) {
 
-        Optional<Skill> skillFind = skillRepositoryPort.findBySkillIdAndSkillDeleted(skillId, false);
+        Skill skillUpdate = skillRepositoryPort.findBySkillIdAndSkillDeleted(skillId, false).orElseThrow(
+                () -> new ExceptionAlert("The skill entered was not found")
+        );
 
-        if (skillFind.isEmpty()){
-            throw new ExceptionAlert("The skill entered was not found");
-        }
-
-        Skill skillUpdate = skillFind.get();
         skillUpdate.setSkillName(skill.getSkillName().toUpperCase());
 
         skillRepositoryPort.findBySkillNameAndSkillDeleted(skillUpdate.getSkillName(), false).ifPresent(

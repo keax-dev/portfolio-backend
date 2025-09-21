@@ -19,11 +19,7 @@ public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCas
 
         List<Institution> institutions = institutionRepositoryPort.getListInstitution();
 
-        if (institutions.isEmpty()){
-            throw new ExceptionAlert("There are no created institutions");
-        }
-
-        return institutions;
+        return validateNotEmpty(institutions);
     }
 
     @Override
@@ -31,11 +27,16 @@ public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCas
 
         List<Institution> institutions = institutionRepositoryPort.findByInstitutionDeleted(deleted);
 
-        if (institutions.isEmpty()){
+        return validateNotEmpty(institutions);
+    }
+
+    private List<Institution> validateNotEmpty(List<Institution> institutionList) {
+
+        if (institutionList.isEmpty()) {
             throw new ExceptionAlert("There are no created institutions");
         }
 
-        return institutions;
+        return institutionList;
     }
 
 }

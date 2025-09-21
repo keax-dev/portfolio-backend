@@ -46,7 +46,7 @@ public class InstitutionServiceImpl implements IInstitutionService {
     }
 
     @Override
-    public Boolean deleteInstitution(Long institutionId) {
+    public Institution deleteInstitution(Long institutionId) {
         return deleteInstitutionUseCase.deleteInstitution(institutionId);
     }
 

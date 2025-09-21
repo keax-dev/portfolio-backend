@@ -19,11 +19,7 @@ public class RetrieveSkillUseCaseImpl implements RetrieveSkillUseCase {
 
         List<Skill> skillList = skillRepositoryPort.findBySkillDeleted(deleted);
 
-        if (skillList.isEmpty()){
-            throw new ExceptionAlert("There are no created skills");
-        }
-
-        return skillList;
+        return validateNotEmpty(skillList);
     }
 
     @Override
@@ -31,7 +27,12 @@ public class RetrieveSkillUseCaseImpl implements RetrieveSkillUseCase {
 
         List<Skill> skillList = skillRepositoryPort.getListSkill();
 
-        if (skillList.isEmpty()){
+        return validateNotEmpty(skillList);
+    }
+
+    private List<Skill> validateNotEmpty(List<Skill> skillList) {
+
+        if (skillList.isEmpty()) {
             throw new ExceptionAlert("There are no created skills");
         }
 

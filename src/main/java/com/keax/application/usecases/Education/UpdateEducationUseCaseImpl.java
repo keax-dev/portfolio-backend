@@ -21,29 +21,29 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
     @Override
     public Education updateEducation(Long educationId, Education education) {
 
+        Education educationUpdate = educationRepositoryPort.findByEducationIdAndEducationDeleted(educationId, false).orElseThrow(
+                () -> new ExceptionAlert("The education to be updated was not found")
+        );
+
         institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false).orElseThrow(
                 () -> new ExceptionAlert("The institution entered was not found")
         );
 
-        educationRepositoryPort.findByEducationIdAndEducationDeleted(educationId, false).orElseThrow(
-                () -> new ExceptionAlert("The education to be updated was not found")
-        );
+        educationUpdate.setEducationTitle(education.getEducationTitle().toUpperCase());
+        educationUpdate.setInstitutionId(education.getInstitutionId());
 
-        education.setEducationTitle(education.getEducationTitle().toUpperCase());
-
-        educationRepositoryPort.findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(education.getEducationTitle(), false, education.getInstitutionId()).ifPresent(
+        educationRepositoryPort.findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(educationUpdate.getEducationTitle(), false, educationUpdate.getInstitutionId()).ifPresent(
                 e ->{
-                    if (!Objects.equals(e.getEducationId(), educationId)){
+                    if (!Objects.equals(e.getEducationId(), educationUpdate.getEducationId())){
                         throw new ExceptionAlert("The educational title to be updated is already registered in this category");
                     }
                 }
         );
 
-        education.setEducationPlace(education.getEducationPlace().toUpperCase());
-        education.setEducationStart(education.getEducationStart().toUpperCase());
-        education.setEducationEnd(education.getEducationEnd().toUpperCase());
-        education.setEducationId(educationId);
-        education.setEducationDeleted(false);
+        educationUpdate.setEducationPlace(education.getEducationPlace().toUpperCase());
+        educationUpdate.setEducationStart(education.getEducationStart().toUpperCase());
+        educationUpdate.setEducationEnd(education.getEducationEnd().toUpperCase());
+        educationUpdate.setEducationDeleted(false);
 
         return educationRepositoryPort.updateEducation(education);
     }
