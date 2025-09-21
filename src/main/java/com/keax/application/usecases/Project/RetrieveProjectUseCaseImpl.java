@@ -33,7 +33,7 @@ public class RetrieveProjectUseCaseImpl implements RetrieveProjectUseCase {
     private List<Project> validateNotEmpty(List<Project> projects) {
 
         if (projects.isEmpty()) {
-            throw new ExceptionAlert("There are no created projects");
+            throw new ExceptionAlert("No projects have been created");
         }
 
         return projects;
