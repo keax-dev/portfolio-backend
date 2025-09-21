@@ -31,6 +31,16 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
                 }
         );
 
+        skillUpdate.setSkillPosition(skill.getSkillPosition());
+
+        skillRepositoryPort.findBySkillPositionAndSkillDeleted(skillUpdate.getSkillPosition(), false).ifPresent(
+                e ->{
+                    if (!Objects.equals(e.getSkillId(), skillUpdate.getSkillId())){
+                        throw new ExceptionAlert("The position of the skill to be updated is already registered");
+                    }
+                }
+        );
+
         skillUpdate.setSkillDeleted(false);
 
         return skillRepositoryPort.updateSkill(skillUpdate);

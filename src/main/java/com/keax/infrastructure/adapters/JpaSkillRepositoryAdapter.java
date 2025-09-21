@@ -54,12 +54,17 @@ public class JpaSkillRepositoryAdapter implements SkillRepositoryPort {
         return jpaSkillRepository.findBySkillIdAndSkillDeleted(skillId, deleted).map(this::toDomainModel);
     }
 
+    @Override
+    public Optional<Skill> findBySkillPositionAndSkillDeleted(int position, Boolean deleted) {
+        return jpaSkillRepository.findBySkillPositionAndSkillDeleted(position, deleted).map(this::toDomainModel);
+    }
+
     private Skill toDomainModel(SkillEntity skillEntity){
-        return new Skill(skillEntity.getSkillId(), skillEntity.getSkillName(), skillEntity.getSkillPicture(), skillEntity.getSkillDeleted());
+        return new Skill(skillEntity.getSkillId(), skillEntity.getSkillName(), skillEntity.getSkillPicture(), skillEntity.getSkillPosition(), skillEntity.getSkillDeleted());
     }
 
     private SkillEntity fromDomainModel(Skill skill){
-        return new SkillEntity(skill.getSkillId(), skill.getSkillName(), skill.getSkillPicture(), skill.getSkillDeleted());
+        return new SkillEntity(skill.getSkillId(), skill.getSkillName(), skill.getSkillPicture(), skill.getSkillPosition(), skill.getSkillDeleted());
     }
 
 }

@@ -2,6 +2,7 @@ package com.keax.domain.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,10 @@ public class Skill {
 
     @JsonProperty("picture")
     private String skillPicture;
+
+    @JsonProperty("position")
+    @Min(value = 1, message = "The skill position must be greater than 0")
+    private int skillPosition;
 
     @JsonProperty("deleted")
     private Boolean skillDeleted = false;

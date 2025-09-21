@@ -24,6 +24,12 @@ public class CreateSkillUseCaseImpl implements CreateSkillUseCase {
                 }
         );
 
+        skillRepositoryPort.findBySkillPositionAndSkillDeleted(skill.getSkillPosition(), false).ifPresent(
+                e -> {
+                    throw new ExceptionAlert("There is already a skill with this position");
+                }
+        );
+
         skill.setSkillPicture(null);
         skill.setSkillId(null);
 

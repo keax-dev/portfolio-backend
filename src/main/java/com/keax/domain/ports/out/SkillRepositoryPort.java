@@ -13,5 +13,7 @@ public interface SkillRepositoryPort {
     List<Skill> getListSkill();
     Optional<Skill> findBySkillNameAndSkillDeleted(String skillName, Boolean deleted);
     Optional<Skill> findBySkillIdAndSkillDeleted(Long skillId, Boolean deleted);
+    Optional<Skill> findBySkillPositionAndSkillDeleted(int position, Boolean deleted);
+
 
 }

@@ -23,6 +23,9 @@ public class SkillEntity {
     @Column(name = "skill_picture")
     private String skillPicture;
 
+    @Column(name = "skill_position", nullable = false)
+    private int skillPosition;
+
     @Column(name = "skill_deleted", nullable = false)
     private Boolean skillDeleted;
 

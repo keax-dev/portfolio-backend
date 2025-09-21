@@ -9,6 +9,7 @@ public interface JpaSkillRepository extends JpaRepository<SkillEntity, Long> {
 
     List<SkillEntity> findBySkillDeleted(Boolean skillDeleted);
     Optional<SkillEntity> findBySkillNameAndSkillDeleted(String skillName, Boolean deleted);
-    Optional<SkillEntity> findBySkillIdAndSkillDeleted(Long SkillId, Boolean deleted);
+    Optional<SkillEntity> findBySkillIdAndSkillDeleted(Long skillId, Boolean deleted);
+    Optional<SkillEntity> findBySkillPositionAndSkillDeleted(int position, Boolean deleted);
 
 }
