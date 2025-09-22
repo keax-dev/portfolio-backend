@@ -54,12 +54,17 @@ public class JpaTechnologyRepositoryAdapter implements TechnologyRepositoryPort 
         return jpaTechnologyRepository.findByTechnologyIdAndTechnologyDeleted(technologyId, deleted).map(this::toDomainModel);
     }
 
+    @Override
+    public Optional<Technology> findByTechnologyPositionAndTechnologyDeleted(int position, Boolean deleted) {
+        return jpaTechnologyRepository.findByTechnologyPositionAndTechnologyDeleted(position, deleted).map(this::toDomainModel);
+    }
+
     private Technology toDomainModel(TechnologyEntity technologyEntity){
-        return new Technology(technologyEntity.getTechnologyId(), technologyEntity.getTechnologyName(), technologyEntity.getTechnologyDeleted());
+        return new Technology(technologyEntity.getTechnologyId(), technologyEntity.getTechnologyName(), technologyEntity.getTechnologyPosition(), technologyEntity.getTechnologyDeleted());
     }
 
     private TechnologyEntity fromDomainModel(Technology technology){
-        return new TechnologyEntity(technology.getTechnologyId(), technology.getTechnologyName(), technology.getTechnologyDeleted());
+        return new TechnologyEntity(technology.getTechnologyId(), technology.getTechnologyName(), technology.getTechnologyPosition(), technology.getTechnologyDeleted());
     }
 
 }

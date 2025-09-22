@@ -10,5 +10,6 @@ public interface JpaTechnologyRepository extends JpaRepository<TechnologyEntity,
     List<TechnologyEntity> findByTechnologyDeleted(Boolean deleted);
     Optional<TechnologyEntity> findByTechnologyNameAndTechnologyDeleted(String technologyName, Boolean deleted);
     Optional<TechnologyEntity> findByTechnologyIdAndTechnologyDeleted(Long technologyId, Boolean deleted);
+    Optional<TechnologyEntity> findByTechnologyPositionAndTechnologyDeleted(int position, Boolean deleted);
 
 }

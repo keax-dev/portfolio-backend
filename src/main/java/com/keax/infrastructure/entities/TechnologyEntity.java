@@ -20,6 +20,9 @@ public class TechnologyEntity {
     @Column(name = "technology_name", unique = true, nullable = false)
     private String technologyName;
 
+    @Column(name = "technology_position", nullable = false)
+    private int technologyPosition;
+
     @Column(name = "technology_deleted", nullable = false)
     private Boolean technologyDeleted;
 

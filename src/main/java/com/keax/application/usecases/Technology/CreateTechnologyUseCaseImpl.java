@@ -24,6 +24,12 @@ public class CreateTechnologyUseCaseImpl implements CreateTechnologyUseCase {
                 }
         );
 
+        technologyRepositoryPort.findByTechnologyPositionAndTechnologyDeleted(technology.getTechnologyPosition(), false).ifPresent(
+                e -> {
+                    throw new ExceptionAlert("There is already a technology with this position");
+                }
+        );
+
         technology.setTechnologyId(null);
 
         return technologyRepositoryPort.createTechnology(technology);

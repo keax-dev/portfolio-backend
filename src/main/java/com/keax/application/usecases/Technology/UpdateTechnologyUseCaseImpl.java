@@ -31,6 +31,16 @@ public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
                 }
         );
 
+        technologyUpdate.setTechnologyPosition(technology.getTechnologyPosition());
+
+        technologyRepositoryPort.findByTechnologyPositionAndTechnologyDeleted(technologyUpdate.getTechnologyPosition(), false).ifPresent(
+                e ->{
+                    if (!Objects.equals(e.getTechnologyId(), technologyUpdate.getTechnologyId())){
+                        throw new ExceptionAlert("The position of the technology to be updated is already registered");
+                    }
+                }
+        );
+
         technologyUpdate.setTechnologyDeleted(false);
 
         return technologyRepositoryPort.updateTechnology(technologyUpdate);

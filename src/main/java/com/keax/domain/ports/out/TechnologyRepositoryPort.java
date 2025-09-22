@@ -13,5 +13,6 @@ public interface TechnologyRepositoryPort {
     List<Technology> getListTechnology();
     Optional<Technology> findByTechnologyNameAndTechnologyDeleted(String technologyName, Boolean deleted);
     Optional<Technology> findByTechnologyIdAndTechnologyDeleted(Long technologyId, Boolean deleted);
+    Optional<Technology> findByTechnologyPositionAndTechnologyDeleted(int position, Boolean deleted);
 
 }
