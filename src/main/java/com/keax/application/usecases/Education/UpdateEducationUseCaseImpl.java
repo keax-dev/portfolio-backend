@@ -25,6 +25,10 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
                 () -> new ExceptionAlert("The education to be updated was not found")
         );
 
+        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false).orElseThrow(
+                () -> new ExceptionAlert("The institution entered was not found")
+        );
+
         educationUpdate.setEducationTitle(education.getEducationTitle().toUpperCase());
         educationUpdate.setInstitutionId(education.getInstitutionId());
 
@@ -36,20 +40,19 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
                 }
         );
 
+        educationUpdate.setEducationPosition(education.getEducationPosition());
+
         educationRepositoryPort.findByEducationPositionAndEducationDeleted(educationUpdate.getEducationPosition(), false).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already an education with this position");
+                    if (!Objects.equals(e.getEducationId(), educationUpdate.getEducationId())){
+                        throw new ExceptionAlert("There is already an education with this position");
+                    }
                 }
-        );
-
-        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(education.getInstitutionId(), false).orElseThrow(
-                () -> new ExceptionAlert("The institution entered was not found")
         );
 
         educationUpdate.setEducationPlace(education.getEducationPlace().toUpperCase());
         educationUpdate.setEducationStart(education.getEducationStart().toUpperCase());
         educationUpdate.setEducationEnd(education.getEducationEnd().toUpperCase());
-        educationUpdate.setEducationPosition(education.getEducationPosition());
         educationUpdate.setEducationDeleted(false);
 
         return educationRepositoryPort.updateEducation(educationUpdate);

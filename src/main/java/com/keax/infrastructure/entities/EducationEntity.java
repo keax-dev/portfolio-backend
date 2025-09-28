@@ -23,7 +23,7 @@ public class EducationEntity {
     @Column(name = "education_place", nullable = false)
     private String educationPlace;
 
-    @Column(name = "education_start", nullable = false)
+    @Column(name = "education_start")
     private String educationStart;
 
     @Column(name = "education_end", nullable = false)

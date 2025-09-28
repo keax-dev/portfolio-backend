@@ -16,7 +16,7 @@ public class Education {
     @JsonProperty("id")
     private Long educationId;
 
-    @JsonProperty("tittle")
+    @JsonProperty("title")
     @NotBlank(message = "The name of the education is required")
     private String educationTitle;
 
@@ -25,7 +25,6 @@ public class Education {
     private String educationPlace;
 
     @JsonProperty("start")
-    @NotBlank(message = "The start of education is required")
     private String educationStart;
 
     @JsonProperty("end")
@@ -45,5 +44,8 @@ public class Education {
 
     @JsonProperty("institution_name")
     private String institutionName;
+
+    @JsonProperty("institution_url")
+    private String institutionUrl;
 
 }

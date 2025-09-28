@@ -70,7 +70,8 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
                 educationEntity.getEducationPosition(),
                 educationEntity.getEducationDeleted(),
                 educationEntity.getInstitution().getInstitutionId(),
-                educationEntity.getInstitution().getInstitutionName()
+                educationEntity.getInstitution().getInstitutionName(),
+                educationEntity.getInstitution().getInstitutionUrl()
         );
     }
 
