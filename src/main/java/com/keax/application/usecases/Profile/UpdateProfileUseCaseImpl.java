@@ -28,6 +28,7 @@ public class UpdateProfileUseCaseImpl implements UpdateProfileUseCase {
         update.setProfileName(profile.getProfileName().toUpperCase());
         update.setProfileLastName(profile.getProfileLastName().toUpperCase());
         update.setProfileTitle(profile.getProfileTitle().toUpperCase());
+        update.setProfileCv(profile.getProfileCv());
 
         return profileRepositoryPort.saveProfile(update);
     }

@@ -32,7 +32,7 @@ public class ProfileController {
 
         ApiResponse<Profile> response = new ApiResponse<>(
                 true,
-                "The profile was created correctly",
+                "The profile was updated correctly",
                 profileService.updateProfile(profile)
         );
 

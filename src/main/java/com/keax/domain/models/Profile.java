@@ -29,7 +29,7 @@ public class Profile {
     @JsonProperty("cv")
     private String profileCv;
 
-    @JsonProperty("picture")
+    @JsonProperty("image")
     private String profilePicture;
 
 }
