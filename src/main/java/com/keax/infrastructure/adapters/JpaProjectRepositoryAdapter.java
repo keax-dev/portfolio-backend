@@ -46,8 +46,8 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     @Override
-    public Optional<Project> findByProjectTittleAndProjectDeleted(String projectTittle, Boolean deleted) {
-        return jpaProjectRepository.findByProjectTittleAndProjectDeleted(projectTittle, deleted).map(this::toDomainModel);
+    public Optional<Project> findByProjectTitleAndProjectDeleted(String projectTitle, Boolean deleted) {
+        return jpaProjectRepository.findByProjectTitleAndProjectDeleted(projectTitle, deleted).map(this::toDomainModel);
     }
 
     @Override
@@ -60,10 +60,15 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
         return jpaProjectRepository.findByProjectPositionAndProjectDeletedAndTechnology_technologyId(position, deleted, technologyId).map(this::toDomainModel);
     }
 
+    @Override
+    public Boolean existsByTechnology_technologyIdAndProjectDeleted(Long technologyId, Boolean deleted) {
+        return jpaProjectRepository.existsByTechnology_technologyIdAndProjectDeleted(technologyId, deleted);
+    }
+
     private Project toDomainModel(ProjectEntity projectEntity){
         return new Project(
                 projectEntity.getProjectId(),
-                projectEntity.getProjectTittle(),
+                projectEntity.getProjectTitle(),
                 projectEntity.getProjectDescription(),
                 projectEntity.getProjectPicture(),
                 projectEntity.getProjectDeploy(),
@@ -82,7 +87,7 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
 
         return new ProjectEntity(
                 project.getProjectId(),
-                project.getProjectTittle(),
+                project.getProjectTitle(),
                 project.getProjectDescription(),
                 project.getProjectPicture(),
                 project.getProjectDeploy(),

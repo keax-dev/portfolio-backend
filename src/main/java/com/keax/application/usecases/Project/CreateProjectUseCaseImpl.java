@@ -24,11 +24,11 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
                 () -> new ExceptionAlert("The technology entered was not found")
         );
 
-        project.setProjectTittle(project.getProjectTittle().toUpperCase());
+        project.setProjectTitle(project.getProjectTitle().toUpperCase());
 
-        projectRepositoryPort.findByProjectTittleAndProjectDeleted(project.getProjectTittle(), false).ifPresent(
+        projectRepositoryPort.findByProjectTitleAndProjectDeleted(project.getProjectTitle(), false).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already a project with this tittle");
+                    throw new ExceptionAlert("There is already a project with this title");
                 }
         );
 

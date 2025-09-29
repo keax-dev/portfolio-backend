@@ -17,8 +17,8 @@ public class ProjectEntity {
     @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "project_tittle", unique = true, nullable = false)
-    private String projectTittle;
+    @Column(name = "project_title", unique = true, nullable = false)
+    private String projectTitle;
 
     @Column(name = "project_description", nullable = false)
     private String projectDescription;

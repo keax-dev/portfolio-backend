@@ -16,9 +16,9 @@ public class Project {
     @JsonProperty("id")
     private Long projectId;
 
-    @JsonProperty("tittle")
-    @NotBlank(message = "The project tittle is required")
-    private String projectTittle;
+    @JsonProperty("title")
+    @NotBlank(message = "The project title is required")
+    private String projectTitle;
 
     @JsonProperty("description")
     @NotBlank(message = "The project description is required")

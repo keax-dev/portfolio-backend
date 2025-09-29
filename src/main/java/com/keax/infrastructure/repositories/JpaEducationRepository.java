@@ -11,5 +11,6 @@ public interface JpaEducationRepository extends JpaRepository<EducationEntity, L
     Optional<EducationEntity> findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(String educationTitle, Boolean deleted, Long institutionId);
     Optional<EducationEntity> findByEducationIdAndEducationDeleted(Long education_id, Boolean deleted);
     Optional<EducationEntity> findByEducationPositionAndEducationDeleted(int position, Boolean deleted);
+    Boolean existsByInstitution_InstitutionIdAndEducationDeleted(Long institutionId, Boolean deleted);
 
 }

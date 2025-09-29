@@ -29,17 +29,20 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
                 () -> new ExceptionAlert("The technology entered was not found")
         );
 
-        projectUpdate.setProjectTittle(project.getProjectTittle().toUpperCase());
+        projectUpdate.setProjectTitle(project.getProjectTitle().toUpperCase());
 
-        projectRepositoryPort.findByProjectTittleAndProjectDeleted(projectUpdate.getProjectTittle(), false).ifPresent(
+        projectRepositoryPort.findByProjectTitleAndProjectDeleted(projectUpdate.getProjectTitle(), false).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getProjectId(), projectUpdate.getProjectId())){
-                        throw new ExceptionAlert("The tittle of the project to be updated is already registered");
+                        throw new ExceptionAlert("The title of the project to be updated is already registered");
                     }
                 }
         );
 
-        projectRepositoryPort.findByProjectPositionAndProjectDeletedAndTechnology_technologyId(project.getProjectPosition(), false, project.getTechnologyId()).ifPresent(
+        projectUpdate.setProjectPosition(project.getProjectPosition());
+        projectUpdate.setTechnologyId(project.getTechnologyId());
+
+        projectRepositoryPort.findByProjectPositionAndProjectDeletedAndTechnology_technologyId(projectUpdate.getProjectPosition(), false, projectUpdate.getTechnologyId()).ifPresent(
                 e -> {
                     if (!Objects.equals(e.getProjectId(), projectUpdate.getProjectId())){
                         throw new ExceptionAlert("The project position is already filled");

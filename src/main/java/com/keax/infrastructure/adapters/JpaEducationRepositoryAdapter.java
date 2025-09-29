@@ -60,6 +60,11 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
         return jpaEducationRepository.findByEducationPositionAndEducationDeleted(position, deleted).map(this::toDomainModel);
     }
 
+    @Override
+    public Boolean existsByInstitution_InstitutionIdAndEducationDeleted(Long institutionId, Boolean deleted) {
+        return jpaEducationRepository.existsByInstitution_InstitutionIdAndEducationDeleted(institutionId, deleted);
+    }
+
     private Education toDomainModel(EducationEntity educationEntity){
         return new Education(
                 educationEntity.getEducationId(),
