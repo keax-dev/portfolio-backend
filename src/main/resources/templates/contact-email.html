@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>New Contact</title>
+        <style>
+            /* estilos inline seguros para email */
+            .container{max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;
+                       box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden}
+            .header{background:#111827;color:#fff;padding:24px;font-family:system-ui, -apple-system, Segoe UI, Roboto;}
+            .body{padding:24px;font-family:system-ui, -apple-system, Segoe UI, Roboto;line-height:1.5;color:#111827}
+            .label{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#6b7280;margin-bottom:6px}
+            .value{font-size:16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px}
+            .footer{padding:16px 24px;color:#6b7280;font-size:12px;text-align:center;background:#f9fafb}
+            @media (prefers-color-scheme: dark){
+              .container{background:#0b0f15}
+              .body{color:#e5e7eb}
+              .value{background:#0f172a;border-color:#1f2937;color:#e5e7eb}
+              .header{background:#0b0f15}
+              .footer{background:#0b0f15;color:#9ca3af}
+            }
+        </style>
+    </head>
+    <body style="background:#eef2f7;padding:24px">
+        <div class="container">
+            <div class="header">
+                <h2 style="margin:0">New contact message</h2>
+            </div>
+            <div class="body">
+                <div class="field">
+                    <div class="label">Name</div>
+                    <div class="value" th:text="${name}"></div>
+                </div>
+                <div class="field" style="margin-top:12px">
+                    <div class="label">Email</div>
+                    <div class="value" th:text="${email}"></div>
+                </div>
+                <div class="field" style="margin-top:12px">
+                    <div class="label">Message</div>
+                    <div class="value" th:utext="${messageHtml}"></div>
+                </div>
+            </div>
+            <div class="footer">
+                Sent automatically by your website
+            </div>
+        </div>
+    </body>
+</html>

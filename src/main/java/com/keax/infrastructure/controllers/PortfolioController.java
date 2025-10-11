@@ -1,12 +1,12 @@
 package com.keax.infrastructure.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.keax.application.services.Implementation.EmailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.infrastructure.controllers.DTO.ApiResponse;
-import org.springframework.web.bind.annotation.GetMapping;
 import com.keax.application.services.Interfaces.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import com.keax.domain.models.*;
 import java.util.List;
 
@@ -28,6 +28,9 @@ public class PortfolioController {
 
     @Autowired
     private ISocialNetworkService socialNetworkService;
+
+    @Autowired
+    private EmailServiceImpl emailService;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<Profile>> getProfile(){
@@ -84,6 +87,18 @@ public class PortfolioController {
                 true,
                 "Social Network information found successfully",
                 socialNetworkService.findBySocialNetworkDeleted(false)
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/contact")
+    public ResponseEntity<ApiResponse<Contact>> sendContact(@Valid @RequestBody Contact contact){
+
+        ApiResponse<Contact> response = new ApiResponse<>(
+                true,
+                "The email has been sent correctly",
+                emailService.sendContactEmail(contact)
         );
 
         return ResponseEntity.ok(response);
