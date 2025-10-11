@@ -3,6 +3,8 @@ package com.keax.infrastructure.entities;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 
 @Entity
@@ -17,7 +19,7 @@ public class TechnologyEntity {
     @Column(name = "technology_id")
     private Long technologyId;
 
-    @Column(name = "technology_name", unique = true, nullable = false)
+    @Column(name = "technology_name", nullable = false)
     private String technologyName;
 
     @Column(name = "technology_position", nullable = false)
@@ -25,5 +27,8 @@ public class TechnologyEntity {
 
     @Column(name = "technology_deleted", nullable = false)
     private Boolean technologyDeleted;
+
+    @OneToMany(mappedBy = "technology", fetch = FetchType.LAZY)
+    private List<ProjectEntity> projectEntityList = new ArrayList<>();
 
 }

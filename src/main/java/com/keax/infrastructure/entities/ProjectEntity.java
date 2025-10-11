@@ -17,10 +17,10 @@ public class ProjectEntity {
     @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "project_title", unique = true, nullable = false)
+    @Column(name = "project_title", nullable = false)
     private String projectTitle;
 
-    @Column(name = "project_description", nullable = false)
+    @Column(name = "project_description", columnDefinition = "text",  nullable = false)
     private String projectDescription;
 
     @Column(name = "project_picture")

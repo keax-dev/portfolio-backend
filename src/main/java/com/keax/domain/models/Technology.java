@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -25,5 +27,8 @@ public class Technology {
 
     @JsonProperty("deleted")
     private Boolean technologyDeleted = false;
+
+    @JsonProperty("projects")
+    private List<Project> projectList = new ArrayList<>();
 
 }

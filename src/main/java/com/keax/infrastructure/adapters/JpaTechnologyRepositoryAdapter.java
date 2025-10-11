@@ -4,9 +4,12 @@ import com.keax.infrastructure.repositories.JpaTechnologyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.infrastructure.entities.TechnologyEntity;
+import com.keax.infrastructure.entities.ProjectEntity;
 import org.springframework.stereotype.Repository;
 import com.keax.domain.models.Technology;
+import com.keax.domain.models.Project;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 
@@ -40,6 +43,11 @@ public class JpaTechnologyRepositoryAdapter implements TechnologyRepositoryPort 
     }
 
     @Override
+    public List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted) {
+        return jpaTechnologyRepository.findByTechnologyDeleted(deleted).stream().map(this::toDomainModelWithProjects).collect(Collectors.toList());
+    }
+
+    @Override
     public List<Technology> getListTechnology() {
         return jpaTechnologyRepository.findAll().stream().map(this::toDomainModel).collect(Collectors.toList());
     }
@@ -60,11 +68,48 @@ public class JpaTechnologyRepositoryAdapter implements TechnologyRepositoryPort 
     }
 
     private Technology toDomainModel(TechnologyEntity technologyEntity){
-        return new Technology(technologyEntity.getTechnologyId(), technologyEntity.getTechnologyName(), technologyEntity.getTechnologyPosition(), technologyEntity.getTechnologyDeleted());
+        return new Technology(
+                technologyEntity.getTechnologyId(),
+                technologyEntity.getTechnologyName(),
+                technologyEntity.getTechnologyPosition(),
+                technologyEntity.getTechnologyDeleted(),
+                new ArrayList<>()
+        );
+    }
+
+    private Technology toDomainModelWithProjects(TechnologyEntity technologyEntity){
+        return new Technology(
+                technologyEntity.getTechnologyId(),
+                technologyEntity.getTechnologyName(),
+                technologyEntity.getTechnologyPosition(),
+                technologyEntity.getTechnologyDeleted(),
+                technologyEntity.getProjectEntityList().stream().map(this::toDomainModelProject).collect(Collectors.toList())
+        );
+    }
+
+    private Project toDomainModelProject(ProjectEntity projectEntity){
+        return new Project(
+                projectEntity.getProjectId(),
+                projectEntity.getProjectTitle(),
+                projectEntity.getProjectDescription(),
+                projectEntity.getProjectPicture(),
+                projectEntity.getProjectDeploy(),
+                projectEntity.getProjectGithub(),
+                projectEntity.getProjectPosition(),
+                projectEntity.getTechnology().getTechnologyId(),
+                projectEntity.getTechnology().getTechnologyName(),
+                projectEntity.getProjectDeleted()
+        );
     }
 
     private TechnologyEntity fromDomainModel(Technology technology){
-        return new TechnologyEntity(technology.getTechnologyId(), technology.getTechnologyName(), technology.getTechnologyPosition(), technology.getTechnologyDeleted());
+        return new TechnologyEntity(
+                technology.getTechnologyId(),
+                technology.getTechnologyName(),
+                technology.getTechnologyPosition(),
+                technology.getTechnologyDeleted(),
+                new ArrayList<>()
+        );
     }
 
 }
