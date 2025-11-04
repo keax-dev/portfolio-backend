@@ -32,6 +32,7 @@ public class JpaProfileRepositoryAdapter implements ProfileRepositoryPort {
                 profileEntity.getProfileName(),
                 profileEntity.getProfileLastName(),
                 profileEntity.getProfileTitle(),
+                profileEntity.getProfileTitleEs(),
                 profileEntity.getProfileCv(),
                 profileEntity.getProfilePicture()
         );
@@ -43,6 +44,7 @@ public class JpaProfileRepositoryAdapter implements ProfileRepositoryPort {
                 profile.getProfileName(),
                 profile.getProfileLastName(),
                 profile.getProfileTitle(),
+                profile.getProfileTitleEs(),
                 profile.getProfileCv(),
                 profile.getProfilePicture()
         );

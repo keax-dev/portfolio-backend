@@ -26,6 +26,9 @@ public class ProfileEntity {
     @Column(name = "profile_title", nullable = false)
     private String profileTitle;
 
+    @Column(name = "profile_title_es")
+    private String profileTitleEs;
+
     @Column(name = "profile_cv")
     private String profileCv;
 

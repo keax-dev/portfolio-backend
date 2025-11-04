@@ -91,7 +91,9 @@ public class JpaTechnologyRepositoryAdapter implements TechnologyRepositoryPort 
         return new Project(
                 projectEntity.getProjectId(),
                 projectEntity.getProjectTitle(),
+                projectEntity.getProjectTitleEs(),
                 projectEntity.getProjectDescription(),
+                projectEntity.getProjectDescriptionEs(),
                 projectEntity.getProjectPicture(),
                 projectEntity.getProjectDeploy(),
                 projectEntity.getProjectGithub(),

@@ -18,6 +18,10 @@ public class Institution {
     @NotBlank(message = "The name of the institution is required")
     private String institutionName;
 
+    @JsonProperty("name_es")
+    @NotBlank(message = "The name es of the institution is required")
+    private String institutionNameEs;
+
     @JsonProperty("url")
     private String institutionUrl;
 

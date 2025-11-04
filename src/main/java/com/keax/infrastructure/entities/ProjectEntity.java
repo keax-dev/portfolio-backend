@@ -20,8 +20,14 @@ public class ProjectEntity {
     @Column(name = "project_title", nullable = false)
     private String projectTitle;
 
+    @Column(name = "project_title_es")
+    private String projectTitleEs;
+
     @Column(name = "project_description", columnDefinition = "text",  nullable = false)
     private String projectDescription;
+
+    @Column(name = "project_description_es", columnDefinition = "text")
+    private String projectDescriptionEs;
 
     @Column(name = "project_picture")
     private String projectPicture;

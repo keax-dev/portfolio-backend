@@ -32,6 +32,7 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
         );
 
         institutionUpdate.setInstitutionId(institutionId);
+        institutionUpdate.setInstitutionNameEs(institution.getInstitutionNameEs().toUpperCase());
         institutionUpdate.setInstitutionDeleted(false);
 
         return institutionRepositoryPort.updateInstitution(institutionUpdate);

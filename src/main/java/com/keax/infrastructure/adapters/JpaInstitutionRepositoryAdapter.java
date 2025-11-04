@@ -59,6 +59,7 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
         return new Institution(
                 institutionEntity.getInstitutionId(),
                 institutionEntity.getInstitutionName(),
+                institutionEntity.getInstitutionNameEs(),
                 institutionEntity.getInstitutionUrl(),
                 institutionEntity.getInstitutionDeleted()
         );
@@ -68,6 +69,7 @@ public class JpaInstitutionRepositoryAdapter implements InstitutionRepositoryPor
         return  new InstitutionEntity(
                 institution.getInstitutionId(),
                 institution.getInstitutionName(),
+                institution.getInstitutionNameEs(),
                 institution.getInstitutionUrl(),
                 institution.getInstitutionDeleted()
         );

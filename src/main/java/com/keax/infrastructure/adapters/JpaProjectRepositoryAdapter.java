@@ -69,7 +69,9 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
         return new Project(
                 projectEntity.getProjectId(),
                 projectEntity.getProjectTitle(),
+                projectEntity.getProjectTitleEs(),
                 projectEntity.getProjectDescription(),
+                projectEntity.getProjectDescriptionEs(),
                 projectEntity.getProjectPicture(),
                 projectEntity.getProjectDeploy(),
                 projectEntity.getProjectGithub(),
@@ -88,7 +90,9 @@ public class JpaProjectRepositoryAdapter implements ProjectRepositoryPort {
         return new ProjectEntity(
                 project.getProjectId(),
                 project.getProjectTitle(),
+                project.getProjectTitleEs(),
                 project.getProjectDescription(),
+                project.getProjectDescriptionEs(),
                 project.getProjectPicture(),
                 project.getProjectDeploy(),
                 project.getProjectGithub(),

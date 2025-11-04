@@ -50,10 +50,16 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
                 }
         );
 
+        educationUpdate.setEducationTitleEs(education.getEducationTitleEs().toUpperCase());
         educationUpdate.setEducationPlace(education.getEducationPlace().toUpperCase());
-        educationUpdate.setEducationStart(education.getEducationStart().toUpperCase());
         educationUpdate.setEducationEnd(education.getEducationEnd().toUpperCase());
+        educationUpdate.setEducationEndEs(education.getEducationEndEs().toUpperCase());
         educationUpdate.setEducationDeleted(false);
+
+        if (education.getEducationStart() != null && !education.getEducationStart().isEmpty()){
+            educationUpdate.setEducationStart(education.getEducationStart().toUpperCase());
+            educationUpdate.setEducationStartEs(education.getEducationStartEs().toUpperCase());
+        }
 
         return educationRepositoryPort.updateEducation(educationUpdate);
     }

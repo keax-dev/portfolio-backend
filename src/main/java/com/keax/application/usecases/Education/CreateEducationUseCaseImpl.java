@@ -38,9 +38,12 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
                 () -> new ExceptionAlert("The institution entered was not found")
         );
 
+        education.setEducationTitleEs(education.getEducationTitleEs().toUpperCase());
         education.setEducationPlace(education.getEducationPlace().toUpperCase());
         education.setEducationStart(education.getEducationStart().toUpperCase());
+        education.setEducationStartEs(education.getEducationStartEs().toUpperCase());
         education.setEducationEnd(education.getEducationEnd().toUpperCase());
+        education.setEducationEndEs(education.getEducationEndEs().toUpperCase());
         education.setEducationId(null);
 
         return educationRepositoryPort.createEducation(education);

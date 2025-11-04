@@ -20,9 +20,17 @@ public class Project {
     @NotBlank(message = "The project title is required")
     private String projectTitle;
 
+    @JsonProperty("title_es")
+    @NotBlank(message = "The project es title is required")
+    private String projectTitleEs;
+
     @JsonProperty("description")
     @NotBlank(message = "The project description is required")
     private String projectDescription;
+
+    @JsonProperty("description_es")
+    @NotBlank(message = "The project es description is required")
+    private String projectDescriptionEs;
 
     @JsonProperty("picture")
     private String projectPicture;

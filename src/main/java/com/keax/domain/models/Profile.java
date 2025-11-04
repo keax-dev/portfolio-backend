@@ -26,6 +26,10 @@ public class Profile {
     @NotBlank(message = "The profile title is required")
     private String profileTitle;
 
+    @JsonProperty("title_es")
+    @NotBlank(message = "The profile title es is required")
+    private String profileTitleEs;
+
     @JsonProperty("cv")
     private String profileCv;
 

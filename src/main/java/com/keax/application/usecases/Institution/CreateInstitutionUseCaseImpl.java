@@ -25,6 +25,7 @@ public class CreateInstitutionUseCaseImpl implements CreateInstitutionUseCase {
         );
 
         institution.setInstitutionId(null);
+        institution.setInstitutionNameEs(institution.getInstitutionNameEs().toUpperCase());
 
         return institutionRepositoryPort.saveInstitution(institution);
     }

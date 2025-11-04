@@ -23,6 +23,7 @@ public class CreateProfileUseCaseImpl implements CreateProfileUseCase {
             throw new ExceptionAlert("The profile is already created");
         }
 
+        profile.setProfileTitleEs(profile.getProfileTitleEs().toUpperCase());
         profile.setProfileName(profile.getProfileName().toUpperCase());
         profile.setProfileLastName(profile.getProfileLastName().toUpperCase());
         profile.setProfileTitle(profile.getProfileTitle().toUpperCase());

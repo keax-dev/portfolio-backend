@@ -69,13 +69,17 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
         return new Education(
                 educationEntity.getEducationId(),
                 educationEntity.getEducationTitle(),
+                educationEntity.getEducationTitleEs(),
                 educationEntity.getEducationPlace(),
                 educationEntity.getEducationStart(),
+                educationEntity.getEducationStartEs(),
                 educationEntity.getEducationEnd(),
+                educationEntity.getEducationEndEs(),
                 educationEntity.getEducationPosition(),
                 educationEntity.getEducationDeleted(),
                 educationEntity.getInstitution().getInstitutionId(),
                 educationEntity.getInstitution().getInstitutionName(),
+                educationEntity.getInstitution().getInstitutionNameEs(),
                 educationEntity.getInstitution().getInstitutionUrl()
         );
     }
@@ -88,9 +92,12 @@ public class JpaEducationRepositoryAdapter implements EducationRepositoryPort {
         return  new EducationEntity(
                 education.getEducationId(),
                 education.getEducationTitle(),
+                education.getEducationTitleEs(),
                 education.getEducationPlace(),
                 education.getEducationStart(),
+                education.getEducationStartEs(),
                 education.getEducationEnd(),
+                education.getEducationEndEs(),
                 education.getEducationPosition(),
                 education.getEducationDeleted(),
                 institutionEntity

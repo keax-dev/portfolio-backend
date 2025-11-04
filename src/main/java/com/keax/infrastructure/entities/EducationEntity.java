@@ -17,8 +17,11 @@ public class EducationEntity {
     @Column(name = "education_id")
     private Long educationId;
 
-    @Column(name = "education_title", unique = true, nullable = false)
+    @Column(name = "education_title", nullable = false)
     private String educationTitle;
+
+    @Column(name = "education_title_es")
+    private String educationTitleEs;
 
     @Column(name = "education_place", nullable = false)
     private String educationPlace;
@@ -26,8 +29,14 @@ public class EducationEntity {
     @Column(name = "education_start")
     private String educationStart;
 
+    @Column(name = "education_start_es")
+    private String educationStartEs;
+
     @Column(name = "education_end", nullable = false)
     private  String educationEnd;
+
+    @Column(name = "education_end_es")
+    private  String educationEndEs;
 
     @Column(name = "education_position", nullable = false)
     private int educationPosition;
