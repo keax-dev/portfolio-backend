@@ -1,5 +1,6 @@
 package com.keax.application.usecases.Technology;
 
+import com.keax.domain.models.Project;
 import com.keax.domain.ports.in.Technology.RetrieveTechnologyUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.domain.ports.out.TechnologyRepositoryPort;
@@ -24,9 +25,14 @@ public class RetrieveTechnologyUseCaseImpl implements RetrieveTechnologyUseCase 
     }
 
     @Override
-    public List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted) {
+    public List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted, Boolean projectDeleted) {
 
         List<Technology> technologyList =  technologyRepositoryPort.findByTechnologyDeletedWithProjects(deleted);
+
+        technologyList.forEach(technology -> {
+            List<Project> projectList = technology.getProjectList().stream().filter(p -> p.getProjectDeleted() == projectDeleted).toList();
+            technology.setProjectList(projectList);
+        });
 
         return validateNotEmpty(technologyList);
     }

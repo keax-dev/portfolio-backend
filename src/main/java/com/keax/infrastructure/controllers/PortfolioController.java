@@ -74,7 +74,7 @@ public class PortfolioController {
         ApiResponse<List<Technology>> response = new ApiResponse<>(
                 true,
                 "Technology information found successfully",
-                technologyService.findByTechnologyDeletedWithProjects(false)
+                technologyService.findByTechnologyDeletedWithProjects(false, false)
         );
 
         return ResponseEntity.ok(response);

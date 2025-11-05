@@ -10,7 +10,7 @@ public interface ITechnologyService {
     Technology updateTechnology(Long technologyId, Technology technology);
     Technology deleteTechnology(Long technologyId);
     List<Technology> findByTechnologyDeleted(Boolean deleted);
-    List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted);
+    List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted, Boolean projectDeleted);
     List<Technology> getListTechnology();
 
 }

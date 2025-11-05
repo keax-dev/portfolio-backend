@@ -51,8 +51,8 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
         );
 
         projectUpdate.setProjectTitleEs(project.getProjectTitleEs().toUpperCase());
-        projectUpdate.setProjectDescription(project.getProjectDescription().toUpperCase());
-        projectUpdate.setProjectDescriptionEs(project.getProjectDescriptionEs().toUpperCase());
+        projectUpdate.setProjectDescription(project.getProjectDescription());
+        projectUpdate.setProjectDescriptionEs(project.getProjectDescriptionEs());
         projectUpdate.setProjectDeploy(project.getProjectDeploy());
         projectUpdate.setProjectGithub(project.getProjectGithub());
         projectUpdate.setProjectDeleted(false);

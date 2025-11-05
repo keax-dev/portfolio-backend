@@ -46,8 +46,8 @@ public class TechnologyServiceImpl implements ITechnologyService {
     }
 
     @Override
-    public List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted) {
-        return retrieveTechnologyUseCase.findByTechnologyDeletedWithProjects(deleted);
+    public List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted, Boolean projectDeleted) {
+        return retrieveTechnologyUseCase.findByTechnologyDeletedWithProjects(deleted, projectDeleted);
     }
 
     @Override
