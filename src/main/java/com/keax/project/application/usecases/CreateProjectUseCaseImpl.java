@@ -4,7 +4,8 @@ import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.project.domain.ports.in.CreateProjectUseCase;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.project.domain.model.Project;
@@ -26,7 +27,7 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
                 project.getTechnologyId(),
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The technology entered was not found")
+                () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
         project.setProjectTitle(project.getProjectTitle().toUpperCase());
@@ -35,7 +36,7 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already a project with this title");
+                    throw new ResourceConflictException("There is already a project with this title");
                 }
         );
 
@@ -45,7 +46,7 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
                 project.getTechnologyId()
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("The project position is already filled");
+                    throw new ResourceConflictException("The project position is already filled");
                 }
         );
 

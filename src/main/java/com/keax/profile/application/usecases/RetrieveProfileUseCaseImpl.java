@@ -4,7 +4,7 @@ import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import com.keax.profile.domain.model.Profile;
 import java.util.List;
@@ -22,7 +22,7 @@ public class RetrieveProfileUseCaseImpl implements RetrieveProfileUseCase {
         List<Profile> profileList = profileRepositoryPort.getListProfile();
 
         if (profileList.isEmpty()){
-            throw new ExceptionAlert("The profile is not created");
+            throw new ResourceNotFoundException("The profile is not created");
         }
 
         return profileList.getFirst();

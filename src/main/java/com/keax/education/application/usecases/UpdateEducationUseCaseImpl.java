@@ -4,7 +4,8 @@ import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.UpdateEducationUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.education.domain.model.Education;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,14 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
                 educationId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The education to be updated was not found")
+                () -> new ResourceNotFoundException("The education to be updated was not found")
         );
 
         institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(
                 education.getInstitutionId(),
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The institution entered was not found")
+                () -> new ResourceNotFoundException("The institution entered was not found")
         );
 
         educationUpdate.setEducationTitle(education.getEducationTitle().toUpperCase());
@@ -47,7 +48,7 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getEducationId(), educationUpdate.getEducationId())){
-                        throw new ExceptionAlert("The educational title to be updated is already registered in this category");
+                        throw new ResourceConflictException("The educational title to be updated is already registered in this category");
                     }
                 }
         );
@@ -59,7 +60,7 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
         ).ifPresent(
                 e -> {
                     if (!Objects.equals(e.getEducationId(), educationUpdate.getEducationId())){
-                        throw new ExceptionAlert("There is already an education with this position");
+                        throw new ResourceConflictException("There is already an education with this position");
                     }
                 }
         );

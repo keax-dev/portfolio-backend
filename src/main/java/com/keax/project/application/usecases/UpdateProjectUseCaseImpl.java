@@ -4,7 +4,8 @@ import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.project.domain.ports.in.UpdateProjectUseCase;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.project.domain.model.Project;
@@ -27,14 +28,14 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
                 projectId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The project entered was not found")
+                () -> new ResourceNotFoundException("The project entered was not found")
         );
 
         technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(
                 project.getTechnologyId(),
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The technology entered was not found")
+                () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
         projectUpdate.setProjectTitle(project.getProjectTitle().toUpperCase());
@@ -44,7 +45,7 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getProjectId(), projectUpdate.getProjectId())){
-                        throw new ExceptionAlert("The title of the project to be updated is already registered");
+                        throw new ResourceConflictException("The title of the project to be updated is already registered");
                     }
                 }
         );
@@ -58,7 +59,7 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
         ).ifPresent(
                 e -> {
                     if (!Objects.equals(e.getProjectId(), projectUpdate.getProjectId())){
-                        throw new ExceptionAlert("The project position is already filled");
+                        throw new ResourceConflictException("The project position is already filled");
                     }
                 }
         );

@@ -4,7 +4,8 @@ import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.technology.domain.ports.in.DeleteTechnologyUseCase;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.technology.domain.model.Technology;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,14 @@ public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
                 technologyId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The technology entered was not found")
+                () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
         if (projectRepositoryPort.existsByTechnology_technologyIdAndProjectDeleted(
                 technologyId,
                 false
         )){
-            throw new ExceptionAlert("Technology cannot be deleted because it has associated records");
+            throw new ResourceConflictException("Technology cannot be deleted because it has associated records");
         }
 
         technology.setTechnologyDeleted(true);

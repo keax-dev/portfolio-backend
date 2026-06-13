@@ -3,7 +3,8 @@ package com.keax.institution.application.usecases;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.institution.domain.ports.in.UpdateInstitutionUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.institution.domain.model.Institution;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
                 institutionId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The institution to be updated does not exist")
+                () -> new ResourceNotFoundException("The institution to be updated does not exist")
         );
 
         institutionUpdate.setInstitutionName(institution.getInstitutionName().toUpperCase());
@@ -33,7 +34,7 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getInstitutionId(), institutionUpdate.getInstitutionId())){
-                        throw new ExceptionAlert("The name of the institution to be updated is already registered");
+                        throw new ResourceConflictException("The name of the institution to be updated is already registered");
                     }
                 }
         );

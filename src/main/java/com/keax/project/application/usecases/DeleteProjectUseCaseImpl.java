@@ -3,7 +3,7 @@ package com.keax.project.application.usecases;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.project.domain.ports.in.DeleteProjectUseCase;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.project.domain.model.Project;
@@ -22,7 +22,7 @@ public class DeleteProjectUseCaseImpl implements DeleteProjectUseCase {
                 projectId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The project entered was not found")
+                () -> new ResourceNotFoundException("The project entered was not found")
         );
 
         project.setProjectDeleted(true);

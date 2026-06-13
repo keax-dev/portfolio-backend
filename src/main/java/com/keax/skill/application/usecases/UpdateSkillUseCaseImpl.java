@@ -3,7 +3,8 @@ package com.keax.skill.application.usecases;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.skill.domain.ports.in.UpdateSkillUseCase;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
@@ -23,7 +24,7 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
                 skillId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The skill entered was not found")
+                () -> new ResourceNotFoundException("The skill entered was not found")
         );
 
         skillUpdate.setSkillName(skill.getSkillName().toUpperCase());
@@ -33,7 +34,7 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getSkillId(), skillUpdate.getSkillId())){
-                        throw new ExceptionAlert("The name of the skill to be updated is already registered");
+                        throw new ResourceConflictException("The name of the skill to be updated is already registered");
                     }
                 }
         );
@@ -45,7 +46,7 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getSkillId(), skillUpdate.getSkillId())){
-                        throw new ExceptionAlert("The position of the skill to be updated is already registered");
+                        throw new ResourceConflictException("The position of the skill to be updated is already registered");
                     }
                 }
         );

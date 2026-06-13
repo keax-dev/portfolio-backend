@@ -4,7 +4,7 @@ import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
 import com.keax.socialnetwork.domain.ports.in.CreateSocialNetworkUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class CreateSocialNetworkUseCaseImpl implements CreateSocialNetworkUseCas
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already a social network with this name");
+                    throw new ResourceConflictException("There is already a social network with this name");
                 }
         );
 
@@ -33,7 +33,7 @@ public class CreateSocialNetworkUseCaseImpl implements CreateSocialNetworkUseCas
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("The social network position is already filled");
+                    throw new ResourceConflictException("The social network position is already filled");
                 }
         );
 

@@ -19,7 +19,7 @@ public class SocialNetworkEntity {
     @Column(name = "social_network_id")
     private Long socialNetworkId;
 
-    @Column(name = "social_network_name", unique = true, nullable = false)
+    @Column(name = "social_network_name", nullable = false)
     private String socialNetworkName;
 
     @Column(name = "social_network_icon", nullable = false)

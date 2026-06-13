@@ -3,7 +3,7 @@ package com.keax.skill.application.usecases;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.skill.domain.ports.in.DeleteSkillUseCase;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
@@ -22,7 +22,7 @@ public class DeleteSkillUseCaseImpl implements DeleteSkillUseCase {
                 skillId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The skill entered was not found")
+                () -> new ResourceNotFoundException("The skill entered was not found")
         );
 
         skill.setSkillDeleted(true);

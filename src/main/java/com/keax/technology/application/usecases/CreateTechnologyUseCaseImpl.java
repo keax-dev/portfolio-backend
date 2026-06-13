@@ -3,7 +3,7 @@ package com.keax.technology.application.usecases;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.technology.domain.ports.in.CreateTechnologyUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.technology.domain.model.Technology;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class CreateTechnologyUseCaseImpl implements CreateTechnologyUseCase {
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already a technology with this name");
+                    throw new ResourceConflictException("There is already a technology with this name");
                 }
         );
 
@@ -33,7 +33,7 @@ public class CreateTechnologyUseCaseImpl implements CreateTechnologyUseCase {
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already a technology with this position");
+                    throw new ResourceConflictException("There is already a technology with this position");
                 }
         );
 

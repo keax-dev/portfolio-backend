@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.auth.domain.ports.out.AuthenticationPort;
 import com.keax.auth.domain.ports.out.TokenProviderPort;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.AuthenticationFailedException;
 import com.keax.auth.domain.ports.in.AuthLoginUseCase;
 import org.springframework.stereotype.Service;
 import com.keax.auth.domain.model.Auth;
@@ -23,7 +23,7 @@ public class AuthLoginUseCaseImpl implements AuthLoginUseCase {
     public Auth login(Auth auth) {
 
         if (!authenticationPort.authenticate(auth.getUsername(), auth.getPassword())) {
-            throw new ExceptionAlert("Incorrect username or password");
+            throw new AuthenticationFailedException("Incorrect username or password");
         }
 
         auth.setToken(tokenProviderPort.generateToken(auth.getUsername()));

@@ -4,7 +4,8 @@ import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.CreateEducationUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.education.domain.model.Education;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
                 education.getInstitutionId()
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already an education with this title and institution");
+                    throw new ResourceConflictException("There is already an education with this title and institution");
                 }
         );
 
@@ -38,7 +39,7 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already an education with this position");
+                    throw new ResourceConflictException("There is already an education with this position");
                 }
         );
 
@@ -46,7 +47,7 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
                 education.getInstitutionId(),
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The institution entered was not found")
+                () -> new ResourceNotFoundException("The institution entered was not found")
         );
 
         education.setEducationTitleEs(education.getEducationTitleEs().toUpperCase());

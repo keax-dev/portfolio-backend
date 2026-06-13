@@ -3,7 +3,7 @@ package com.keax.profile.application.usecases;
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.profile.domain.ports.in.UpdateProfileUseCase;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.profile.domain.model.Profile;
@@ -22,7 +22,7 @@ public class UpdateProfileUseCaseImpl implements UpdateProfileUseCase {
         List<Profile> profileList = profileRepositoryPort.getListProfile();
 
         if (profileList.isEmpty()){
-            throw new ExceptionAlert("The profile is not created");
+            throw new ResourceNotFoundException("The profile is not created");
         }
 
         Profile update = profileList.getFirst();

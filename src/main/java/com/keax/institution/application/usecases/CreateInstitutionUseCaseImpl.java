@@ -3,7 +3,7 @@ package com.keax.institution.application.usecases;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.institution.domain.ports.in.CreateInstitutionUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.institution.domain.model.Institution;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class CreateInstitutionUseCaseImpl implements CreateInstitutionUseCase {
                 false
         ).ifPresent(
                 e ->{
-                    throw new ExceptionAlert("An institution with the entered name already exists");
+                    throw new ResourceConflictException("An institution with the entered name already exists");
                 }
         );
 

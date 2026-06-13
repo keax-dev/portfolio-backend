@@ -4,7 +4,8 @@ import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
 import com.keax.socialnetwork.domain.ports.in.UpdateSocialNetworkUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -23,7 +24,7 @@ public class UpdateSocialNetworkUseCaseImpl implements UpdateSocialNetworkUseCas
                 socialNetworkId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The social network entered was not found")
+                () -> new ResourceNotFoundException("The social network entered was not found")
         );
 
         socialNetworkUpdate.setSocialNetworkName(socialNetwork.getSocialNetworkName().toUpperCase());
@@ -33,7 +34,7 @@ public class UpdateSocialNetworkUseCaseImpl implements UpdateSocialNetworkUseCas
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getSocialNetworkId(), socialNetworkUpdate.getSocialNetworkId())){
-                        throw new ExceptionAlert("The name of the social network to be updated is already registered");
+                        throw new ResourceConflictException("The name of the social network to be updated is already registered");
                     }
                 }
         );
@@ -44,7 +45,7 @@ public class UpdateSocialNetworkUseCaseImpl implements UpdateSocialNetworkUseCas
         ).ifPresent(
                 e -> {
                     if (!Objects.equals(e.getSocialNetworkId(), socialNetworkUpdate.getSocialNetworkId())){
-                        throw new ExceptionAlert("The social network position is already filled");
+                        throw new ResourceConflictException("The social network position is already filled");
                     }
                 }
         );

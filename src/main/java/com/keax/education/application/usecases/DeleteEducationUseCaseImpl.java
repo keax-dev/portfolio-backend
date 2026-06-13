@@ -3,7 +3,7 @@ package com.keax.education.application.usecases;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.DeleteEducationUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.education.domain.model.Education;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class DeleteEducationUseCaseImpl implements DeleteEducationUseCase {
                 educationId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The institution to delete was not found")
+                () -> new ResourceNotFoundException("The institution to delete was not found")
         );
 
         education.setEducationDeleted(true);

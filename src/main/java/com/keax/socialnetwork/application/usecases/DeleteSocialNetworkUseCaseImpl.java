@@ -4,7 +4,7 @@ import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
 import com.keax.socialnetwork.domain.ports.in.DeleteSocialNetworkUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class DeleteSocialNetworkUseCaseImpl implements DeleteSocialNetworkUseCas
                 socialNetworkId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The social network entered was not found")
+                () -> new ResourceNotFoundException("The social network entered was not found")
         );
 
         socialNetwork.setSocialNetworkDeleted(true);

@@ -3,7 +3,8 @@ package com.keax.technology.application.usecases;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.technology.domain.ports.in.UpdateTechnologyUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.technology.domain.model.Technology;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
                 technologyId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The technology entered was not found")
+                () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
         technologyUpdate.setTechnologyName(technology.getTechnologyName().toUpperCase());
@@ -33,7 +34,7 @@ public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getTechnologyId(), technologyUpdate.getTechnologyId())){
-                        throw new ExceptionAlert("The name of the technology to be updated is already registered");
+                        throw new ResourceConflictException("The name of the technology to be updated is already registered");
                     }
                 }
         );
@@ -45,7 +46,7 @@ public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getTechnologyId(), technologyUpdate.getTechnologyId())){
-                        throw new ExceptionAlert("The position of the technology to be updated is already registered");
+                        throw new ResourceConflictException("The position of the technology to be updated is already registered");
                     }
                 }
         );

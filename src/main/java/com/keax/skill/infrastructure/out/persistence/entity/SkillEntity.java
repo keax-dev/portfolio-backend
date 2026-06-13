@@ -19,7 +19,7 @@ public class SkillEntity {
     @Column(name = "skill_id")
     private Long skillId;
 
-    @Column(name = "skill_name", unique = true, nullable = false)
+    @Column(name = "skill_name", nullable = false)
     private String skillName;
 
     @Column(name = "skill_picture")

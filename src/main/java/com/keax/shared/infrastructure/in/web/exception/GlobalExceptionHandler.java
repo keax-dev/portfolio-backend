@@ -4,6 +4,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.keax.shared.infrastructure.in.web.dto.ApiResponseDTO;
+import com.keax.shared.domain.exceptions.RateLimitExceededException;
+import com.keax.shared.domain.exceptions.AuthenticationFailedException;
+import com.keax.shared.domain.exceptions.ExternalServiceException;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.shared.domain.exceptions.ExceptionMessage;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -50,6 +55,42 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<ApiResponseDTO<Object>> handleAuthenticationFailed(AuthenticationFailedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDTO<>(
+                false,
+                ex.getMessage(),
+                null
+        ));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponseDTO<Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO<>(
+                false,
+                ex.getMessage(),
+                null
+        ));
+    }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<ApiResponseDTO<Object>> handleResourceConflict(ResourceConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponseDTO<>(
+                false,
+                ex.getMessage(),
+                null
+        ));
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ApiResponseDTO<Object>> handleExternalService(ExternalServiceException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new ApiResponseDTO<>(
+                false,
+                ex.getMessage(),
+                null
+        ));
+    }
+
     @ExceptionHandler(ExceptionMessage.class)
     public ResponseEntity<ApiResponseDTO<Object>> handleExceptionMessage(ExceptionMessage ex) {
         return ResponseEntity.badRequest().body(new ApiResponseDTO<>(
@@ -66,6 +107,15 @@ public class GlobalExceptionHandler {
                 false,
                 "Data integrity error",
                 List.of("The requested operation conflicts with persisted data"),
+                null
+        ));
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiResponseDTO<Object>> handleRateLimitExceeded(RateLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(new ApiResponseDTO<>(
+                false,
+                ex.getMessage(),
                 null
         ));
     }

@@ -1,11 +1,12 @@
 package com.keax.uploadimage.application.usecases;
 
+import com.keax.uploadimage.application.validation.ImageFileValidator;
 import com.keax.uploadimage.domain.ports.in.UploadImageProjectUseCase;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.keax.shared.domain.exceptions.ExceptionMessage;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ExternalServiceException;
+import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.uploadimage.domain.model.ImageFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -24,34 +25,28 @@ public class UploadImageProjectUseCaseImpl implements UploadImageProjectUseCase 
     @Override
     public Project uploadImageProject(Long projectId, ImageFile img) {
 
-        validateImage(img, "The img is required");
+        ImageFileValidator.validate(img, "The img is required");
 
         Project project = projectRepositoryPort.findByProjectIdAndProjectDeleted(
                 projectId,
                 false
         ).orElseThrow(
-                () -> new ExceptionAlert("The project entered was not found")
+                () -> new ResourceNotFoundException("The project entered was not found")
         );
 
+        String oldImageUrl = project.getProjectPicture();
+        String newImageUrl = null;
+
         try {
-            project.setProjectPicture(
-                    imageStoragePort.upload(img, "Projects")
-            );
+            newImageUrl = imageStoragePort.upload(img, "Projects");
+            project.setProjectPicture(newImageUrl);
 
-            return projectRepositoryPort.updateProject(project);
+            Project updatedProject = projectRepositoryPort.updateProject(project);
+            imageStoragePort.delete(oldImageUrl);
+            return updatedProject;
         } catch (Exception e) {
-            throw new ExceptionAlert("An error occurred while uploading the project's image");
-        }
-    }
-
-    private void validateImage(ImageFile img, String requiredMessage) {
-        if (img == null || img.isEmpty()) {
-            throw new ExceptionMessage(requiredMessage);
-        }
-
-        String contentType = img.getContentType();
-        if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/webp"))) {
-            throw new ExceptionMessage("Image format not allowed (JPG, PNG, WEBP only)");
+            imageStoragePort.delete(newImageUrl);
+            throw new ExternalServiceException("An error occurred while uploading the project's image");
         }
     }
 

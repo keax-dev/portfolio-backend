@@ -3,7 +3,6 @@ package com.keax.auth.infrastructure.config;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -48,7 +47,6 @@ public class SecurityConfig {
             auth.anyRequest().authenticated();
         });
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
         return http.build();
     }
@@ -57,7 +55,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(splitConfig(allowedOrigins));
+        configuration.setAllowedOrigins(resolveAllowedOrigins(allowedOrigins));
         configuration.setAllowedMethods(splitConfig(allowedMethods));
         configuration.setAllowedHeaders(splitConfig(allowedHeaders));
         configuration.setAllowCredentials(allowCredentials);
@@ -77,7 +75,32 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    static List<String> resolveAllowedOrigins(String value) {
+        List<String> origins = splitConfig(value);
+
+        if (origins.isEmpty()) {
+            throw new IllegalStateException("At least one CORS allowed origin must be configured");
+        }
+
+        origins.stream()
+                .filter(SecurityConfig::isOriginPattern)
+                .findFirst()
+                .ifPresent(origin -> {
+                    throw new IllegalStateException("CORS allowed origins must be exact values, not patterns: " + origin);
+                });
+
+        return origins;
+    }
+
+    private static boolean isOriginPattern(String origin) {
+        return "*".equals(origin) || origin.contains("*");
+    }
+
     private static List<String> splitConfig(String value) {
+        if (value == null) {
+            return List.of();
+        }
+
         return Arrays.stream(value.split(","))
                 .map(String::trim)
                 .filter(item -> !item.isBlank())

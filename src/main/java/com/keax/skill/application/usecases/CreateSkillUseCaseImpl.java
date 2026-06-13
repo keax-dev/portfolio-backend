@@ -3,7 +3,7 @@ package com.keax.skill.application.usecases;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.skill.domain.ports.in.CreateSkillUseCase;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
@@ -25,7 +25,7 @@ public class CreateSkillUseCaseImpl implements CreateSkillUseCase {
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already a skill with this name");
+                    throw new ResourceConflictException("There is already a skill with this name");
                 }
         );
 
@@ -34,7 +34,7 @@ public class CreateSkillUseCaseImpl implements CreateSkillUseCase {
                 false
         ).ifPresent(
                 e -> {
-                    throw new ExceptionAlert("There is already a skill with this position");
+                    throw new ResourceConflictException("There is already a skill with this position");
                 }
         );
 

@@ -12,6 +12,7 @@ import com.keax.technology.infrastructure.in.web.dto.TechnologyDTO;
 import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
 import com.keax.skill.infrastructure.in.web.mapper.SkillWebMapper;
 import com.keax.education.infrastructure.in.web.dto.EducationDTO;
+import com.keax.email.infrastructure.in.web.ratelimit.ContactRateLimiter;
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ import com.keax.skill.domain.ports.in.RetrieveSkillUseCase;
 import com.keax.skill.infrastructure.in.web.dto.SkillDTO;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -50,6 +52,9 @@ public class PortfolioController {
 
     @Autowired
     private ContactEmailUseCase contactEmailUseCase;
+
+    @Autowired
+    private ContactRateLimiter contactRateLimiter;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponseDTO<ProfileDTO>> getProfile() {
@@ -112,7 +117,9 @@ public class PortfolioController {
     }
 
     @PostMapping("/contact")
-    public ResponseEntity<ApiResponseDTO<ContactDTO>> sendContact(@Valid @RequestBody ContactDTO contact) {
+    public ResponseEntity<ApiResponseDTO<ContactDTO>> sendContact(@Valid @RequestBody ContactDTO contact, HttpServletRequest request) {
+        contactRateLimiter.assertAllowed(request.getRemoteAddr());
+
         ApiResponseDTO<ContactDTO> response = new ApiResponseDTO<>(
                 true,
                 "The email has been sent correctly",

@@ -6,4 +6,6 @@ public interface ImageStoragePort {
 
     String upload(ImageFile imageFile, String folder);
 
+    void delete(String imageUrl);
+
 }
