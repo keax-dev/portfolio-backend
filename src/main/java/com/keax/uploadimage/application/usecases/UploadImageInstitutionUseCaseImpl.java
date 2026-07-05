@@ -46,7 +46,7 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
             return updatedInstitution;
         } catch (Exception e) {
             imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the institution's image");
+            throw new ExternalServiceException("An error occurred while uploading the institution's image", e);
         }
     }
 

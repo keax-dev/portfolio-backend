@@ -1,6 +1,7 @@
 package com.keax.visitor.infrastructure.in.web.resolver;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
@@ -13,8 +14,19 @@ public class ClientIpResolver {
             "X-Forwarded-For",
             "X-Real-IP"
     );
+    private final boolean trustForwardedHeaders;
+
+    public ClientIpResolver(
+            @Value("${app.client-ip.trust-forwarded-headers:false}") boolean trustForwardedHeaders
+    ) {
+        this.trustForwardedHeaders = trustForwardedHeaders;
+    }
 
     public String resolve(HttpServletRequest request) {
+        if (!trustForwardedHeaders) {
+            return request.getRemoteAddr();
+        }
+
         return IP_HEADERS.stream()
                 .map(request::getHeader)
                 .map(this::firstIpFromHeader)

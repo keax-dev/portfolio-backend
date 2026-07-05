@@ -47,7 +47,7 @@ public class UploadImageProfileUseCaseImpl implements UploadImageProfileUseCase 
             return updatedProfile;
         } catch (Exception e) {
             imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the profile's image");
+            throw new ExternalServiceException("An error occurred while uploading the profile's image", e);
         }
     }
 

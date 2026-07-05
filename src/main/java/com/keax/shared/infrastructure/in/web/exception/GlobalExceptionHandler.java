@@ -84,6 +84,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<ApiResponseDTO<Object>> handleExternalService(ExternalServiceException ex) {
+        log.error("External service operation failed", ex);
+
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new ApiResponseDTO<>(
                 false,
                 ex.getMessage(),

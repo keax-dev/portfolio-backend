@@ -8,7 +8,7 @@ import com.keax.visitor.domain.ports.in.RegisterVisitorUseCase;
 import com.keax.visitor.infrastructure.in.web.dto.VisitorDTO;
 import com.keax.visitor.domain.ports.in.RetrieveVisitorUseCase;
 import com.keax.shared.infrastructure.in.web.dto.ApiResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.keax.shared.domain.exceptions.ExceptionAlert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,14 +27,19 @@ import java.util.List;
 @RequestMapping("/api/visitor")
 public class VisitorController {
 
-    @Autowired
-    private RegisterVisitorUseCase registerVisitorUseCase;
+    private final RegisterVisitorUseCase registerVisitorUseCase;
+    private final RetrieveVisitorUseCase retrieveVisitorUseCase;
+    private final ClientIpResolver clientIpResolver;
 
-    @Autowired
-    private RetrieveVisitorUseCase retrieveVisitorUseCase;
-
-    @Autowired
-    private ClientIpResolver clientIpResolver;
+    public VisitorController(
+            RegisterVisitorUseCase registerVisitorUseCase,
+            RetrieveVisitorUseCase retrieveVisitorUseCase,
+            ClientIpResolver clientIpResolver
+    ) {
+        this.registerVisitorUseCase = registerVisitorUseCase;
+        this.retrieveVisitorUseCase = retrieveVisitorUseCase;
+        this.clientIpResolver = clientIpResolver;
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponseDTO<VisitorDTO>> register(
@@ -65,13 +70,12 @@ public class VisitorController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startAt,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endAt
     ) {
-        Instant resolvedEndAt = resolveEndAt(endAt);
-        Instant resolvedStartAt = resolveStartAt(startAt, resolvedEndAt);
+        DateRange range = resolveRange(startAt, endAt);
 
         ApiResponseDTO<List<VisitorDTO>> response = new ApiResponseDTO<>(
                 true,
                 "Visitors found successfully",
-                retrieveVisitorUseCase.getVisitorList(resolvedStartAt, resolvedEndAt).stream().map(VisitorWebMapper::fromDomain).toList()
+                retrieveVisitorUseCase.getVisitorList(range.startAt(), range.endAt()).stream().map(VisitorWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);
@@ -82,32 +86,31 @@ public class VisitorController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startAt,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endAt
     ) {
-        Instant resolvedEndAt = resolveEndAt(endAt);
-        Instant resolvedStartAt = resolveStartAt(startAt, resolvedEndAt);
+        DateRange range = resolveRange(startAt, endAt);
 
         ApiResponseDTO<VisitorDashboardDTO> response = new ApiResponseDTO<>(
                 true,
                 "Visitor dashboard found successfully",
-                VisitorWebMapper.dashboardFromDomain(retrieveVisitorUseCase.getDashboard(resolvedStartAt, resolvedEndAt))
+                VisitorWebMapper.dashboardFromDomain(retrieveVisitorUseCase.getDashboard(range.startAt(), range.endAt()))
         );
 
         return ResponseEntity.ok(response);
     }
 
-    private Instant resolveStartAt(Instant startAt, Instant endAt) {
-        if (startAt != null) {
-            return startAt;
+    private DateRange resolveRange(Instant startAt, Instant endAt) {
+        Instant resolvedEndAt = endAt == null ? Instant.now() : endAt;
+        Instant resolvedStartAt = startAt == null
+                ? resolvedEndAt.minus(15, ChronoUnit.DAYS)
+                : startAt;
+
+        if (resolvedStartAt.isAfter(resolvedEndAt)) {
+            throw new ExceptionAlert("The visitor start date must not be after the end date");
         }
 
-        return endAt.minus(15, ChronoUnit.DAYS);
+        return new DateRange(resolvedStartAt, resolvedEndAt);
     }
 
-    private Instant resolveEndAt(Instant endAt) {
-        if (endAt != null) {
-            return endAt;
-        }
-
-        return Instant.now();
+    private record DateRange(Instant startAt, Instant endAt) {
     }
 
 }

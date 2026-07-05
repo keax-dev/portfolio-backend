@@ -46,7 +46,7 @@ public class UploadImageProjectUseCaseImpl implements UploadImageProjectUseCase 
             return updatedProject;
         } catch (Exception e) {
             imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the project's image");
+            throw new ExternalServiceException("An error occurred while uploading the project's image", e);
         }
     }
 

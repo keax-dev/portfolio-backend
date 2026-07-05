@@ -2,6 +2,7 @@ package com.keax.auth.infrastructure.config;
 
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,23 +18,30 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.security.config.Customizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
-    @Value("${spring.web.cors.allowed-origins}")
-    private String allowedOrigins;
+    private final String allowedOrigins;
+    private final String allowedMethods;
+    private final String allowedHeaders;
+    private final boolean allowCredentials;
 
-    @Value("${spring.web.cors.allowed-methods}")
-    private String allowedMethods;
-
-    @Value("${spring.web.cors.allowed-headers}")
-    private String allowedHeaders;
-
-    @Value("${spring.web.cors.allow-credentials}")
-    private boolean allowCredentials;
+    public SecurityConfig(
+            @Value("${spring.web.cors.allowed-origins}") String allowedOrigins,
+            @Value("${spring.web.cors.allowed-methods}") String allowedMethods,
+            @Value("${spring.web.cors.allowed-headers}") String allowedHeaders,
+            @Value("${spring.web.cors.allow-credentials}") boolean allowCredentials
+    ) {
+        this.allowedOrigins = allowedOrigins;
+        this.allowedMethods = allowedMethods;
+        this.allowedHeaders = allowedHeaders;
+        this.allowCredentials = allowCredentials;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
@@ -44,8 +52,12 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/api/auth/login").permitAll();
             auth.requestMatchers("/api/portfolio/**").permitAll();
+            auth.requestMatchers(HttpMethod.POST, "/api/visitor").permitAll();
             auth.anyRequest().authenticated();
         });
+        http.exceptionHandling(exceptions ->
+                exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

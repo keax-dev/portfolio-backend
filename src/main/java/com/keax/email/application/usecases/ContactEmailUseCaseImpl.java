@@ -17,7 +17,7 @@ public class ContactEmailUseCaseImpl implements ContactEmailUseCase {
         try{
             emailSenderPort.sendContactEmail(contact);
         }catch (Exception ex){
-            throw new ExternalServiceException("There was an error sending the email, try again");
+            throw new ExternalServiceException("There was an error sending the email, try again", ex);
         }
 
         return contact;

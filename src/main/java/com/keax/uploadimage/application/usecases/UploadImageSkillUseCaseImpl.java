@@ -46,7 +46,7 @@ public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
             return updatedSkill;
         } catch (Exception e) {
             imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the skill's image");
+            throw new ExternalServiceException("An error occurred while uploading the skill's image", e);
         }
     }
 
