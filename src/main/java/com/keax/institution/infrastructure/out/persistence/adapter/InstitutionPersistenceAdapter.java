@@ -42,7 +42,7 @@ public class InstitutionPersistenceAdapter implements InstitutionRepositoryPort 
 
     @Override
     public List<Institution> getListInstitution() {
-        return jpaInstitutionRepository.findAll().stream()
+        return jpaInstitutionRepository.findByInstitutionDeleted(false).stream()
                 .map(InstitutionPersistenceMapper::toDomain)
                 .toList();
     }

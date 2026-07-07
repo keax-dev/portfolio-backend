@@ -73,17 +73,6 @@ public class SocialNetworkController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<SocialNetworkDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<SocialNetworkDTO>> response = new ApiResponseDTO<>(
-                true,
-                "Social networks have been found",
-                retrieveSocialNetworkUseCase.findBySocialNetworkDeleted(deleted).stream().map(SocialNetworkWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{socialNetworkId}")
     public ResponseEntity<ApiResponseDTO<SocialNetworkDTO>> delete(@PathVariable Long socialNetworkId) {
         deleteSocialNetworkUseCase.deleteSocialNetwork(socialNetworkId);

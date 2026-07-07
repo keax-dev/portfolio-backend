@@ -73,17 +73,6 @@ public class TechnologyController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<TechnologyDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<TechnologyDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The technologies were found successfully",
-                retrieveTechnologyUseCase.findByTechnologyDeleted(deleted).stream().map(TechnologyWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{technologyId}")
     public ResponseEntity<ApiResponseDTO<TechnologyDTO>> delete(@PathVariable Long technologyId) {
         deleteTechnologyUseCase.deleteTechnology(technologyId);

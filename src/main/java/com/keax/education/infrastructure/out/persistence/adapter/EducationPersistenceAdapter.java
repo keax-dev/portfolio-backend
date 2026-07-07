@@ -49,7 +49,7 @@ public class EducationPersistenceAdapter implements EducationRepositoryPort {
 
     @Override
     public List<Education> getListEducation() {
-        return jpaEducationRepository.findAll().stream()
+        return jpaEducationRepository.findByEducationDeleted(false).stream()
                 .map(EducationPersistenceMapper::toDomain)
                 .toList();
     }

@@ -73,17 +73,6 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<ProjectDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<ProjectDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The skills were found successfully",
-                retrieveProjectUseCase.findByProjectDeleted(deleted).stream().map(ProjectWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{projectId}")
     public ResponseEntity<ApiResponseDTO<ProjectDTO>> delete(@PathVariable Long projectId) {
         deleteProjectUseCase.deleteProject(projectId);

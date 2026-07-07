@@ -73,17 +73,6 @@ public class SkillController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<SkillDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<SkillDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The skills were found successfully",
-                retrieveSkillUseCase.findBySkillDeleted(deleted).stream().map(SkillWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{skillId}")
     public ResponseEntity<ApiResponseDTO<SkillDTO>> delete(@PathVariable Long skillId) {
         deleteSkillUseCase.deleteSkill(skillId);

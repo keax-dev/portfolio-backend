@@ -73,17 +73,6 @@ public class InstitutionController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<InstitutionDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<InstitutionDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The institutions were successfully found",
-                retrieveInstitutionUseCase.findByInstitutionDeleted(deleted).stream().map(InstitutionWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{institution_id}")
     public ResponseEntity<ApiResponseDTO<InstitutionDTO>> delete(@PathVariable Long institution_id) {
         deleteInstitutionUseCase.deleteInstitution(institution_id);

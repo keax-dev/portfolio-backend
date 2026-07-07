@@ -49,7 +49,7 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
 
     @Override
     public List<Project> getListProject() {
-        return jpaProjectRepository.findAll().stream()
+        return jpaProjectRepository.findByProjectDeleted(false).stream()
                 .map(ProjectPersistenceMapper::toDomain)
                 .toList();
     }

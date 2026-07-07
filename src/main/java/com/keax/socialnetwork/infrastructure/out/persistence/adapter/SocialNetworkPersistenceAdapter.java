@@ -49,7 +49,7 @@ public class SocialNetworkPersistenceAdapter implements SocialNetworkRepositoryP
 
     @Override
     public List<SocialNetwork> getListSocialNetwork() {
-        return jpaSocialNetworkRepository.findAll()
+        return jpaSocialNetworkRepository.findBySocialNetworkDeleted(false)
                 .stream()
                 .map(SocialNetworkPersistenceMapper::toDomain)
                 .toList();

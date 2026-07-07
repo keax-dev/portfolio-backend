@@ -49,7 +49,7 @@ public class SkillPersistenceAdapter implements SkillRepositoryPort {
 
     @Override
     public List<Skill> getListSkill() {
-        return jpaSkillRepository.findAll().stream()
+        return jpaSkillRepository.findBySkillDeleted(false).stream()
                 .map(SkillPersistenceMapper::toDomain)
                 .toList();
     }

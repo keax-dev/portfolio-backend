@@ -73,17 +73,6 @@ public class EducationController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<EducationDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<EducationDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The educations were found successfully",
-                retrieveEducationUseCase.findByEducationDeleted(deleted).stream().map(EducationWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{education_id}")
     public ResponseEntity<ApiResponseDTO<EducationDTO>> delete(@PathVariable Long education_id) {
         deleteEducationUseCase.deleteEducation(education_id);

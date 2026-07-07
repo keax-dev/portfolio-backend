@@ -191,6 +191,35 @@ class ManagementApiIntegrationTest {
     }
 
     @Test
+    void listsOnlyActiveRecordsByDefaultAfterLogicalDeletion() throws Exception {
+        // Arrange: se crean dos habilidades activas para luego eliminar una lógicamente.
+        String token = token();
+        performPost("/api/skill", """
+                {"name":"Java","position":1,"deleted":false}
+                """, token).andExpect(status().isOk());
+        performPost("/api/skill", """
+                {"name":"Spring","position":2,"deleted":false}
+                """, token).andExpect(status().isOk());
+
+        Long deletedSkillId = skillRepository.findAll().stream()
+                .filter(skill -> "JAVA".equals(skill.getSkillName()))
+                .findFirst()
+                .orElseThrow()
+                .getSkillId();
+
+        // Act: se elimina una de las habilidades.
+        mockMvc.perform(delete("/api/skill/{id}", deletedSkillId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk());
+
+        // Assert: el listado administrativo por defecto expone únicamente los registros activos.
+        mockMvc.perform(get("/api/skill").header("Authorization", bearer(token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].name").value("SPRING"));
+    }
+
+    @Test
     void rejectsInvalidManagementPayload() throws Exception {
         // Arrange: se autentica, pero se envía una habilidad estructuralmente inválida.
         String token = token();
