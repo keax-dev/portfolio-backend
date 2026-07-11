@@ -53,6 +53,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers(EndpointRequest.to("health", "info")).permitAll();
             auth.requestMatchers(EndpointRequest.toAnyEndpoint()).authenticated();
+            auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
             auth.requestMatchers("/api/auth/login").permitAll();
             auth.requestMatchers("/api/portfolio/**").permitAll();
             auth.requestMatchers(HttpMethod.POST, "/api/visitor").permitAll();
