@@ -1,5 +1,6 @@
 package com.keax.auth.infrastructure.config;
 
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -50,6 +51,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests(auth -> {
+            auth.requestMatchers(EndpointRequest.to("health", "info")).permitAll();
+            auth.requestMatchers(EndpointRequest.toAnyEndpoint()).authenticated();
             auth.requestMatchers("/api/auth/login").permitAll();
             auth.requestMatchers("/api/portfolio/**").permitAll();
             auth.requestMatchers(HttpMethod.POST, "/api/visitor").permitAll();
