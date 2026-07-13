@@ -1,7 +1,6 @@
 package com.keax.email.infrastructure.in.web.ratelimit;
 
 import com.keax.shared.domain.exceptions.RateLimitExceededException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,15 +18,11 @@ public class ContactRateLimiter {
     private final long windowMs;
     private final Clock clock;
 
-    @Autowired
     public ContactRateLimiter(
             @Value("${app.rate-limit.contact.max-requests:3}") int maxRequests,
-            @Value("${app.rate-limit.contact.window-ms:600000}") long windowMs
+            @Value("${app.rate-limit.contact.window-ms:600000}") long windowMs,
+            Clock clock
     ) {
-        this(maxRequests, windowMs, Clock.systemUTC());
-    }
-
-    ContactRateLimiter(int maxRequests, long windowMs, Clock clock) {
         if (maxRequests < 1) {
             throw new IllegalArgumentException("maxRequests must be greater than 0");
         }

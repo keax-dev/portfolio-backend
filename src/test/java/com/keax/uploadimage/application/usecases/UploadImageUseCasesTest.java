@@ -15,7 +15,6 @@ import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +64,7 @@ class UploadImageUseCasesTest {
         when(profileRepository.getListProfile()).thenReturn(List.of(profile));
         when(storage.upload(image, "Profile")).thenReturn("new-url");
         when(profileRepository.saveProfile(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        UploadImageProfileUseCaseImpl useCase = inject(new UploadImageProfileUseCaseImpl());
+        UploadImageProfileUseCaseImpl useCase = new UploadImageProfileUseCaseImpl(profileRepository, storage);
 
         // Act: se reemplaza la imagen.
         Profile result = useCase.uploadImageProfile(image);
@@ -82,7 +81,7 @@ class UploadImageUseCasesTest {
     void rejectsProfileUploadWhenProfileDoesNotExist() {
         // Arrange: el portafolio todavía no tiene perfil.
         when(profileRepository.getListProfile()).thenReturn(List.of());
-        UploadImageProfileUseCaseImpl useCase = inject(new UploadImageProfileUseCaseImpl());
+        UploadImageProfileUseCaseImpl useCase = new UploadImageProfileUseCaseImpl(profileRepository, storage);
 
         // Act y Assert: no se consume Cloudinary para un recurso inexistente.
         assertThrows(ResourceNotFoundException.class, () -> useCase.uploadImageProfile(image));
@@ -96,7 +95,7 @@ class UploadImageUseCasesTest {
         when(skillRepository.findBySkillIdAndSkillDeleted(1L, false)).thenReturn(Optional.of(skill));
         when(storage.upload(image, "Skills")).thenReturn("new-url");
         when(skillRepository.updateSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        UploadImageSkillUseCaseImpl useCase = inject(new UploadImageSkillUseCaseImpl());
+        UploadImageSkillUseCaseImpl useCase = new UploadImageSkillUseCaseImpl(skillRepository, storage);
 
         // Act: se reemplaza la imagen.
         Skill result = useCase.uploadImageSkill(1L, image);
@@ -117,7 +116,7 @@ class UploadImageUseCasesTest {
                 .thenReturn(Optional.of(project));
         when(storage.upload(image, "Projects")).thenReturn("new-url");
         when(projectRepository.updateProject(any())).thenThrow(new IllegalStateException("database down"));
-        UploadImageProjectUseCaseImpl useCase = inject(new UploadImageProjectUseCaseImpl());
+        UploadImageProjectUseCaseImpl useCase = new UploadImageProjectUseCaseImpl(projectRepository, storage);
 
         // Act: se produce el fallo posterior a la carga.
         ExternalServiceException exception = assertThrows(
@@ -138,7 +137,10 @@ class UploadImageUseCasesTest {
                 .thenReturn(Optional.of(institution));
         when(storage.upload(image, "Institutions")).thenReturn("new-url");
         when(institutionRepository.updateInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        UploadImageInstitutionUseCaseImpl useCase = inject(new UploadImageInstitutionUseCaseImpl());
+        UploadImageInstitutionUseCaseImpl useCase = new UploadImageInstitutionUseCaseImpl(
+                institutionRepository,
+                storage
+        );
 
         // Act: se actualiza la imagen institucional.
         Institution result = useCase.uploadImageInstitution(1L, image);
@@ -146,23 +148,6 @@ class UploadImageUseCasesTest {
         // Assert: la URL nueva queda persistida y la anterior se limpia.
         assertEquals("new-url", result.getInstitutionUrl());
         verify(storage).delete("old-url");
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta el almacenamiento común y el repositorio específico presente.
-        ReflectionTestUtils.setField(useCase, "imageStoragePort", storage);
-        setIfPresent(useCase, "profileRepositoryPort", profileRepository);
-        setIfPresent(useCase, "skillRepositoryPort", skillRepository);
-        setIfPresent(useCase, "projectRepositoryPort", projectRepository);
-        setIfPresent(useCase, "institutionRepositoryPort", institutionRepository);
-        return useCase;
-    }
-
-    private void setIfPresent(Object target, String field, Object value) {
-        // Evita duplicar preparación para las cuatro implementaciones.
-        if (org.springframework.util.ReflectionUtils.findField(target.getClass(), field) != null) {
-            ReflectionTestUtils.setField(target, field, value);
-        }
     }
 
 }

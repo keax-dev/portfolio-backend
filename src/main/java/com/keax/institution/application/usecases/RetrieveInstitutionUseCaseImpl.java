@@ -1,8 +1,9 @@
 package com.keax.institution.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.institution.domain.ports.in.RetrieveInstitutionUseCase;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.institution.domain.model.Institution;
@@ -11,10 +12,9 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCase {
-
-    @Autowired
-    private InstitutionRepositoryPort institutionRepositoryPort;
+    private final InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
     public List<Institution> getListInstitution() {

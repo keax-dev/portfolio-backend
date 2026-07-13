@@ -1,8 +1,9 @@
 package com.keax.socialnetwork.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.socialnetwork.domain.ports.in.RetrieveSocialNetworkUseCase;
 import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
@@ -11,10 +12,9 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RetrieveSocialNetworkUseCaseImpl implements RetrieveSocialNetworkUseCase {
-
-    @Autowired
-    private SocialNetworkRepositoryPort socialNetworkRepositoryPort;
+    private final SocialNetworkRepositoryPort socialNetworkRepositoryPort;
 
     @Override
     public List<SocialNetwork> findBySocialNetworkDeleted(Boolean deleted) {

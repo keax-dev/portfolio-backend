@@ -1,10 +1,11 @@
 package com.keax.uploadimage.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.uploadimage.application.validation.ImageFileValidator;
 import com.keax.uploadimage.domain.ports.in.UploadImageProfileUseCase;
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.uploadimage.domain.model.ImageFile;
@@ -15,13 +16,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UploadImageProfileUseCaseImpl implements UploadImageProfileUseCase {
-
-    @Autowired
-    private ProfileRepositoryPort profileRepositoryPort;
-
-    @Autowired
-    private ImageStoragePort imageStoragePort;
+    private final ProfileRepositoryPort profileRepositoryPort;
+    private final ImageStoragePort imageStoragePort;
 
     @Override
     public Profile uploadImageProfile(ImageFile img) {

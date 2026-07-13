@@ -11,11 +11,11 @@ import com.keax.skill.infrastructure.out.persistence.repository.JpaSkillReposito
 import com.keax.socialnetwork.infrastructure.out.persistence.repository.JpaSocialNetworkRepository;
 import com.keax.technology.infrastructure.out.persistence.repository.JpaTechnologyRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,30 +34,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class ManagementApiIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private JpaUserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private JpaProfileRepository profileRepository;
-    @Autowired
-    private JpaInstitutionRepository institutionRepository;
-    @Autowired
-    private JpaEducationRepository educationRepository;
-    @Autowired
-    private JpaTechnologyRepository technologyRepository;
-    @Autowired
-    private JpaProjectRepository projectRepository;
-    @Autowired
-    private JpaSkillRepository skillRepository;
-    @Autowired
-    private JpaSocialNetworkRepository socialNetworkRepository;
+    private final MockMvc mockMvc;
+    private final JpaUserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final JpaProfileRepository profileRepository;
+    private final JpaInstitutionRepository institutionRepository;
+    private final JpaEducationRepository educationRepository;
+    private final JpaTechnologyRepository technologyRepository;
+    private final JpaProjectRepository projectRepository;
+    private final JpaSkillRepository skillRepository;
+    private final JpaSocialNetworkRepository socialNetworkRepository;
+
+    ManagementApiIntegrationTest(
+            MockMvc mockMvc,
+            JpaUserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil,
+            JpaProfileRepository profileRepository,
+            JpaInstitutionRepository institutionRepository,
+            JpaEducationRepository educationRepository,
+            JpaTechnologyRepository technologyRepository,
+            JpaProjectRepository projectRepository,
+            JpaSkillRepository skillRepository,
+            JpaSocialNetworkRepository socialNetworkRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.profileRepository = profileRepository;
+        this.institutionRepository = institutionRepository;
+        this.educationRepository = educationRepository;
+        this.technologyRepository = technologyRepository;
+        this.projectRepository = projectRepository;
+        this.skillRepository = skillRepository;
+        this.socialNetworkRepository = socialNetworkRepository;
+    }
 
     @Test
     void managesProfileLifecycle() throws Exception {

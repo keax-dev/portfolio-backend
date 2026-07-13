@@ -1,9 +1,10 @@
 package com.keax.skill.infrastructure.out.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.skill.infrastructure.out.persistence.mapper.SkillPersistenceMapper;
 import com.keax.skill.infrastructure.out.persistence.repository.JpaSkillRepository;
 import com.keax.skill.infrastructure.out.persistence.entity.SkillEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import org.springframework.stereotype.Repository;
 import com.keax.skill.domain.model.Skill;
@@ -11,10 +12,9 @@ import java.util.Optional;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class SkillPersistenceAdapter implements SkillRepositoryPort {
-
-    @Autowired
-    private JpaSkillRepository jpaSkillRepository;
+    private final JpaSkillRepository jpaSkillRepository;
 
     @Override
     public Skill createSkill(Skill skill) {

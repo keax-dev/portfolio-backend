@@ -4,7 +4,6 @@ import com.keax.visitor.domain.ports.in.RegisterVisitorUseCase;
 import com.keax.visitor.domain.ports.out.VisitorRepositoryPort;
 import com.keax.visitor.domain.model.Visitor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
@@ -20,16 +19,9 @@ public class RegisterVisitorUseCaseImpl implements RegisterVisitorUseCase {
     private final long dedupeWindowMinutes;
     private final Clock clock;
 
-    @Autowired
     public RegisterVisitorUseCaseImpl(
             VisitorRepositoryPort visitorRepositoryPort,
-            @Value("${app.visitor.dedupe-window-minutes:30}") long dedupeWindowMinutes
-    ) {
-        this(visitorRepositoryPort, dedupeWindowMinutes, Clock.systemUTC());
-    }
-
-    RegisterVisitorUseCaseImpl(
-            VisitorRepositoryPort visitorRepositoryPort,
+            @Value("${app.visitor.dedupe-window-minutes:30}")
             long dedupeWindowMinutes,
             Clock clock
     ) {

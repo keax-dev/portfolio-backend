@@ -5,10 +5,8 @@ import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
-import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +44,7 @@ class InstitutionUseCasesTest {
         when(institutionRepository.findByInstitutionNameAndInstitutionDeleted("UNIVERSITY", false))
                 .thenReturn(Optional.empty());
         when(institutionRepository.saveInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        CreateInstitutionUseCaseImpl useCase = inject(new CreateInstitutionUseCaseImpl());
+        CreateInstitutionUseCaseImpl useCase = new CreateInstitutionUseCaseImpl(institutionRepository);
 
         // Act: se crea la institución.
         Institution result = useCase.createInstitution(input);
@@ -64,7 +62,7 @@ class InstitutionUseCasesTest {
         Institution input = institution(null, "University", "Universidad", null, null);
         when(institutionRepository.findByInstitutionNameAndInstitutionDeleted("UNIVERSITY", false))
                 .thenReturn(Optional.of(institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false)));
-        CreateInstitutionUseCaseImpl useCase = inject(new CreateInstitutionUseCaseImpl());
+        CreateInstitutionUseCaseImpl useCase = new CreateInstitutionUseCaseImpl(institutionRepository);
 
         // Act y Assert: no se intenta guardar un duplicado.
         assertThrows(ResourceConflictException.class, () -> useCase.createInstitution(input));
@@ -80,7 +78,7 @@ class InstitutionUseCasesTest {
         when(institutionRepository.findByInstitutionNameAndInstitutionDeleted("UNIVERSITY", false))
                 .thenReturn(Optional.of(institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false)));
         when(institutionRepository.updateInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        UpdateInstitutionUseCaseImpl useCase = inject(new UpdateInstitutionUseCaseImpl());
+        UpdateInstitutionUseCaseImpl useCase = new UpdateInstitutionUseCaseImpl(institutionRepository);
 
         // Act: se actualiza sin producir un falso conflicto consigo misma.
         Institution result = useCase.updateInstitution(1L, changes);
@@ -98,7 +96,10 @@ class InstitutionUseCasesTest {
                 .thenReturn(Optional.of(stored));
         when(educationRepository.existsByInstitution_InstitutionIdAndEducationDeleted(1L, false))
                 .thenReturn(true);
-        DeleteInstitutionUseCaseImpl useCase = inject(new DeleteInstitutionUseCaseImpl());
+        DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
+                institutionRepository,
+                educationRepository
+        );
 
         // Act y Assert: se protege la relación antes del borrado lógico.
         assertThrows(ResourceConflictException.class, () -> useCase.deleteInstitution(1L));
@@ -113,7 +114,10 @@ class InstitutionUseCasesTest {
         when(educationRepository.existsByInstitution_InstitutionIdAndEducationDeleted(1L, false))
                 .thenReturn(false);
         when(institutionRepository.deleteInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        DeleteInstitutionUseCaseImpl useCase = inject(new DeleteInstitutionUseCaseImpl());
+        DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
+                institutionRepository,
+                educationRepository
+        );
 
         // Act: se elimina lógicamente.
         Institution result = useCase.deleteInstitution(1L);
@@ -127,26 +131,10 @@ class InstitutionUseCasesTest {
     void rejectsEmptyInstitutionList() {
         // Arrange: una consulta administrativa no devuelve instituciones.
         when(institutionRepository.getListInstitution()).thenReturn(List.of());
-        RetrieveInstitutionUseCaseImpl useCase = inject(new RetrieveInstitutionUseCaseImpl());
+        RetrieveInstitutionUseCaseImpl useCase = new RetrieveInstitutionUseCaseImpl(institutionRepository);
 
         // Act y Assert: se conserva el contrato de alerta existente.
         assertThrows(ExceptionAlert.class, useCase::getListInstitution);
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta únicamente los puertos declarados por cada caso de uso.
-        if (hasField(useCase, "institutionRepositoryPort")) {
-            ReflectionTestUtils.setField(useCase, "institutionRepositoryPort", institutionRepository);
-        }
-        if (hasField(useCase, "educationRepositoryPort")) {
-            ReflectionTestUtils.setField(useCase, "educationRepositoryPort", educationRepository);
-        }
-        return useCase;
-    }
-
-    private boolean hasField(Object target, String name) {
-        // Permite reutilizar la preparación entre casos de uso con dependencias distintas.
-        return org.springframework.util.ReflectionUtils.findField(target.getClass(), name) != null;
     }
 
     private Institution institution(Long id, String name, String nameEs, String url, Boolean deleted) {

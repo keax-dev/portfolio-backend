@@ -16,7 +16,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -50,11 +49,12 @@ class UploadImageControllerTest {
     @BeforeEach
     void setUp() {
         // Arrange común: se inyectan los cuatro puertos sin cargar el contexto completo.
-        UploadImageController controller = new UploadImageController();
-        ReflectionTestUtils.setField(controller, "uploadImageInstitutionUseCase", uploadImageInstitutionUseCase);
-        ReflectionTestUtils.setField(controller, "uploadImageProfileUseCase", uploadImageProfileUseCase);
-        ReflectionTestUtils.setField(controller, "uploadImageSkillUseCase", uploadImageSkillUseCase);
-        ReflectionTestUtils.setField(controller, "uploadImageProjectUseCase", uploadImageProjectUseCase);
+        UploadImageController controller = new UploadImageController(
+                uploadImageInstitutionUseCase,
+                uploadImageProfileUseCase,
+                uploadImageSkillUseCase,
+                uploadImageProjectUseCase
+        );
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

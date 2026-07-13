@@ -22,7 +22,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -64,15 +63,16 @@ class PortfolioControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Arrange común: se conectan los puertos simulados al controlador legado.
-        PortfolioController controller = new PortfolioController();
-        ReflectionTestUtils.setField(controller, "retrieveProfileUseCase", retrieveProfileUseCase);
-        ReflectionTestUtils.setField(controller, "retrieveEducationUseCase", retrieveEducationUseCase);
-        ReflectionTestUtils.setField(controller, "retrieveSkillUseCase", retrieveSkillUseCase);
-        ReflectionTestUtils.setField(controller, "retrieveTechnologyUseCase", retrieveTechnologyUseCase);
-        ReflectionTestUtils.setField(controller, "retrieveSocialNetworkUseCase", retrieveSocialNetworkUseCase);
-        ReflectionTestUtils.setField(controller, "contactEmailUseCase", contactEmailUseCase);
-        ReflectionTestUtils.setField(controller, "contactRateLimiter", contactRateLimiter);
+        // Arrange común: se conectan los puertos simulados al controlador.
+        PortfolioController controller = new PortfolioController(
+                retrieveProfileUseCase,
+                retrieveEducationUseCase,
+                retrieveSkillUseCase,
+                retrieveTechnologyUseCase,
+                retrieveSocialNetworkUseCase,
+                contactEmailUseCase,
+                contactRateLimiter
+        );
 
         // Se levanta únicamente Spring MVC para probar rutas, JSON y Bean Validation.
         mockMvc = MockMvcBuilders.standaloneSetup(controller)

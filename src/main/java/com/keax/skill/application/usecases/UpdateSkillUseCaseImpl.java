@@ -1,6 +1,7 @@
 package com.keax.skill.application.usecases;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.skill.domain.ports.in.UpdateSkillUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
@@ -12,10 +13,9 @@ import java.util.Objects;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
-
-    @Autowired
-    private SkillRepositoryPort skillRepositoryPort;
+    private final SkillRepositoryPort skillRepositoryPort;
 
     @Override
     public Skill updateSkill(Long skillId, Skill skill) {

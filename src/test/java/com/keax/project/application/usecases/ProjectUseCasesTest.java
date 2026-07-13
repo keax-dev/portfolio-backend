@@ -9,7 +9,6 @@ import com.keax.technology.domain.model.Technology;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,8 @@ class ProjectUseCasesTest {
         when(projectRepository.createProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se crea el proyecto.
-        Project result = inject(new CreateProjectUseCaseImpl()).createProject(input);
+        Project result = new CreateProjectUseCaseImpl(projectRepository, technologyRepository)
+                .createProject(input);
 
         // Assert: se normalizan títulos y la imagen solo puede venir del upload.
         assertEquals("PORTFOLIO", result.getProjectTitle());
@@ -74,7 +74,8 @@ class ProjectUseCasesTest {
         // Act y Assert: la relación se valida antes de persistir.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> inject(new CreateProjectUseCaseImpl()).createProject(input)
+                () -> new CreateProjectUseCaseImpl(projectRepository, technologyRepository)
+                        .createProject(input)
         );
     }
 
@@ -93,7 +94,8 @@ class ProjectUseCasesTest {
         // Act y Assert: se rechaza la posición duplicada.
         assertThrows(
                 ResourceConflictException.class,
-                () -> inject(new CreateProjectUseCaseImpl()).createProject(input)
+                () -> new CreateProjectUseCaseImpl(projectRepository, technologyRepository)
+                        .createProject(input)
         );
     }
 
@@ -116,7 +118,8 @@ class ProjectUseCasesTest {
         when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza el proyecto.
-        Project result = inject(new UpdateProjectUseCaseImpl()).updateProject(1L, changes);
+        Project result = new UpdateProjectUseCaseImpl(projectRepository, technologyRepository)
+                .updateProject(1L, changes);
 
         // Assert: se preserva la imagen y cambian los datos editables.
         assertEquals(1L, result.getProjectId());
@@ -135,7 +138,7 @@ class ProjectUseCasesTest {
         when(projectRepository.deleteProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act y Assert: se marca como eliminado sin borrado físico.
-        assertTrue(inject(new DeleteProjectUseCaseImpl())
+        assertTrue(new DeleteProjectUseCaseImpl(projectRepository)
                 .deleteProject(1L)
                 .getProjectDeleted());
     }
@@ -149,7 +152,7 @@ class ProjectUseCasesTest {
         // Act y Assert: se informa recurso no encontrado.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> inject(new DeleteProjectUseCaseImpl()).deleteProject(99L)
+                () -> new DeleteProjectUseCaseImpl(projectRepository).deleteProject(99L)
         );
     }
 
@@ -161,21 +164,8 @@ class ProjectUseCasesTest {
         // Act y Assert: se conserva la alerta funcional existente.
         assertThrows(
                 ExceptionAlert.class,
-                () -> inject(new RetrieveProjectUseCaseImpl()).findByProjectDeleted(false)
+                () -> new RetrieveProjectUseCaseImpl(projectRepository).findByProjectDeleted(false)
         );
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta los puertos requeridos por la implementación.
-        if (org.springframework.util.ReflectionUtils.findField(
-                useCase.getClass(), "projectRepositoryPort") != null) {
-            ReflectionTestUtils.setField(useCase, "projectRepositoryPort", projectRepository);
-        }
-        if (org.springframework.util.ReflectionUtils.findField(
-                useCase.getClass(), "technologyRepositoryPort") != null) {
-            ReflectionTestUtils.setField(useCase, "technologyRepositoryPort", technologyRepository);
-        }
-        return useCase;
     }
 
     private Project project(

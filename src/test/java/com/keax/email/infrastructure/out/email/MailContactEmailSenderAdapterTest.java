@@ -6,7 +6,6 @@ import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -33,11 +32,12 @@ class MailContactEmailSenderAdapterTest {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("contact-email"), org.mockito.ArgumentMatchers.any(Context.class)))
                 .thenReturn("<html>safe</html>");
-        MailContactEmailSenderAdapter adapter = new MailContactEmailSenderAdapter();
-        ReflectionTestUtils.setField(adapter, "mailSender", mailSender);
-        ReflectionTestUtils.setField(adapter, "templateEngine", templateEngine);
-        ReflectionTestUtils.setField(adapter, "from", "sender@example.com");
-        ReflectionTestUtils.setField(adapter, "to", "owner@example.com");
+        MailContactEmailSenderAdapter adapter = new MailContactEmailSenderAdapter(
+                mailSender,
+                templateEngine,
+                "sender@example.com",
+                "owner@example.com"
+        );
         Contact contact = new Contact(
                 "Keax",
                 "keax@example.com",

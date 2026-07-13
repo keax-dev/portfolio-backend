@@ -1,10 +1,10 @@
 package com.keax.email.infrastructure.out.email;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.keax.email.domain.ports.out.EmailSenderPort;
+import com.keax.shared.domain.exceptions.ExternalServiceException;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
-import com.keax.email.domain.ports.out.EmailSenderPort;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.springframework.stereotype.Component;
 import com.keax.email.domain.model.Contact;
@@ -14,17 +14,22 @@ import org.thymeleaf.context.Context;
 @Component
 public class MailContactEmailSenderAdapter implements EmailSenderPort {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
+    private final String from;
+    private final String to;
 
-    @Autowired
-    private SpringTemplateEngine templateEngine;
-
-    @Value("${spring.mail.username}")
-    private String from;
-
-    @Value("${spring.mail.to}")
-    private String to;
+    public MailContactEmailSenderAdapter(
+            JavaMailSender mailSender,
+            SpringTemplateEngine templateEngine,
+            @Value("${spring.mail.username}") String from,
+            @Value("${spring.mail.to}") String to
+    ) {
+        this.mailSender = mailSender;
+        this.templateEngine = templateEngine;
+        this.from = from;
+        this.to = to;
+    }
 
     @Override
     public void sendContactEmail(Contact contact) {
@@ -49,7 +54,7 @@ public class MailContactEmailSenderAdapter implements EmailSenderPort {
 
             mailSender.send(mime);
         } catch (Exception ex) {
-            throw new IllegalStateException("Contact email failed", ex);
+            throw new ExternalServiceException("Email service is not available", ex);
         }
     }
 

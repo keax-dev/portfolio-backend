@@ -1,20 +1,20 @@
 package com.keax.socialnetwork.infrastructure.out.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.socialnetwork.infrastructure.out.persistence.mapper.SocialNetworkPersistenceMapper;
 import com.keax.socialnetwork.infrastructure.out.persistence.repository.JpaSocialNetworkRepository;
 import com.keax.socialnetwork.infrastructure.out.persistence.entity.SocialNetworkEntity;
 import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class SocialNetworkPersistenceAdapter implements SocialNetworkRepositoryPort {
-
-    @Autowired
-    private JpaSocialNetworkRepository jpaSocialNetworkRepository;
+    private final JpaSocialNetworkRepository jpaSocialNetworkRepository;
     @Override
     public SocialNetwork createSocialNetwork(SocialNetwork socialNetwork) {
         SocialNetworkEntity saved = jpaSocialNetworkRepository.save(

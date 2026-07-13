@@ -9,7 +9,6 @@ import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +46,8 @@ class EducationUseCasesTest {
         input.setEducationStartEs(null);
         when(educationRepository
                 .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L))
+                        "DEGREE", false, 10L
+                ))
                 .thenReturn(Optional.empty());
         when(educationRepository.findByEducationPositionAndEducationDeleted(1, false))
                 .thenReturn(Optional.empty());
@@ -56,7 +56,8 @@ class EducationUseCasesTest {
         when(educationRepository.createEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se crea el registro educativo.
-        Education result = inject(new CreateEducationUseCaseImpl()).createEducation(input);
+        Education result = new CreateEducationUseCaseImpl(educationRepository, institutionRepository)
+                .createEducation(input);
 
         // Assert: los obligatorios se normalizan y los opcionales vacíos quedan nulos.
         assertEquals("DEGREE", result.getEducationTitle());
@@ -72,7 +73,8 @@ class EducationUseCasesTest {
         Education input = education(null, "Degree", "Título", 1, null, 10L);
         when(educationRepository
                 .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L))
+                        "DEGREE", false, 10L
+                ))
                 .thenReturn(Optional.empty());
         when(educationRepository.findByEducationPositionAndEducationDeleted(1, false))
                 .thenReturn(Optional.empty());
@@ -82,7 +84,8 @@ class EducationUseCasesTest {
         // Act y Assert: no se permite una referencia inexistente.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> inject(new CreateEducationUseCaseImpl()).createEducation(input)
+                () -> new CreateEducationUseCaseImpl(educationRepository, institutionRepository)
+                        .createEducation(input)
         );
     }
 
@@ -92,13 +95,15 @@ class EducationUseCasesTest {
         Education input = education(null, "Degree", "Título", 1, null, 10L);
         when(educationRepository
                 .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L))
+                        "DEGREE", false, 10L
+                ))
                 .thenReturn(Optional.of(education(2L, "DEGREE", "TÍTULO", 2, false, 10L)));
 
         // Act y Assert: se detiene antes de validar el resto de datos.
         assertThrows(
                 ResourceConflictException.class,
-                () -> inject(new CreateEducationUseCaseImpl()).createEducation(input)
+                () -> new CreateEducationUseCaseImpl(educationRepository, institutionRepository)
+                        .createEducation(input)
         );
     }
 
@@ -115,14 +120,16 @@ class EducationUseCasesTest {
                 .thenReturn(Optional.of(new Institution(10L, "UNI", "UNI", null, false)));
         when(educationRepository
                 .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L))
+                        "DEGREE", false, 10L
+                ))
                 .thenReturn(Optional.of(education(1L, "DEGREE", "TÍTULO", 2, false, 10L)));
         when(educationRepository.findByEducationPositionAndEducationDeleted(2, false))
                 .thenReturn(Optional.of(education(1L, "DEGREE", "TÍTULO", 2, false, 10L)));
         when(educationRepository.updateEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza el registro.
-        Education result = inject(new UpdateEducationUseCaseImpl()).updateEducation(1L, changes);
+        Education result = new UpdateEducationUseCaseImpl(educationRepository, institutionRepository)
+                .updateEducation(1L, changes);
 
         // Assert: los campos temporales y descriptivos se aplican normalizados.
         assertEquals("DEGREE", result.getEducationTitle());
@@ -140,7 +147,7 @@ class EducationUseCasesTest {
         when(educationRepository.deleteEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act y Assert: la operación marca el registro sin eliminarlo físicamente.
-        assertTrue(inject(new DeleteEducationUseCaseImpl())
+        assertTrue(new DeleteEducationUseCaseImpl(educationRepository)
                 .deleteEducation(1L)
                 .getEducationDeleted());
     }
@@ -154,7 +161,7 @@ class EducationUseCasesTest {
         // Act y Assert: se informa recurso no encontrado.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> inject(new DeleteEducationUseCaseImpl()).deleteEducation(99L)
+                () -> new DeleteEducationUseCaseImpl(educationRepository).deleteEducation(99L)
         );
     }
 
@@ -166,21 +173,8 @@ class EducationUseCasesTest {
         // Act y Assert: se mantiene el contrato de alerta.
         assertThrows(
                 ExceptionAlert.class,
-                () -> inject(new RetrieveEducationUseCaseImpl()).findByEducationDeleted(false)
+                () -> new RetrieveEducationUseCaseImpl(educationRepository).findByEducationDeleted(false)
         );
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta solo los puertos declarados por la implementación concreta.
-        if (org.springframework.util.ReflectionUtils.findField(
-                useCase.getClass(), "educationRepositoryPort") != null) {
-            ReflectionTestUtils.setField(useCase, "educationRepositoryPort", educationRepository);
-        }
-        if (org.springframework.util.ReflectionUtils.findField(
-                useCase.getClass(), "institutionRepositoryPort") != null) {
-            ReflectionTestUtils.setField(useCase, "institutionRepositoryPort", institutionRepository);
-        }
-        return useCase;
     }
 
     private Education education(

@@ -1,9 +1,10 @@
 package com.keax.institution.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.institution.domain.ports.in.DeleteInstitutionUseCase;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.institution.domain.model.Institution;
@@ -12,13 +13,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DeleteInstitutionUseCaseImpl implements DeleteInstitutionUseCase {
-
-    @Autowired
-    private InstitutionRepositoryPort institutionRepositoryPort;
-
-    @Autowired
-    private EducationRepositoryPort educationRepositoryPort;
+    private final InstitutionRepositoryPort institutionRepositoryPort;
+    private final EducationRepositoryPort educationRepositoryPort;
 
     @Override
     public Institution deleteInstitution(Long institutionId) {

@@ -7,7 +7,6 @@ import com.keax.socialnetwork.domain.model.SocialNetwork;
 import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +44,7 @@ class SocialNetworkUseCasesTest {
         when(repository.createSocialNetwork(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se crea la red social.
-        SocialNetwork result = inject(new CreateSocialNetworkUseCaseImpl()).createSocialNetwork(input);
+        SocialNetwork result = new CreateSocialNetworkUseCaseImpl(repository).createSocialNetwork(input);
 
         // Assert: el nombre y el estado quedan controlados por aplicación.
         assertEquals("GITHUB", result.getSocialNetworkName());
@@ -62,7 +61,7 @@ class SocialNetworkUseCasesTest {
         // Act y Assert: se evita crear el duplicado.
         assertThrows(
                 ResourceConflictException.class,
-                () -> inject(new CreateSocialNetworkUseCaseImpl()).createSocialNetwork(input)
+                () -> new CreateSocialNetworkUseCaseImpl(repository).createSocialNetwork(input)
         );
     }
 
@@ -82,7 +81,7 @@ class SocialNetworkUseCasesTest {
         when(repository.updateSocialNetwork(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza la red.
-        SocialNetwork result = inject(new UpdateSocialNetworkUseCaseImpl())
+        SocialNetwork result = new UpdateSocialNetworkUseCaseImpl(repository)
                 .updateSocialNetwork(1L, changes);
 
         // Assert: se aplican todos los campos y se conserva el id.
@@ -101,7 +100,7 @@ class SocialNetworkUseCasesTest {
         // Act y Assert: se comunica recurso no encontrado.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> inject(new DeleteSocialNetworkUseCaseImpl()).deleteSocialNetwork(99L)
+                () -> new DeleteSocialNetworkUseCaseImpl(repository).deleteSocialNetwork(99L)
         );
     }
 
@@ -114,7 +113,7 @@ class SocialNetworkUseCasesTest {
         when(repository.deleteSocialNetwork(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act y Assert: el registro queda marcado como eliminado.
-        assertTrue(inject(new DeleteSocialNetworkUseCaseImpl())
+        assertTrue(new DeleteSocialNetworkUseCaseImpl(repository)
                 .deleteSocialNetwork(1L)
                 .getSocialNetworkDeleted());
     }
@@ -127,14 +126,8 @@ class SocialNetworkUseCasesTest {
         // Act y Assert: se mantiene la alerta funcional existente.
         assertThrows(
                 ExceptionAlert.class,
-                () -> inject(new RetrieveSocialNetworkUseCaseImpl()).findBySocialNetworkDeleted(false)
+                () -> new RetrieveSocialNetworkUseCaseImpl(repository).findBySocialNetworkDeleted(false)
         );
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta el puerto en la implementación concreta bajo prueba.
-        ReflectionTestUtils.setField(useCase, "socialNetworkRepositoryPort", repository);
-        return useCase;
     }
 
     private SocialNetwork social(Long id, String name, int position, Boolean deleted) {

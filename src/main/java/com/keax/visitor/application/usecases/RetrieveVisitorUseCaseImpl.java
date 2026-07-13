@@ -5,7 +5,6 @@ import com.keax.visitor.domain.ports.out.VisitorRepositoryPort;
 import com.keax.visitor.domain.model.VisitorDashboard;
 import com.keax.visitor.domain.model.Visitor;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Instant;
@@ -19,12 +18,7 @@ public class RetrieveVisitorUseCaseImpl implements RetrieveVisitorUseCase {
     private final VisitorRepositoryPort visitorRepositoryPort;
     private final Clock clock;
 
-    @Autowired
-    public RetrieveVisitorUseCaseImpl(VisitorRepositoryPort visitorRepositoryPort) {
-        this(visitorRepositoryPort, Clock.systemUTC());
-    }
-
-    RetrieveVisitorUseCaseImpl(VisitorRepositoryPort visitorRepositoryPort, Clock clock) {
+    public RetrieveVisitorUseCaseImpl(VisitorRepositoryPort visitorRepositoryPort, Clock clock) {
         this.visitorRepositoryPort = visitorRepositoryPort;
         this.clock = clock;
     }

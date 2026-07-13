@@ -1,8 +1,9 @@
 package com.keax.profile.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.profile.infrastructure.in.web.mapper.ProfileWebMapper;
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.keax.profile.domain.ports.in.CreateProfileUseCase;
@@ -18,16 +19,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/profile")
+@RequiredArgsConstructor
 public class ProfileController {
-
-    @Autowired
-    private CreateProfileUseCase createProfileUseCase;
-
-    @Autowired
-    private UpdateProfileUseCase updateProfileUseCase;
-
-    @Autowired
-    private RetrieveProfileUseCase retrieveProfileUseCase;
+    private final CreateProfileUseCase createProfileUseCase;
+    private final UpdateProfileUseCase updateProfileUseCase;
+    private final RetrieveProfileUseCase retrieveProfileUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponseDTO<ProfileDTO>> create(@Valid @RequestBody ProfileDTO profile) {

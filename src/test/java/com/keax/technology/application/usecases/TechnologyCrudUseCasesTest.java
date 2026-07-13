@@ -8,7 +8,6 @@ import com.keax.technology.domain.model.Technology;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ class TechnologyCrudUseCasesTest {
         when(technologyRepository.createTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se crea la tecnología.
-        Technology result = inject(new CreateTechnologyUseCaseImpl()).createTechnology(input);
+        Technology result = new CreateTechnologyUseCaseImpl(technologyRepository).createTechnology(input);
 
         // Assert: se normaliza y queda activa.
         assertEquals("JAVA", result.getTechnologyName());
@@ -66,7 +65,7 @@ class TechnologyCrudUseCasesTest {
         // Act y Assert: se rechaza el nombre duplicado.
         assertThrows(
                 ResourceConflictException.class,
-                () -> inject(new CreateTechnologyUseCaseImpl()).createTechnology(input)
+                () -> new CreateTechnologyUseCaseImpl(technologyRepository).createTechnology(input)
         );
     }
 
@@ -84,7 +83,8 @@ class TechnologyCrudUseCasesTest {
         when(technologyRepository.updateTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza el registro.
-        Technology result = inject(new UpdateTechnologyUseCaseImpl()).updateTechnology(1L, changes);
+        Technology result = new UpdateTechnologyUseCaseImpl(technologyRepository)
+                .updateTechnology(1L, changes);
 
         // Assert: cambia nombre/posición y conserva identidad.
         assertEquals(1L, result.getTechnologyId());
@@ -103,7 +103,8 @@ class TechnologyCrudUseCasesTest {
         // Act y Assert: la relación impide el borrado lógico.
         assertThrows(
                 ResourceConflictException.class,
-                () -> inject(new DeleteTechnologyUseCaseImpl()).deleteTechnology(1L)
+                () -> new DeleteTechnologyUseCaseImpl(technologyRepository, projectRepository)
+                        .deleteTechnology(1L)
         );
     }
 
@@ -118,7 +119,7 @@ class TechnologyCrudUseCasesTest {
         when(technologyRepository.deleteTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act y Assert: se activa el borrado lógico.
-        assertTrue(inject(new DeleteTechnologyUseCaseImpl())
+        assertTrue(new DeleteTechnologyUseCaseImpl(technologyRepository, projectRepository)
                 .deleteTechnology(1L)
                 .getTechnologyDeleted());
     }
@@ -142,22 +143,9 @@ class TechnologyCrudUseCasesTest {
         // Act y Assert: se detiene el flujo antes de validar duplicados.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> inject(new UpdateTechnologyUseCaseImpl())
+                () -> new UpdateTechnologyUseCaseImpl(technologyRepository)
                         .updateTechnology(99L, technology(null, "Java", 1, null))
         );
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta únicamente los puertos presentes en cada implementación.
-        if (org.springframework.util.ReflectionUtils.findField(
-                useCase.getClass(), "technologyRepositoryPort") != null) {
-            ReflectionTestUtils.setField(useCase, "technologyRepositoryPort", technologyRepository);
-        }
-        if (org.springframework.util.ReflectionUtils.findField(
-                useCase.getClass(), "projectRepositoryPort") != null) {
-            ReflectionTestUtils.setField(useCase, "projectRepositoryPort", projectRepository);
-        }
-        return useCase;
     }
 
     private Technology technology(Long id, String name, int position, Boolean deleted) {

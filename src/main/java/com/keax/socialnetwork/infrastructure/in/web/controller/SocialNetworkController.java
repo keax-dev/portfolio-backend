@@ -1,5 +1,7 @@
 package com.keax.socialnetwork.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.socialnetwork.infrastructure.in.web.mapper.SocialNetworkWebMapper;
 import com.keax.socialnetwork.domain.ports.in.RetrieveSocialNetworkUseCase;
 import com.keax.socialnetwork.domain.ports.in.CreateSocialNetworkUseCase;
@@ -7,7 +9,6 @@ import com.keax.socialnetwork.domain.ports.in.DeleteSocialNetworkUseCase;
 import com.keax.socialnetwork.domain.ports.in.UpdateSocialNetworkUseCase;
 import com.keax.socialnetwork.infrastructure.in.web.dto.SocialNetworkDTO;
 import com.keax.shared.infrastructure.in.web.dto.ApiResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,19 +23,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/socialNetwork")
+@RequiredArgsConstructor
 public class SocialNetworkController {
-
-    @Autowired
-    private CreateSocialNetworkUseCase createSocialNetworkUseCase;
-
-    @Autowired
-    private UpdateSocialNetworkUseCase updateSocialNetworkUseCase;
-
-    @Autowired
-    private RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
-
-    @Autowired
-    private DeleteSocialNetworkUseCase deleteSocialNetworkUseCase;
+    private final CreateSocialNetworkUseCase createSocialNetworkUseCase;
+    private final UpdateSocialNetworkUseCase updateSocialNetworkUseCase;
+    private final RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
+    private final DeleteSocialNetworkUseCase deleteSocialNetworkUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponseDTO<SocialNetworkDTO>> create(@Valid @RequestBody SocialNetworkDTO socialNetwork) {

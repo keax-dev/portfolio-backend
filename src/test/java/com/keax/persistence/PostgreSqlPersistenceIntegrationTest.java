@@ -11,12 +11,12 @@ import com.keax.project.infrastructure.out.persistence.repository.JpaProjectRepo
 import com.keax.technology.infrastructure.out.persistence.entity.TechnologyEntity;
 import com.keax.technology.infrastructure.out.persistence.repository.JpaTechnologyRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers(disabledWithoutDocker = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class PostgreSqlPersistenceIntegrationTest {
 
     @Container
@@ -56,18 +57,28 @@ class PostgreSqlPersistenceIntegrationTest {
         registry.add("spring.flyway.baseline-on-migrate", () -> "false");
     }
 
-    @Autowired
-    private JpaInstitutionRepository institutionRepository;
-    @Autowired
-    private JpaEducationRepository educationRepository;
-    @Autowired
-    private JpaTechnologyRepository technologyRepository;
-    @Autowired
-    private JpaProjectRepository projectRepository;
-    @Autowired
-    private JpaUserRepository userRepository;
-    @Autowired
-    private TestEntityManager entityManager;
+    private final JpaInstitutionRepository institutionRepository;
+    private final JpaEducationRepository educationRepository;
+    private final JpaTechnologyRepository technologyRepository;
+    private final JpaProjectRepository projectRepository;
+    private final JpaUserRepository userRepository;
+    private final TestEntityManager entityManager;
+
+    PostgreSqlPersistenceIntegrationTest(
+            JpaInstitutionRepository institutionRepository,
+            JpaEducationRepository educationRepository,
+            JpaTechnologyRepository technologyRepository,
+            JpaProjectRepository projectRepository,
+            JpaUserRepository userRepository,
+            TestEntityManager entityManager
+    ) {
+        this.institutionRepository = institutionRepository;
+        this.educationRepository = educationRepository;
+        this.technologyRepository = technologyRepository;
+        this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
+        this.entityManager = entityManager;
+    }
 
     @Test
     void resolvesEducationRelationshipQueriesOnPostgreSql() {

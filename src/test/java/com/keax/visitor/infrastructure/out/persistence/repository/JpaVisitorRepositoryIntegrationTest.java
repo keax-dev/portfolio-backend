@@ -2,8 +2,8 @@ package com.keax.visitor.infrastructure.out.persistence.repository;
 
 import com.keax.visitor.infrastructure.out.persistence.entity.VisitorEntity;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestConstructor;
 
 import java.time.Instant;
 
@@ -14,10 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * visitantes unicos y agregaciones geograficas del repositorio de visitas.
  */
 @DataJpaTest
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class JpaVisitorRepositoryIntegrationTest {
 
-    @Autowired
-    private JpaVisitorRepository repository;
+    private final JpaVisitorRepository repository;
+
+    JpaVisitorRepositoryIntegrationTest(JpaVisitorRepository repository) {
+        this.repository = repository;
+    }
 
     @Test
     void aggregatesVisitorMetricsInsideRequestedRange() {

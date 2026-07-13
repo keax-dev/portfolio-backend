@@ -1,8 +1,9 @@
 package com.keax.technology.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.technology.domain.ports.in.UpdateTechnologyUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.technology.domain.model.Technology;
@@ -12,10 +13,9 @@ import java.util.Objects;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
-
-    @Autowired
-    private TechnologyRepositoryPort technologyRepositoryPort;
+    private final TechnologyRepositoryPort technologyRepositoryPort;
 
     @Override
     public Technology updateTechnology(Long technologyId, Technology technology) {

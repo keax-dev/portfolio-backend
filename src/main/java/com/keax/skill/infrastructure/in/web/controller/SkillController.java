@@ -1,8 +1,9 @@
 package com.keax.skill.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.skill.infrastructure.in.web.mapper.SkillWebMapper;
 import com.keax.shared.infrastructure.in.web.dto.ApiResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,19 +23,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/skill")
+@RequiredArgsConstructor
 public class SkillController {
-
-    @Autowired
-    private CreateSkillUseCase createSkillUseCase;
-
-    @Autowired
-    private UpdateSkillUseCase updateSkillUseCase;
-
-    @Autowired
-    private RetrieveSkillUseCase retrieveSkillUseCase;
-
-    @Autowired
-    private DeleteSkillUseCase deleteSkillUseCase;
+    private final CreateSkillUseCase createSkillUseCase;
+    private final UpdateSkillUseCase updateSkillUseCase;
+    private final RetrieveSkillUseCase retrieveSkillUseCase;
+    private final DeleteSkillUseCase deleteSkillUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponseDTO<SkillDTO>> create(@Valid @RequestBody SkillDTO skill) {

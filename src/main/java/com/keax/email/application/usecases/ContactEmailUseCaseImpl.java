@@ -1,6 +1,7 @@
 package com.keax.email.application.usecases;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import com.keax.email.domain.ports.in.ContactEmailUseCase;
 import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.email.domain.ports.out.EmailSenderPort;
@@ -8,10 +9,9 @@ import org.springframework.stereotype.Service;
 import com.keax.email.domain.model.Contact;
 
 @Service
+@RequiredArgsConstructor
 public class ContactEmailUseCaseImpl implements ContactEmailUseCase {
-
-    @Autowired
-    private EmailSenderPort emailSenderPort;
+    private final EmailSenderPort emailSenderPort;
     public Contact sendContactEmail(Contact contact){
 
         try{

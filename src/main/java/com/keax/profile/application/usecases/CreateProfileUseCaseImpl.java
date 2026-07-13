@@ -1,7 +1,8 @@
 package com.keax.profile.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.profile.domain.ports.in.CreateProfileUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +12,9 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CreateProfileUseCaseImpl implements CreateProfileUseCase {
-
-    @Autowired
-    private ProfileRepositoryPort profileRepositoryPort;
+    private final ProfileRepositoryPort profileRepositoryPort;
 
     @Override
     public Profile createProfile(Profile profile) {

@@ -6,7 +6,6 @@ import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -39,7 +38,7 @@ class ProfileUseCasesTest {
         Profile input = profile(null, "Keax", "Jimenez", "Developer", "Desarrollador");
         when(repository.getListProfile()).thenReturn(List.of());
         when(repository.saveProfile(any(Profile.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        CreateProfileUseCaseImpl useCase = inject(new CreateProfileUseCaseImpl());
+        CreateProfileUseCaseImpl useCase = new CreateProfileUseCaseImpl(repository);
 
         // Act: se crea el único perfil permitido.
         Profile result = useCase.createProfile(input);
@@ -56,7 +55,7 @@ class ProfileUseCasesTest {
     void rejectsSecondProfile() {
         // Arrange: el repositorio ya contiene el perfil único.
         when(repository.getListProfile()).thenReturn(List.of(profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV")));
-        CreateProfileUseCaseImpl useCase = inject(new CreateProfileUseCaseImpl());
+        CreateProfileUseCaseImpl useCase = new CreateProfileUseCaseImpl(repository);
 
         // Act y Assert: la regla de unicidad se expresa como conflicto.
         assertThrows(
@@ -70,7 +69,7 @@ class ProfileUseCasesTest {
         // Arrange: existe un perfil persistido.
         Profile stored = profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV");
         when(repository.getListProfile()).thenReturn(List.of(stored));
-        RetrieveProfileUseCaseImpl useCase = inject(new RetrieveProfileUseCaseImpl());
+        RetrieveProfileUseCaseImpl useCase = new RetrieveProfileUseCaseImpl(repository);
 
         // Act y Assert: se retorna exactamente el agregado encontrado.
         assertSame(stored, useCase.getProfile());
@@ -80,7 +79,7 @@ class ProfileUseCasesTest {
     void reportsMissingProfile() {
         // Arrange: el repositorio no contiene registros.
         when(repository.getListProfile()).thenReturn(List.of());
-        RetrieveProfileUseCaseImpl useCase = inject(new RetrieveProfileUseCaseImpl());
+        RetrieveProfileUseCaseImpl useCase = new RetrieveProfileUseCaseImpl(repository);
 
         // Act y Assert: la ausencia se traduce en una excepción de recurso.
         assertThrows(ResourceNotFoundException.class, useCase::getProfile);
@@ -95,7 +94,7 @@ class ProfileUseCasesTest {
         changes.setProfileCv("https://cdn/cv.pdf");
         when(repository.getListProfile()).thenReturn(List.of(stored));
         when(repository.saveProfile(any(Profile.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        UpdateProfileUseCaseImpl useCase = inject(new UpdateProfileUseCaseImpl());
+        UpdateProfileUseCaseImpl useCase = new UpdateProfileUseCaseImpl(repository);
 
         // Act: se aplican los campos editables.
         Profile result = useCase.updateProfile(changes);
@@ -105,12 +104,6 @@ class ProfileUseCasesTest {
         assertEquals("KEAX", result.getProfileName());
         assertEquals("https://cdn/picture.jpg", result.getProfilePicture());
         assertEquals("https://cdn/cv.pdf", result.getProfileCv());
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta el puerto en las clases legadas que todavía usan field injection.
-        ReflectionTestUtils.setField(useCase, "profileRepositoryPort", repository);
-        return useCase;
     }
 
     private Profile profile(Long id, String name, String lastName, String title, String titleEs) {

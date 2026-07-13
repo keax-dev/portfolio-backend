@@ -7,7 +7,6 @@ import com.keax.skill.domain.model.Skill;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +43,7 @@ class SkillUseCasesTest {
         when(repository.createSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se ejecuta la creación.
-        Skill result = inject(new CreateSkillUseCaseImpl()).createSkill(input);
+        Skill result = new CreateSkillUseCaseImpl(repository).createSkill(input);
 
         // Assert: el caso de uso controla id, imagen y borrado.
         assertEquals("JAVA", result.getSkillName());
@@ -64,7 +63,7 @@ class SkillUseCasesTest {
         // Act y Assert: la posición duplicada se rechaza.
         assertThrows(
                 ResourceConflictException.class,
-                () -> inject(new CreateSkillUseCaseImpl()).createSkill(input)
+                () -> new CreateSkillUseCaseImpl(repository).createSkill(input)
         );
     }
 
@@ -81,7 +80,7 @@ class SkillUseCasesTest {
         when(repository.updateSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza el registro.
-        Skill result = inject(new UpdateSkillUseCaseImpl()).updateSkill(1L, changes);
+        Skill result = new UpdateSkillUseCaseImpl(repository).updateSkill(1L, changes);
 
         // Assert: la imagen existente se conserva y cambian nombre/posición.
         assertEquals("JAVA", result.getSkillName());
@@ -97,7 +96,7 @@ class SkillUseCasesTest {
         // Act y Assert: no se inventa un borrado sobre un recurso ausente.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> inject(new DeleteSkillUseCaseImpl()).deleteSkill(99L)
+                () -> new DeleteSkillUseCaseImpl(repository).deleteSkill(99L)
         );
     }
 
@@ -109,7 +108,7 @@ class SkillUseCasesTest {
         when(repository.deleteSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act y Assert: la eliminación activa únicamente el indicador lógico.
-        assertTrue(inject(new DeleteSkillUseCaseImpl()).deleteSkill(1L).getSkillDeleted());
+        assertTrue(new DeleteSkillUseCaseImpl(repository).deleteSkill(1L).getSkillDeleted());
     }
 
     @Test
@@ -120,14 +119,8 @@ class SkillUseCasesTest {
         // Act y Assert: se mantiene la alerta funcional del API.
         assertThrows(
                 ExceptionAlert.class,
-                () -> inject(new RetrieveSkillUseCaseImpl()).findBySkillDeleted(false)
+                () -> new RetrieveSkillUseCaseImpl(repository).findBySkillDeleted(false)
         );
-    }
-
-    private <T> T inject(T useCase) {
-        // Inyecta el puerto en los casos de uso que aún utilizan @Autowired de campo.
-        ReflectionTestUtils.setField(useCase, "skillRepositoryPort", repository);
-        return useCase;
     }
 
     private Skill skill(Long id, String name, String picture, int position, Boolean deleted) {

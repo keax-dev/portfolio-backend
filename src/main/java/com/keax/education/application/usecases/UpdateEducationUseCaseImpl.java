@@ -1,9 +1,10 @@
 package com.keax.education.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.UpdateEducationUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.education.domain.model.Education;
@@ -13,13 +14,10 @@ import java.util.Objects;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
-
-    @Autowired
-    private EducationRepositoryPort educationRepositoryPort;
-
-    @Autowired
-    private InstitutionRepositoryPort institutionRepositoryPort;
+    private final EducationRepositoryPort educationRepositoryPort;
+    private final InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
     public Education updateEducation(Long educationId, Education education) {

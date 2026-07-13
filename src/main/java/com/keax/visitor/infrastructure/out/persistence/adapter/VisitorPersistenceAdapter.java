@@ -1,5 +1,7 @@
 package com.keax.visitor.infrastructure.out.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.visitor.infrastructure.out.persistence.mapper.VisitorPersistenceMapper;
 import com.keax.visitor.infrastructure.out.persistence.repository.JpaVisitorRepository;
 import com.keax.visitor.infrastructure.out.persistence.repository.VisitorCountryCountProjection;
@@ -9,17 +11,15 @@ import com.keax.visitor.domain.model.VisitorCountryCount;
 import com.keax.visitor.domain.model.VisitorCityCount;
 import com.keax.visitor.infrastructure.out.persistence.entity.VisitorEntity;
 import com.keax.visitor.domain.model.Visitor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class VisitorPersistenceAdapter implements VisitorRepositoryPort {
-
-    @Autowired
-    private JpaVisitorRepository jpaVisitorRepository;
+    private final JpaVisitorRepository jpaVisitorRepository;
 
     @Override
     public Visitor saveVisitor(Visitor visitor) {

@@ -1,20 +1,20 @@
 package com.keax.technology.infrastructure.out.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.technology.infrastructure.out.persistence.mapper.TechnologyPersistenceMapper;
 import com.keax.technology.infrastructure.out.persistence.repository.JpaTechnologyRepository;
 import com.keax.technology.infrastructure.out.persistence.entity.TechnologyEntity;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.technology.domain.model.Technology;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
-
-    @Autowired
-    private JpaTechnologyRepository jpaTechnologyRepository;
+    private final JpaTechnologyRepository jpaTechnologyRepository;
 
     @Override
     public Technology createTechnology(Technology technology) {

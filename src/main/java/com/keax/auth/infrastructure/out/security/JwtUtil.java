@@ -1,7 +1,6 @@
 package com.keax.auth.infrastructure.out.security;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.auth.domain.ports.out.TokenProviderPort;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
@@ -20,15 +19,11 @@ public class JwtUtil implements TokenProviderPort {
     private final long expirationMs;
     private final Clock clock;
 
-    @Autowired
     public JwtUtil(
             @Value("${jwt.secret}") String key,
-            @Value("${jwt.expiration-ms}") long expirationMs
+            @Value("${jwt.expiration-ms}") long expirationMs,
+            Clock clock
     ) {
-        this(key, expirationMs, Clock.systemUTC());
-    }
-
-    JwtUtil(String key, long expirationMs, Clock clock) {
         if (expirationMs <= 0) {
             throw new IllegalArgumentException("JWT expiration must be greater than zero");
         }

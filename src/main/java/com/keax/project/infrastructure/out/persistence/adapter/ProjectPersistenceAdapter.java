@@ -1,20 +1,20 @@
 package com.keax.project.infrastructure.out.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.project.infrastructure.out.persistence.mapper.ProjectPersistenceMapper;
 import com.keax.project.infrastructure.out.persistence.repository.JpaProjectRepository;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.keax.project.domain.model.Project;
 import java.util.Optional;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
-
-    @Autowired
-    private JpaProjectRepository jpaProjectRepository;
+    private final JpaProjectRepository jpaProjectRepository;
 
     @Override
     public Project createProject(Project project) {

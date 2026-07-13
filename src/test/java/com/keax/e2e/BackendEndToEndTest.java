@@ -7,7 +7,6 @@ import com.keax.skill.infrastructure.out.persistence.repository.JpaSkillReposito
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -17,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestConstructor;
 
 import java.util.Map;
 
@@ -29,19 +29,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * crea una habilidad protegida y comprueba su publicación anónima y persistencia.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class BackendEndToEndTest {
 
     @LocalServerPort
     private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-    @Autowired
-    private JpaUserRepository userRepository;
-    @Autowired
-    private JpaSkillRepository skillRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final TestRestTemplate restTemplate;
+    private final JpaUserRepository userRepository;
+    private final JpaSkillRepository skillRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    BackendEndToEndTest(
+            TestRestTemplate restTemplate,
+            JpaUserRepository userRepository,
+            JpaSkillRepository skillRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.restTemplate = restTemplate;
+        this.userRepository = userRepository;
+        this.skillRepository = skillRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @BeforeEach
     void setUp() {
