@@ -1,0 +1,37 @@
+# Compose de produccion del backend.
+# Descarga una imagen ya publicada en GHCR y la levanta localmente en Lightsail.
+#
+# Requiere dos archivos en la carpeta de despliegue:
+# - .env.prod    -> lo genera el workflow con el tag exacto de la imagen
+# - .env         -> lo mantienes manualmente con variables reales del backend
+#
+# Se publica en 127.0.0.1:9090 para convivir con el servicio manual actual en 8080.
+# Cuando quieras cortar trafico al contenedor, Nginx del host debe apuntar a 127.0.0.1:9090.
+services:
+  backend:
+    container_name: portfolio-backend
+    image: ${BACKEND_IMAGE}
+    restart: unless-stopped
+
+    # Carga las variables reales de Spring Boot sin commitear secretos al repositorio.
+    env_file:
+      - ./.env
+
+    environment:
+      # Fuerza el perfil de produccion dentro del contenedor.
+      SPRING_PROFILES_ACTIVE: prod
+      # En contenedor Spring debe escuchar en todas las interfaces internas.
+      SERVER_ADDRESS: 0.0.0.0
+      # Mantiene el puerto interno esperado por el healthcheck y el proxy local.
+      PORT: 8080
+
+    ports:
+      - '127.0.0.1:9090:8080'
+
+    # Healthcheck adicional visible desde Docker Compose.
+    healthcheck:
+      test: ['CMD', 'curl', '--fail', '--silent', 'http://127.0.0.1:8080/actuator/health']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s

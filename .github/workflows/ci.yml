@@ -1,0 +1,72 @@
+# Pipeline de integracion continua del backend.
+# Valida compilacion, pruebas, cobertura y construccion del contenedor.
+name: CI
+
+# Define los eventos que disparan el workflow.
+on:
+  # Ejecuta CI al subir cambios directamente a main.
+  push:
+    branches:
+      - main
+  # Ejecuta CI al abrir o actualizar un Pull Request hacia main.
+  pull_request:
+    branches:
+      - main
+
+# Permiso minimo necesario para leer el codigo del repositorio.
+permissions:
+  contents: read
+
+# Si llegan nuevos cambios a la misma rama, cancela la ejecucion anterior en progreso.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Job principal de validacion tecnica del backend.
+  validate:
+    # Usa un runner Linux administrado por GitHub.
+    runs-on: ubuntu-latest
+    # Limita la duracion maxima para evitar jobs colgados indefinidamente.
+    timeout-minutes: 10
+
+    steps:
+      # Descarga el contenido del repositorio en el runner.
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      # En algunos entornos el wrapper puede perder el bit ejecutable.
+      # Este ajuste evita fallas por permisos al invocar ./mvnw.
+      - name: Dar permisos al wrapper Maven
+        run: chmod +x mvnw
+
+      # Instala Java 21 y habilita cache local del repositorio Maven.
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Ejecuta el pipeline completo de Maven:
+      # - compila
+      # - corre tests
+      # - genera reporte JaCoCo
+      # - valida cobertura minima
+      - name: Ejecutar verify
+        run: ./mvnw -B verify
+
+      # Valida que el Dockerfile del backend pueda construir una imagen real.
+      # Esto evita descubrir errores del contenedor recien durante el deploy.
+      - name: Validar build Docker
+        run: docker build -t portfolio-backend:ci .
+
+      # Si falla Maven, sube reportes para analizar la causa desde GitHub Actions.
+      - name: Subir reportes de pruebas si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: |
+            target/surefire-reports
+            target/site/jacoco

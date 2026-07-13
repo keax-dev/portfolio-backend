@@ -1,0 +1,23 @@
+# Evita enviar artefactos locales y archivos sensibles al contexto de Docker.
+# Esto acelera la construccion y reduce el riesgo de copiar basura al build.
+
+# Git e IDE
+.git
+.gitignore
+.idea
+
+# Artefactos Maven/Java
+target
+*.log
+
+# Variables de entorno locales
+.env
+.env.dev
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos ajenos al backend
+node_modules
+package-lock.json
