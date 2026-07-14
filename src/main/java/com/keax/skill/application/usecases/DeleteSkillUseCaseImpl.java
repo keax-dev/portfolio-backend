@@ -1,6 +1,7 @@
 package com.keax.skill.application.usecases;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.skill.domain.ports.in.DeleteSkillUseCase;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
@@ -10,10 +11,9 @@ import com.keax.skill.domain.model.Skill;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DeleteSkillUseCaseImpl implements DeleteSkillUseCase {
-
-    @Autowired
-    private SkillRepositoryPort skillRepositoryPort;
+    private final SkillRepositoryPort skillRepositoryPort;
 
     @Override
     public Skill deleteSkill(Long skillId) {

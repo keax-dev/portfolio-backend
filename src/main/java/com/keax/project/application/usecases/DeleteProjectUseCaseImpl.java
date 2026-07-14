@@ -1,7 +1,8 @@
 package com.keax.project.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.project.domain.ports.in.DeleteProjectUseCase;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,10 +11,9 @@ import com.keax.project.domain.model.Project;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DeleteProjectUseCaseImpl implements DeleteProjectUseCase {
-
-    @Autowired
-    private ProjectRepositoryPort projectRepositoryPort;
+    private final ProjectRepositoryPort projectRepositoryPort;
 
     @Override
     public Project deleteProject(Long projectId) {

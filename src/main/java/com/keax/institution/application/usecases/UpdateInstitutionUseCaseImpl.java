@@ -1,8 +1,9 @@
 package com.keax.institution.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.institution.domain.ports.in.UpdateInstitutionUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.institution.domain.model.Institution;
@@ -12,10 +13,9 @@ import java.util.Objects;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
-
-    @Autowired
-    private InstitutionRepositoryPort institutionRepositoryPort;
+    private final InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
     public Institution updateInstitution(Long institutionId, Institution institution) {

@@ -1,6 +1,7 @@
 package com.keax.institution.infrastructure.out.persistence.adapter;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.institution.infrastructure.out.persistence.entity.InstitutionEntity;
@@ -11,10 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class InstitutionPersistenceAdapter implements InstitutionRepositoryPort {
-
-    @Autowired
-    private JpaInstitutionRepository jpaInstitutionRepository;
+    private final JpaInstitutionRepository jpaInstitutionRepository;
 
     @Override
     public Institution saveInstitution(Institution institution) {
@@ -42,7 +42,7 @@ public class InstitutionPersistenceAdapter implements InstitutionRepositoryPort 
 
     @Override
     public List<Institution> getListInstitution() {
-        return jpaInstitutionRepository.findAll().stream()
+        return jpaInstitutionRepository.findByInstitutionDeleted(false).stream()
                 .map(InstitutionPersistenceMapper::toDomain)
                 .toList();
     }

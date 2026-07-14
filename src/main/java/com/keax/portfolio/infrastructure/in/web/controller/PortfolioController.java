@@ -1,5 +1,7 @@
 package com.keax.portfolio.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.socialnetwork.infrastructure.in.web.mapper.SocialNetworkWebMapper;
 import com.keax.technology.infrastructure.in.web.mapper.TechnologyWebMapper;
 import com.keax.education.infrastructure.in.web.mapper.EducationWebMapper;
@@ -14,7 +16,6 @@ import com.keax.skill.infrastructure.in.web.mapper.SkillWebMapper;
 import com.keax.education.infrastructure.in.web.dto.EducationDTO;
 import com.keax.email.infrastructure.in.web.ratelimit.ContactRateLimiter;
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.keax.profile.infrastructure.in.web.dto.ProfileDTO;
@@ -33,28 +34,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/portfolio")
+@RequiredArgsConstructor
 public class PortfolioController {
-
-    @Autowired
-    private RetrieveProfileUseCase retrieveProfileUseCase;
-
-    @Autowired
-    private RetrieveEducationUseCase retrieveEducationUseCase;
-
-    @Autowired
-    private RetrieveSkillUseCase retrieveSkillUseCase;
-
-    @Autowired
-    private RetrieveTechnologyUseCase retrieveTechnologyUseCase;
-
-    @Autowired
-    private RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
-
-    @Autowired
-    private ContactEmailUseCase contactEmailUseCase;
-
-    @Autowired
-    private ContactRateLimiter contactRateLimiter;
+    private final RetrieveProfileUseCase retrieveProfileUseCase;
+    private final RetrieveEducationUseCase retrieveEducationUseCase;
+    private final RetrieveSkillUseCase retrieveSkillUseCase;
+    private final RetrieveTechnologyUseCase retrieveTechnologyUseCase;
+    private final RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
+    private final ContactEmailUseCase contactEmailUseCase;
+    private final ContactRateLimiter contactRateLimiter;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponseDTO<ProfileDTO>> getProfile() {

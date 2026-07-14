@@ -1,5 +1,7 @@
 package com.keax.uploadimage.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.institution.infrastructure.in.web.mapper.InstitutionWebMapper;
 import com.keax.uploadimage.infrastructure.in.web.mapper.ImageFileWebMapper;
 import com.keax.uploadimage.domain.ports.in.UploadImageInstitutionUseCase;
@@ -11,7 +13,6 @@ import com.keax.institution.infrastructure.in.web.dto.InstitutionDTO;
 import com.keax.uploadimage.domain.ports.in.UploadImageSkillUseCase;
 import com.keax.skill.infrastructure.in.web.mapper.SkillWebMapper;
 import com.keax.shared.infrastructure.in.web.dto.ApiResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.keax.profile.infrastructure.in.web.dto.ProfileDTO;
@@ -26,19 +27,12 @@ import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/image")
+@RequiredArgsConstructor
 public class UploadImageController {
-
-    @Autowired
-    private UploadImageInstitutionUseCase uploadImageInstitutionUseCase;
-
-    @Autowired
-    private UploadImageProfileUseCase uploadImageProfileUseCase;
-
-    @Autowired
-    private UploadImageSkillUseCase uploadImageSkillUseCase;
-
-    @Autowired
-    private UploadImageProjectUseCase uploadImageProjectUseCase;
+    private final UploadImageInstitutionUseCase uploadImageInstitutionUseCase;
+    private final UploadImageProfileUseCase uploadImageProfileUseCase;
+    private final UploadImageSkillUseCase uploadImageSkillUseCase;
+    private final UploadImageProjectUseCase uploadImageProjectUseCase;
 
     @PostMapping(
             value = "/institution/{institutionId}",

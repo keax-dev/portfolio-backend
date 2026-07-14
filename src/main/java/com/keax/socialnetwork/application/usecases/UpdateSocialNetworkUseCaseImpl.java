@@ -1,8 +1,9 @@
 package com.keax.socialnetwork.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
 import com.keax.socialnetwork.domain.ports.in.UpdateSocialNetworkUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
@@ -12,10 +13,9 @@ import java.util.Objects;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UpdateSocialNetworkUseCaseImpl implements UpdateSocialNetworkUseCase {
-
-    @Autowired
-    private SocialNetworkRepositoryPort socialNetworkRepositoryPort;
+    private final SocialNetworkRepositoryPort socialNetworkRepositoryPort;
 
     @Override
     public SocialNetwork updateSocialNetwork(Long socialNetworkId, SocialNetwork socialNetwork) {

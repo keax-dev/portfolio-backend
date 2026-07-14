@@ -1,8 +1,9 @@
 package com.keax.project.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.project.domain.ports.in.UpdateProjectUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
@@ -13,13 +14,10 @@ import java.util.Objects;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
-
-    @Autowired
-    private ProjectRepositoryPort projectRepositoryPort;
-
-    @Autowired
-    private TechnologyRepositoryPort technologyRepositoryPort;
+    private final ProjectRepositoryPort projectRepositoryPort;
+    private final TechnologyRepositoryPort technologyRepositoryPort;
 
     @Override
     public Project updateProject(Long projectId, Project project) {

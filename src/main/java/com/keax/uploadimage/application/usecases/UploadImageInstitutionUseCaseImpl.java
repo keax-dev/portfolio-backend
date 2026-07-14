@@ -1,10 +1,11 @@
 package com.keax.uploadimage.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.uploadimage.application.validation.ImageFileValidator;
 import com.keax.uploadimage.domain.ports.in.UploadImageInstitutionUseCase;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.institution.domain.model.Institution;
@@ -14,13 +15,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitutionUseCase {
-
-    @Autowired
-    private InstitutionRepositoryPort institutionRepositoryPort;
-
-    @Autowired
-    private ImageStoragePort imageStoragePort;
+    private final InstitutionRepositoryPort institutionRepositoryPort;
+    private final ImageStoragePort imageStoragePort;
 
     @Override
     public Institution uploadImageInstitution(Long institutionId, ImageFile img) {
@@ -46,7 +44,7 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
             return updatedInstitution;
         } catch (Exception e) {
             imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the institution's image");
+            throw new ExternalServiceException("An error occurred while uploading the institution's image", e);
         }
     }
 

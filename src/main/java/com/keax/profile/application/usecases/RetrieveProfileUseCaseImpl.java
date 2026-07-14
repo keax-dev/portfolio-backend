@@ -1,8 +1,9 @@
 package com.keax.profile.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,10 +12,9 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RetrieveProfileUseCaseImpl implements RetrieveProfileUseCase {
-
-    @Autowired
-    private ProfileRepositoryPort profileRepositoryPort;
+    private final ProfileRepositoryPort profileRepositoryPort;
 
     @Override
     public Profile getProfile() {

@@ -1,9 +1,10 @@
 package com.keax.technology.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.technology.domain.ports.in.DeleteTechnologyUseCase;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.technology.domain.model.Technology;
@@ -12,13 +13,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
-
-    @Autowired
-    private TechnologyRepositoryPort technologyRepositoryPort;
-
-    @Autowired
-    private ProjectRepositoryPort projectRepositoryPort;
+    private final TechnologyRepositoryPort technologyRepositoryPort;
+    private final ProjectRepositoryPort projectRepositoryPort;
 
     @Override
     public Technology deleteTechnology(Long technologyId) {

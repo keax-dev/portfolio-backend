@@ -1,8 +1,9 @@
 package com.keax.project.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.project.domain.ports.in.RetrieveProjectUseCase;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import org.springframework.stereotype.Service;
@@ -11,10 +12,9 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RetrieveProjectUseCaseImpl implements RetrieveProjectUseCase {
-
-    @Autowired
-    private ProjectRepositoryPort projectRepositoryPort;
+    private final ProjectRepositoryPort projectRepositoryPort;
 
     @Override
     public List<Project> findByProjectDeleted(Boolean deleted) {

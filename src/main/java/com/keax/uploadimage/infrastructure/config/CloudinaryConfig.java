@@ -9,14 +9,19 @@ import com.cloudinary.*;
 @Configuration
 public class CloudinaryConfig {
 
-    @Value("${cloudinary.cloud-name}")
-    private String cloudName;
+    private final String cloudName;
+    private final String apiKey;
+    private final String secretKey;
 
-    @Value("${cloudinary.api-key}")
-    private String apiKey;
-
-    @Value("${cloudinary.api-secret}")
-    private String secretKey;
+    public CloudinaryConfig(
+            @Value("${cloudinary.cloud-name}") String cloudName,
+            @Value("${cloudinary.api-key}") String apiKey,
+            @Value("${cloudinary.api-secret}") String secretKey
+    ) {
+        this.cloudName = cloudName;
+        this.apiKey = apiKey;
+        this.secretKey = secretKey;
+    }
 
     @Bean
     Cloudinary cloudinary(){

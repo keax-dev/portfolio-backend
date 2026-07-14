@@ -1,9 +1,10 @@
 package com.keax.uploadimage.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.uploadimage.application.validation.ImageFileValidator;
 import com.keax.uploadimage.domain.ports.in.UploadImageSkillUseCase;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
@@ -14,13 +15,10 @@ import com.keax.skill.domain.model.Skill;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
-
-    @Autowired
-    private SkillRepositoryPort skillRepositoryPort;
-
-    @Autowired
-    private ImageStoragePort imageStoragePort;
+    private final SkillRepositoryPort skillRepositoryPort;
+    private final ImageStoragePort imageStoragePort;
 
     @Override
     public Skill uploadImageSkill(Long skillId, ImageFile img) {
@@ -46,7 +44,7 @@ public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
             return updatedSkill;
         } catch (Exception e) {
             imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the skill's image");
+            throw new ExternalServiceException("An error occurred while uploading the skill's image", e);
         }
     }
 

@@ -1,8 +1,9 @@
 package com.keax.education.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.DeleteEducationUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.education.domain.model.Education;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,10 +11,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DeleteEducationUseCaseImpl implements DeleteEducationUseCase {
-
-    @Autowired
-    private EducationRepositoryPort educationRepositoryPort;
+    private final EducationRepositoryPort educationRepositoryPort;
 
     @Override
     public Education deleteEducation(Long educationId) {

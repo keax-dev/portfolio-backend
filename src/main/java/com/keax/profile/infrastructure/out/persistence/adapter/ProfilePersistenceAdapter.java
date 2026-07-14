@@ -1,19 +1,19 @@
 package com.keax.profile.infrastructure.out.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.profile.infrastructure.out.persistence.mapper.ProfilePersistenceMapper;
 import com.keax.profile.infrastructure.out.persistence.repository.JpaProfileRepository;
 import com.keax.profile.infrastructure.out.persistence.entity.ProfileEntity;
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.keax.profile.domain.model.Profile;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class ProfilePersistenceAdapter implements ProfileRepositoryPort {
-
-    @Autowired
-    private JpaProfileRepository jpaProfileRepository;
+    private final JpaProfileRepository jpaProfileRepository;
 
     @Override
     public Profile saveProfile(Profile profile) {

@@ -8,50 +8,62 @@ import io.jsonwebtoken.JwtException;
 import javax.crypto.SecretKey;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
 public class JwtUtil implements TokenProviderPort {
 
-    @Value("${jwt.secret}")
-    private String key;
+    private final SecretKey signingKey;
+    private final long expirationMs;
+    private final Clock clock;
 
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
+    public JwtUtil(
+            @Value("${jwt.secret}") String key,
+            @Value("${jwt.expiration-ms}") long expirationMs,
+            Clock clock
+    ) {
+        if (expirationMs <= 0) {
+            throw new IllegalArgumentException("JWT expiration must be greater than zero");
+        }
 
-    private SecretKey getSignInKey(){
-        return Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
+        this.signingKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
+        this.expirationMs = expirationMs;
+        this.clock = clock;
     }
 
     @Override
     public String generateToken(String username) {
 
-        Date now = new Date();
-        Date exp = new Date(now.getTime() + expirationMs);
+        Instant now = clock.instant();
+        Instant expiration = now.plusMillis(expirationMs);
 
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(getSignInKey())
+                .subject(username)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
+                .signWith(signingKey)
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
+        return Jwts.parser()
+                .verifyWith(signingKey)
+                .clock(() -> Date.from(clock.instant()))
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSignInKey())
+            Jwts.parser()
+                    .verifyWith(signingKey)
+                    .clock(() -> Date.from(clock.instant()))
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
             return false;

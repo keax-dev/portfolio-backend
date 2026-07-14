@@ -1,0 +1,165 @@
+# Pipeline de despliegue de produccion del backend con Docker.
+# Solo publica y despliega cuando el workflow CI termina correctamente sobre main.
+name: Deploy Prod
+
+on:
+  workflow_run:
+    # Escucha el resultado del workflow de integracion continua.
+    workflows: ['CI']
+    types:
+      - completed
+    branches:
+      - main
+
+# Permisos necesarios:
+# - contents: leer el repositorio
+# - packages: publicar imagenes en GitHub Container Registry
+permissions:
+  contents: read
+  packages: write
+
+# Evita dos despliegues de produccion ejecutandose al mismo tiempo.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: true
+
+jobs:
+  publish-image:
+    # Solo continua si el CI termino exitosamente.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: production
+    # Corta la publicacion si el job queda colgado.
+    timeout-minutes: 10
+    outputs:
+      # Nombre base de la imagen en GHCR.
+      image_name: ${{ steps.image.outputs.name }}
+      # Referencia exacta de la imagen a desplegar.
+      image_ref: ${{ steps.image.outputs.name }}:sha-${{ github.event.workflow_run.head_sha }}
+
+    steps:
+      # Descarga el codigo exacto que aprobo el CI.
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      # Prepara el builder moderno de Docker.
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # GHCR exige nombres de imagen en minusculas.
+      - name: Normalizar nombre de imagen
+        id: image
+        shell: bash
+        run: echo "name=$(echo 'ghcr.io/${{ github.repository_owner }}/portfolio-backend' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      # Inicia sesion en GHCR usando el token automatico del workflow.
+      - name: Iniciar sesion en GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Genera tags y labels estandar para latest y para el SHA exacto del commit.
+      - name: Generar metadata de la imagen
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=sha-${{ github.event.workflow_run.head_sha }}
+
+      # Construye la imagen del backend y la publica en GHCR.
+      - name: Construir y publicar imagen Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-lightsail:
+    # Este job corre dentro del self-hosted runner instalado en el propio Lightsail.
+    # Asi evitamos usar SSH directo en el workflow y mantenemos la misma estrategia del frontend.
+    needs: publish-image
+    runs-on: [self-hosted, Linux, X64, production]
+    environment: production
+    # Cancela el deploy si se queda colgado demasiado tiempo.
+    timeout-minutes: 10
+
+    steps:
+      # Descarga el codigo del commit aprobado para reutilizar el compose exacto.
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      # Asegura que la carpeta local de despliegue exista.
+      - name: Preparar carpeta de despliegue
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+        run: |
+          mkdir -p "$LIGHTSAIL_BACKEND_PATH"
+
+      # Copia el compose de produccion a la carpeta donde vive el despliegue real.
+      - name: Copiar compose de produccion
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+        run: |
+          cp ./docker-compose.prod.yml "$LIGHTSAIL_BACKEND_PATH/docker-compose.prod.yml"
+
+      # Falla temprano si el servidor aun no tiene su archivo real de produccion.
+      # Debe existir como .env y construirse manualmente a partir de .env.example.
+      - name: Validar archivo .env en el servidor
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+        run: |
+          if [ ! -f "$LIGHTSAIL_BACKEND_PATH/.env" ]; then
+            echo "Missing $LIGHTSAIL_BACKEND_PATH/.env"
+            echo "Create it from the backend .env.example with real production values before deploying."
+            exit 1
+          fi
+
+      # Actualiza la imagen desplegada y recrea el contenedor del backend.
+      - name: Actualizar contenedor en Lightsail
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+          GHCR_USERNAME: ${{ github.repository_owner }}
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          BACKEND_IMAGE: ${{ needs.publish-image.outputs.image_ref }}
+        run: |
+          set -euo pipefail
+          # Guarda la imagen exacta a ejecutar en produccion.
+          printf 'BACKEND_IMAGE=%s\n' "$BACKEND_IMAGE" > "$LIGHTSAIL_BACKEND_PATH/.env.prod"
+          # Autentica Docker contra GHCR para descargar la imagen publicada.
+          printf '%s' "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+          # Descarga la version objetivo y recrea el contenedor backend.
+          cd "$LIGHTSAIL_BACKEND_PATH"
+          docker compose --env-file .env.prod -f docker-compose.prod.yml pull backend
+          docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans
+          # Limpia imagenes huerfanas para no crecer innecesariamente en disco.
+          docker image prune -f
+
+      # Smoke check post deploy.
+      # Espera a que Spring Boot termine de iniciar y confirma que Actuator reporte status UP.
+      - name: Verificar backend desplegado
+        shell: bash
+        run: |
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:9090/actuator/health | grep -q '"status":"UP"'; then
+              exit 0
+            fi
+            sleep 3
+          done
+
+          echo "Backend healthcheck did not become UP in time."
+          docker ps
+          exit 1

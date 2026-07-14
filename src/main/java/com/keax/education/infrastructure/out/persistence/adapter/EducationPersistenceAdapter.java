@@ -1,20 +1,20 @@
 package com.keax.education.infrastructure.out.persistence.adapter;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.education.infrastructure.out.persistence.mapper.EducationPersistenceMapper;
 import com.keax.education.infrastructure.out.persistence.repository.JpaEducationRepository;
 import com.keax.education.infrastructure.out.persistence.entity.EducationEntity;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.education.domain.model.Education;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class EducationPersistenceAdapter implements EducationRepositoryPort {
-
-    @Autowired
-    private JpaEducationRepository jpaEducationRepository;
+    private final JpaEducationRepository jpaEducationRepository;
 
     @Override
     public Education createEducation(Education education) {
@@ -49,7 +49,7 @@ public class EducationPersistenceAdapter implements EducationRepositoryPort {
 
     @Override
     public List<Education> getListEducation() {
-        return jpaEducationRepository.findAll().stream()
+        return jpaEducationRepository.findByEducationDeleted(false).stream()
                 .map(EducationPersistenceMapper::toDomain)
                 .toList();
     }

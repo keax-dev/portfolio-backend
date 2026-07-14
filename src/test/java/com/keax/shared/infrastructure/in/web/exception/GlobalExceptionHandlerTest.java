@@ -4,41 +4,76 @@ import com.keax.shared.domain.exceptions.AuthenticationFailedException;
 import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
+import com.keax.shared.infrastructure.in.web.filter.RequestCorrelationFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Verifica el contrato HTTP que el manejador global asigna a las excepciones
+ * principales del dominio y de servicios externos.
+ */
 class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
     @Test
     void mapsAuthenticationFailureToUnauthorized() {
-        var response = handler.handleAuthenticationFailed(new AuthenticationFailedException("Invalid login"));
+        // Act: se transforma un fallo de credenciales.
+        var response = handler.handleAuthenticationFailed(
+                new AuthenticationFailedException("Invalid login"),
+                request()
+        );
 
+        // Assert: autenticación inválida corresponde a HTTP 401.
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
 
     @Test
     void mapsResourceNotFoundToNotFound() {
-        var response = handler.handleResourceNotFound(new ResourceNotFoundException("Not found"));
+        // Act: se transforma un recurso inexistente.
+        var response = handler.handleResourceNotFound(
+                new ResourceNotFoundException("Not found"),
+                request()
+        );
 
+        // Assert: el recurso ausente corresponde a HTTP 404.
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
     void mapsResourceConflictToConflict() {
-        var response = handler.handleResourceConflict(new ResourceConflictException("Conflict"));
+        // Act: se transforma un conflicto de reglas o persistencia.
+        var response = handler.handleResourceConflict(
+                new ResourceConflictException("Conflict"),
+                request()
+        );
 
+        // Assert: el conflicto corresponde a HTTP 409.
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
     @Test
     void mapsExternalServiceFailureToBadGateway() {
-        var response = handler.handleExternalService(new ExternalServiceException("External failure"));
+        // Act: se transforma un fallo de una integración saliente.
+        var response = handler.handleExternalService(
+                new ExternalServiceException("External failure"),
+                request()
+        );
 
+        // Assert: la dependencia externa fallida corresponde a HTTP 502.
         assertEquals(HttpStatus.BAD_GATEWAY, response.getStatusCode());
+    }
+
+    private MockHttpServletRequest request() {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/test");
+        request.setAttribute(
+                RequestCorrelationFilter.REQUEST_ID_ATTRIBUTE,
+                "test-request-id"
+        );
+        return request;
     }
 
 }

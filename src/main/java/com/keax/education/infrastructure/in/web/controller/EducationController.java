@@ -1,12 +1,13 @@
 package com.keax.education.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.education.infrastructure.in.web.mapper.EducationWebMapper;
 import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
 import com.keax.education.domain.ports.in.CreateEducationUseCase;
 import com.keax.education.domain.ports.in.DeleteEducationUseCase;
 import com.keax.education.domain.ports.in.UpdateEducationUseCase;
 import com.keax.education.infrastructure.in.web.dto.EducationDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,19 +23,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/education")
+@RequiredArgsConstructor
 public class EducationController {
-
-    @Autowired
-    private CreateEducationUseCase createEducationUseCase;
-
-    @Autowired
-    private UpdateEducationUseCase updateEducationUseCase;
-
-    @Autowired
-    private RetrieveEducationUseCase retrieveEducationUseCase;
-
-    @Autowired
-    private DeleteEducationUseCase deleteEducationUseCase;
+    private final CreateEducationUseCase createEducationUseCase;
+    private final UpdateEducationUseCase updateEducationUseCase;
+    private final RetrieveEducationUseCase retrieveEducationUseCase;
+    private final DeleteEducationUseCase deleteEducationUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponseDTO<EducationDTO>> create(@Valid @RequestBody EducationDTO education) {
@@ -68,17 +62,6 @@ public class EducationController {
                 true,
                 "The educations were found successfully",
                 retrieveEducationUseCase.getListEducation().stream().map(EducationWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<EducationDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<EducationDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The educations were found successfully",
-                retrieveEducationUseCase.findByEducationDeleted(deleted).stream().map(EducationWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);

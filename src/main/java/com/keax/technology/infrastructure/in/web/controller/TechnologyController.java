@@ -1,5 +1,7 @@
 package com.keax.technology.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.technology.infrastructure.in.web.mapper.TechnologyWebMapper;
 import com.keax.technology.domain.ports.in.RetrieveTechnologyUseCase;
 import com.keax.technology.domain.ports.in.UpdateTechnologyUseCase;
@@ -7,7 +9,6 @@ import com.keax.technology.domain.ports.in.CreateTechnologyUseCase;
 import com.keax.technology.domain.ports.in.DeleteTechnologyUseCase;
 import com.keax.technology.infrastructure.in.web.dto.TechnologyDTO;
 import com.keax.shared.infrastructure.in.web.dto.ApiResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,19 +23,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/technology")
+@RequiredArgsConstructor
 public class TechnologyController {
-
-    @Autowired
-    private CreateTechnologyUseCase createTechnologyUseCase;
-
-    @Autowired
-    private UpdateTechnologyUseCase updateTechnologyUseCase;
-
-    @Autowired
-    private RetrieveTechnologyUseCase retrieveTechnologyUseCase;
-
-    @Autowired
-    private DeleteTechnologyUseCase deleteTechnologyUseCase;
+    private final CreateTechnologyUseCase createTechnologyUseCase;
+    private final UpdateTechnologyUseCase updateTechnologyUseCase;
+    private final RetrieveTechnologyUseCase retrieveTechnologyUseCase;
+    private final DeleteTechnologyUseCase deleteTechnologyUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponseDTO<TechnologyDTO>> create(@Valid @RequestBody TechnologyDTO technology) {
@@ -68,17 +62,6 @@ public class TechnologyController {
                 true,
                 "The technologies were found successfully",
                 retrieveTechnologyUseCase.getListTechnology().stream().map(TechnologyWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<TechnologyDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<TechnologyDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The technologies were found successfully",
-                retrieveTechnologyUseCase.findByTechnologyDeleted(deleted).stream().map(TechnologyWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);

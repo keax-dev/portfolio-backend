@@ -1,9 +1,10 @@
 package com.keax.education.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.CreateEducationUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.education.domain.model.Education;
@@ -12,12 +13,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
-
-    @Autowired
-    private EducationRepositoryPort educationRepositoryPort;
-    @Autowired
-    private InstitutionRepositoryPort institutionRepositoryPort;
+    private final EducationRepositoryPort educationRepositoryPort;
+    private final InstitutionRepositoryPort institutionRepositoryPort;
 
     @Override
     public Education createEducation(Education education) {

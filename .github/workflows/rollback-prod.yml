@@ -1,0 +1,104 @@
+# Workflow manual para restaurar una imagen anterior del backend en produccion.
+# Reutiliza una version ya publicada en GHCR sin recompilar el proyecto.
+name: Rollback Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      # Tag exacto a restaurar, por ejemplo: sha-a1b2c3d4...
+      image_tag:
+        description: 'Production image tag to redeploy (example: sha-a1b2c3d4...)'
+        required: true
+        type: string
+
+# Permiso minimo para leer el repositorio y reutilizar el compose de produccion.
+permissions:
+  contents: read
+
+# Evita que dos rollbacks se crucen entre si.
+concurrency:
+  group: rollback-prod
+  cancel-in-progress: false
+
+jobs:
+  rollback-lightsail:
+    # Se ejecuta en el runner self-hosted instalado dentro del Lightsail.
+    runs-on: [self-hosted, Linux, X64, production]
+    environment: production
+    # Corta el rollback si el proceso queda colgado demasiado tiempo.
+    timeout-minutes: 10
+
+    steps:
+      # Descarga el repositorio para reutilizar el compose de produccion versionado.
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      # Asegura la carpeta local de despliegue donde vive el backend dockerizado.
+      - name: Preparar carpeta de despliegue
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+        run: |
+          mkdir -p "$LIGHTSAIL_BACKEND_PATH"
+
+      # Copia el compose de produccion a la carpeta real del despliegue.
+      - name: Copiar compose de produccion
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+        run: |
+          cp ./docker-compose.prod.yml "$LIGHTSAIL_BACKEND_PATH/docker-compose.prod.yml"
+
+      # Verifica que el archivo real de produccion exista en el servidor.
+      - name: Validar archivo .env en el servidor
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+        run: |
+          if [ ! -f "$LIGHTSAIL_BACKEND_PATH/.env" ]; then
+            echo "Missing $LIGHTSAIL_BACKEND_PATH/.env"
+            echo "Create it from the backend .env.example with real production values before rolling back."
+            exit 1
+          fi
+
+      # GHCR exige nombres de imagen en minusculas.
+      - name: Normalizar nombre de imagen
+        id: image
+        shell: bash
+        run: echo "name=$(echo 'ghcr.io/${{ github.repository_owner }}/portfolio-backend' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      # Reemplaza la imagen actual por la version indicada manualmente.
+      - name: Ejecutar rollback de produccion
+        shell: bash
+        env:
+          LIGHTSAIL_BACKEND_PATH: ${{ secrets.LIGHTSAIL_BACKEND_PATH }}
+          GHCR_USERNAME: ${{ github.repository_owner }}
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          BACKEND_IMAGE: ${{ steps.image.outputs.name }}:${{ inputs.image_tag }}
+        run: |
+          set -euo pipefail
+          # Guarda la referencia exacta de la imagen a restaurar.
+          printf 'BACKEND_IMAGE=%s\n' "$BACKEND_IMAGE" > "$LIGHTSAIL_BACKEND_PATH/.env.prod"
+          # Autentica Docker contra GHCR para poder descargar la imagen historica.
+          printf '%s' "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+          # Baja la imagen indicada y recrea el contenedor con esa version.
+          cd "$LIGHTSAIL_BACKEND_PATH"
+          docker compose --env-file .env.prod -f docker-compose.prod.yml pull backend
+          docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans
+          # Limpia imagenes ya no usadas para ahorrar espacio en disco.
+          docker image prune -f
+
+      # Valida que la version restaurada arranque correctamente y responda con status UP.
+      - name: Verificar backend restaurado
+        shell: bash
+        run: |
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:9090/actuator/health | grep -q '"status":"UP"'; then
+              exit 0
+            fi
+            sleep 3
+          done
+
+          echo "Backend rollback healthcheck did not become UP in time."
+          docker ps
+          exit 1

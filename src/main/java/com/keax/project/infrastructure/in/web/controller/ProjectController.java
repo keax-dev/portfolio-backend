@@ -1,8 +1,9 @@
 package com.keax.project.infrastructure.in.web.controller;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
 import com.keax.project.domain.ports.in.RetrieveProjectUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.keax.project.domain.ports.in.CreateProjectUseCase;
@@ -22,19 +23,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/project")
+@RequiredArgsConstructor
 public class ProjectController {
-
-    @Autowired
-    private CreateProjectUseCase createProjectUseCase;
-
-    @Autowired
-    private UpdateProjectUseCase updateProjectUseCase;
-
-    @Autowired
-    private RetrieveProjectUseCase retrieveProjectUseCase;
-
-    @Autowired
-    private DeleteProjectUseCase deleteProjectUseCase;
+    private final CreateProjectUseCase createProjectUseCase;
+    private final UpdateProjectUseCase updateProjectUseCase;
+    private final RetrieveProjectUseCase retrieveProjectUseCase;
+    private final DeleteProjectUseCase deleteProjectUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponseDTO<ProjectDTO>> create(@Valid @RequestBody ProjectDTO project) {
@@ -68,17 +62,6 @@ public class ProjectController {
                 true,
                 "The projects were found successfully",
                 retrieveProjectUseCase.getListProject().stream().map(ProjectWebMapper::fromDomain).toList()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/by-deleted/{deleted}")
-    public ResponseEntity<ApiResponseDTO<List<ProjectDTO>>> listByDeleted(@PathVariable Boolean deleted) {
-        ApiResponseDTO<List<ProjectDTO>> response = new ApiResponseDTO<>(
-                true,
-                "The skills were found successfully",
-                retrieveProjectUseCase.findByProjectDeleted(deleted).stream().map(ProjectWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);

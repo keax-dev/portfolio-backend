@@ -1,8 +1,9 @@
 package com.keax.education.application.usecases;
 
+import lombok.RequiredArgsConstructor;
+
 import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.education.domain.model.Education;
@@ -11,10 +12,9 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RetrieveEducationUseCaseImpl implements RetrieveEducationUseCase {
-
-    @Autowired
-    private EducationRepositoryPort educationRepositoryPort;
+    private final EducationRepositoryPort educationRepositoryPort;
 
     @Override
     public List<Education> getListEducation() {

@@ -1,6 +1,5 @@
 package com.keax.auth.application.usecases;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.auth.domain.ports.out.AuthenticationPort;
 import com.keax.auth.domain.ports.out.TokenProviderPort;
@@ -13,11 +12,13 @@ import com.keax.auth.domain.model.Auth;
 @Transactional(readOnly = true)
 public class AuthLoginUseCaseImpl implements AuthLoginUseCase {
 
-    @Autowired
-    private AuthenticationPort authenticationPort;
+    private final AuthenticationPort authenticationPort;
+    private final TokenProviderPort tokenProviderPort;
 
-    @Autowired
-    private TokenProviderPort tokenProviderPort;
+    public AuthLoginUseCaseImpl(AuthenticationPort authenticationPort, TokenProviderPort tokenProviderPort) {
+        this.authenticationPort = authenticationPort;
+        this.tokenProviderPort = tokenProviderPort;
+    }
 
     @Override
     public Auth login(Auth auth) {

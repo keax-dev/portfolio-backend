@@ -1,6 +1,7 @@
 package com.keax.skill.application.usecases;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.transaction.annotation.Transactional;
 import com.keax.skill.domain.ports.in.RetrieveSkillUseCase;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
@@ -11,10 +12,9 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class RetrieveSkillUseCaseImpl implements RetrieveSkillUseCase {
-
-    @Autowired
-    private SkillRepositoryPort skillRepositoryPort;
+    private final SkillRepositoryPort skillRepositoryPort;
 
     @Override
     public List<Skill> findBySkillDeleted(Boolean deleted) {
