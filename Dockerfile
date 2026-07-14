@@ -34,13 +34,14 @@ WORKDIR /app
 # Copia el artefacto generado en la etapa anterior.
 COPY --from=build /app/target/*.jar /app/app.jar
 
-# Puerto interno de Spring Boot dentro del contenedor.
+# Puerto por defecto cuando la app corre con configuracion estandar.
+# En produccion el compose puede sobrescribir PORT, por ejemplo a 9090.
 EXPOSE 8080
 
 # Healthcheck local del contenedor.
 # Si Actuator deja de responder, Docker podra marcar la instancia como unhealthy.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=5 \
-  CMD curl --fail --silent http://127.0.0.1:8080/actuator/health || exit 1
+  CMD sh -c 'curl --fail --silent http://127.0.0.1:${PORT:-8080}/actuator/health || exit 1'
 
 # Permite inyectar ajustes de JVM desde el entorno del servidor si luego lo necesitas.
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]

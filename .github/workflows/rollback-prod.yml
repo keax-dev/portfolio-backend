@@ -93,7 +93,7 @@ jobs:
         shell: bash
         run: |
           for attempt in {1..20}; do
-            if curl --fail --silent http://127.0.0.1:9090/actuator/health | grep -q '"status":"UP"'; then
+            if curl --fail --silent http://127.0.0.1:8080/actuator/health | grep -q '"status":"UP"'; then
               exit 0
             fi
             sleep 3
