@@ -8,6 +8,10 @@ import com.keax.email.infrastructure.in.web.ratelimit.ContactRateLimiter;
 import com.keax.profile.domain.model.Profile;
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
 import com.keax.project.domain.model.Project;
+import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectLinkType;
+import com.keax.project.domain.model.ProjectTechnology;
+import com.keax.project.domain.ports.in.RetrieveProjectUseCase;
 import com.keax.shared.infrastructure.in.web.exception.GlobalExceptionHandler;
 import com.keax.skill.domain.model.Skill;
 import com.keax.skill.domain.ports.in.RetrieveSkillUseCase;
@@ -53,6 +57,8 @@ class PortfolioControllerTest {
     @Mock
     private RetrieveTechnologyUseCase retrieveTechnologyUseCase;
     @Mock
+    private RetrieveProjectUseCase retrieveProjectUseCase;
+    @Mock
     private RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
     @Mock
     private ContactEmailUseCase contactEmailUseCase;
@@ -69,6 +75,7 @@ class PortfolioControllerTest {
                 retrieveEducationUseCase,
                 retrieveSkillUseCase,
                 retrieveTechnologyUseCase,
+                retrieveProjectUseCase,
                 retrieveSocialNetworkUseCase,
                 contactEmailUseCase,
                 contactRateLimiter
@@ -85,8 +92,9 @@ class PortfolioControllerTest {
         // Arrange: cada puerto entrega un modelo representativo, incluidas relaciones anidadas.
         Project project = new Project(
                 41L, "PORTFOLIO", "PORTAFOLIO", "Description", "Descripción",
-                "project.png", "https://deploy.test", "https://github.test",
-                1, 31L, "JAVA", false
+                "project.png", 1, false,
+                List.of(new ProjectTechnology(61L, 31L, "JAVA", 1)),
+                List.of(new ProjectLink(71L, ProjectLinkType.DEPLOY, "https://deploy.test", 1))
         );
         when(retrieveProfileUseCase.getProfile()).thenReturn(new Profile(
                 1L, "KEAX", "JIMENEZ", "DEVELOPER", "DESARROLLADOR", "cv", "profile.png"
@@ -97,8 +105,9 @@ class PortfolioControllerTest {
         )));
         when(retrieveSkillUseCase.findBySkillDeleted(false))
                 .thenReturn(List.of(new Skill(21L, "SPRING", "skill.png", 1, false)));
-        when(retrieveTechnologyUseCase.findByTechnologyDeletedWithProjects(false, false))
-                .thenReturn(List.of(new Technology(31L, "JAVA", 1, false, List.of(project))));
+        when(retrieveTechnologyUseCase.findByTechnologyDeleted(false))
+                .thenReturn(List.of(new Technology(31L, "JAVA", 1, false)));
+        when(retrieveProjectUseCase.findByProjectDeleted(false)).thenReturn(List.of(project));
         when(retrieveSocialNetworkUseCase.findBySocialNetworkDeleted(false)).thenReturn(List.of(
                 new SocialNetwork(51L, "GITHUB", "github", "#fff", 1, "https://github.test", false)
         ));
@@ -115,7 +124,12 @@ class PortfolioControllerTest {
                 .andExpect(jsonPath("$.data[0].picture").value("skill.png"));
         mockMvc.perform(get("/api/portfolio/technology"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].projects[0].title").value("PORTFOLIO"));
+                .andExpect(jsonPath("$.data[0].name").value("JAVA"));
+        mockMvc.perform(get("/api/portfolio/project"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].title").value("PORTFOLIO"))
+                .andExpect(jsonPath("$.data[0].technologies[0].name").value("JAVA"))
+                .andExpect(jsonPath("$.data[0].links[0].type").value("DEPLOY"));
         mockMvc.perform(get("/api/portfolio/socialNetwork"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].url").value("https://github.test"));
@@ -123,7 +137,8 @@ class PortfolioControllerTest {
         // Assert adicional: los filtros de borrado lógico siempre se aplican al contenido público.
         verify(retrieveEducationUseCase).findByEducationDeleted(false);
         verify(retrieveSkillUseCase).findBySkillDeleted(false);
-        verify(retrieveTechnologyUseCase).findByTechnologyDeletedWithProjects(false, false);
+        verify(retrieveTechnologyUseCase).findByTechnologyDeleted(false);
+        verify(retrieveProjectUseCase).findByProjectDeleted(false);
         verify(retrieveSocialNetworkUseCase).findBySocialNetworkDeleted(false);
     }
 

@@ -1,14 +1,11 @@
 package com.keax.technology.infrastructure.in.web.dto;
 
-import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,8 +29,5 @@ public class TechnologyDTO {
 
     @JsonProperty("deleted")
     private Boolean technologyDeleted;
-
-    @JsonProperty("projects")
-    private List<ProjectDTO> projectList = new ArrayList<>();
 
 }

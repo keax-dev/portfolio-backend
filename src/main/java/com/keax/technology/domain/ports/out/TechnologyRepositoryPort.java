@@ -10,7 +10,6 @@ public interface TechnologyRepositoryPort {
     Technology updateTechnology(Technology technology);
     Technology deleteTechnology(Technology technology);
     List<Technology> findByTechnologyDeleted(Boolean deleted);
-    List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted);
     List<Technology> getListTechnology();
     Optional<Technology> findByTechnologyNameAndTechnologyDeleted(String technologyName, Boolean deleted);
     Optional<Technology> findByTechnologyIdAndTechnologyDeleted(Long technologyId, Boolean deleted);

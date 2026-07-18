@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,11 +19,9 @@ public class Project {
     private String projectDescription;
     private String projectDescriptionEs;
     private String projectPicture;
-    private String projectDeploy;
-    private String projectGithub;
     private int projectPosition;
-    private Long technologyId;
-    private String technologyName;
     private Boolean projectDeleted;
+    private List<ProjectTechnology> projectTechnologies = new ArrayList<>();
+    private List<ProjectLink> projectLinks = new ArrayList<>();
 
 }

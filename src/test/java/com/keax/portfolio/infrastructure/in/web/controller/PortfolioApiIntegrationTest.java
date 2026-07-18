@@ -7,6 +7,9 @@ import com.keax.institution.infrastructure.out.persistence.repository.JpaInstitu
 import com.keax.profile.infrastructure.out.persistence.entity.ProfileEntity;
 import com.keax.profile.infrastructure.out.persistence.repository.JpaProfileRepository;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
+import com.keax.project.infrastructure.out.persistence.entity.ProjectLinkEntity;
+import com.keax.project.infrastructure.out.persistence.entity.ProjectTechnologyEntity;
+import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.infrastructure.out.persistence.repository.JpaProjectRepository;
 import com.keax.skill.infrastructure.out.persistence.entity.SkillEntity;
 import com.keax.skill.infrastructure.out.persistence.repository.JpaSkillRepository;
@@ -23,7 +26,7 @@ import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -130,59 +133,18 @@ class PortfolioApiIntegrationTest {
         skillRepository.saveAndFlush(new SkillEntity(null, "SPRING", "skill.png", 1, false));
         skillRepository.saveAndFlush(new SkillEntity(null, "DELETED SKILL", "deleted-skill.png", 2, true));
 
-        TechnologyEntity activeTechnology = technologyRepository.saveAndFlush(new TechnologyEntity(
-                null,
-                "JAVA",
-                1,
-                false,
-                new ArrayList<>()
-        ));
-        TechnologyEntity deletedTechnology = technologyRepository.saveAndFlush(new TechnologyEntity(
-                null,
-                "LEGACY",
-                2,
-                true,
-                new ArrayList<>()
-        ));
+        TechnologyEntity activeTechnology = technologyRepository.saveAndFlush(
+                new TechnologyEntity(null, "JAVA", 1, false)
+        );
+        technologyRepository.saveAndFlush(new TechnologyEntity(null, "LEGACY", 2, true));
 
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "PORTFOLIO",
-                "PORTAFOLIO",
-                "Backend portfolio",
-                "Portafolio backend",
-                "project.png",
-                "https://deploy.test",
-                "https://github.test",
-                1,
-                false,
-                activeTechnology
+        projectRepository.saveAndFlush(project(
+                "PORTFOLIO", "PORTAFOLIO", "Backend portfolio", "Portafolio backend",
+                "project.png", 1, false, activeTechnology
         ));
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "DELETED PROJECT",
-                "PROYECTO ELIMINADO",
-                "Deleted backend portfolio",
-                "Portafolio eliminado",
-                "deleted-project.png",
-                "https://deleted-deploy.test",
-                "https://deleted-github.test",
-                2,
-                true,
-                activeTechnology
-        ));
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "HIDDEN PROJECT",
-                "PROYECTO OCULTO",
-                "Should not appear because parent technology is deleted",
-                "No debe aparecer",
-                "hidden-project.png",
-                "https://hidden.test",
-                "https://hidden-github.test",
-                1,
-                false,
-                deletedTechnology
+        projectRepository.saveAndFlush(project(
+                "DELETED PROJECT", "PROYECTO ELIMINADO", "Deleted backend portfolio",
+                "Portafolio eliminado", "deleted-project.png", 2, true, activeTechnology
         ));
 
         socialNetworkRepository.saveAndFlush(new SocialNetworkEntity(
@@ -227,9 +189,14 @@ class PortfolioApiIntegrationTest {
         mockMvc.perform(get("/api/portfolio/technology"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].name").value("JAVA"))
-                .andExpect(jsonPath("$.data[0].projects.length()").value(1))
-                .andExpect(jsonPath("$.data[0].projects[0].title").value("PORTFOLIO"));
+                .andExpect(jsonPath("$.data[0].name").value("JAVA"));
+
+        mockMvc.perform(get("/api/portfolio/project"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].title").value("PORTFOLIO"))
+                .andExpect(jsonPath("$.data[0].technologies[0].name").value("JAVA"))
+                .andExpect(jsonPath("$.data[0].links[0].type").value("DEPLOY"));
 
         mockMvc.perform(get("/api/portfolio/socialNetwork"))
                 .andExpect(status().isOk())
@@ -265,6 +232,29 @@ class PortfolioApiIntegrationTest {
                 .andExpect(jsonPath("$.status").value(false))
                 .andExpect(jsonPath("$.alert").value("Validation error"))
                 .andExpect(jsonPath("$.messages").isArray());
+    }
+
+    private ProjectEntity project(
+            String title,
+            String titleEs,
+            String description,
+            String descriptionEs,
+            String picture,
+            int position,
+            boolean deleted,
+            TechnologyEntity technology
+    ) {
+        ProjectEntity project = new ProjectEntity(
+                null, title, titleEs, description, descriptionEs, picture, position, deleted,
+                new LinkedHashSet<>(), new LinkedHashSet<>()
+        );
+        project.getProjectTechnologies().add(
+                new ProjectTechnologyEntity(null, project, technology, 1)
+        );
+        project.getProjectLinks().add(new ProjectLinkEntity(
+                null, project, ProjectLinkType.DEPLOY, "https://deploy.test", 1
+        ));
+        return project;
     }
 
 }

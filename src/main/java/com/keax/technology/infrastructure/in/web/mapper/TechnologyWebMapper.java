@@ -1,9 +1,7 @@
 package com.keax.technology.infrastructure.in.web.mapper;
 
-import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
 import com.keax.technology.infrastructure.in.web.dto.TechnologyDTO;
 import com.keax.technology.domain.model.Technology;
-import java.util.ArrayList;
 
 public final class TechnologyWebMapper {
 
@@ -12,10 +10,7 @@ public final class TechnologyWebMapper {
                 dto.getTechnologyId(),
                 dto.getTechnologyName(),
                 dto.getTechnologyPosition(),
-                dto.getTechnologyDeleted(),
-                dto.getProjectList() == null
-                        ? new ArrayList<>()
-                        : dto.getProjectList().stream().map(ProjectWebMapper::toDomain).toList()
+                dto.getTechnologyDeleted()
         );
     }
 
@@ -24,8 +19,7 @@ public final class TechnologyWebMapper {
                 technology.getTechnologyId(),
                 technology.getTechnologyName(),
                 technology.getTechnologyPosition(),
-                technology.getTechnologyDeleted(),
-                technology.getProjectList().stream().map(ProjectWebMapper::fromDomain).toList()
+                technology.getTechnologyDeleted()
         );
     }
 

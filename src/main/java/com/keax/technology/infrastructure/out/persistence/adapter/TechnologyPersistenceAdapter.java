@@ -49,14 +49,6 @@ public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
     }
 
     @Override
-    public List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted) {
-        return jpaTechnologyRepository.findWithProjectsByTechnologyDeleted(deleted)
-                .stream()
-                .map(TechnologyPersistenceMapper::toDomainWithProjects)
-                .toList();
-    }
-
-    @Override
     public List<Technology> getListTechnology() {
         return jpaTechnologyRepository.findByTechnologyDeleted(false)
                 .stream()

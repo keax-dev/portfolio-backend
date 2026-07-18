@@ -11,6 +11,9 @@ import com.keax.profile.infrastructure.in.web.mapper.ProfileWebMapper;
 import com.keax.technology.domain.ports.in.RetrieveTechnologyUseCase;
 import com.keax.email.infrastructure.in.web.mapper.ContactWebMapper;
 import com.keax.technology.infrastructure.in.web.dto.TechnologyDTO;
+import com.keax.project.domain.ports.in.RetrieveProjectUseCase;
+import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
+import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
 import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
 import com.keax.skill.infrastructure.in.web.mapper.SkillWebMapper;
 import com.keax.education.infrastructure.in.web.dto.EducationDTO;
@@ -40,6 +43,7 @@ public class PortfolioController {
     private final RetrieveEducationUseCase retrieveEducationUseCase;
     private final RetrieveSkillUseCase retrieveSkillUseCase;
     private final RetrieveTechnologyUseCase retrieveTechnologyUseCase;
+    private final RetrieveProjectUseCase retrieveProjectUseCase;
     private final RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
     private final ContactEmailUseCase contactEmailUseCase;
     private final ContactRateLimiter contactRateLimiter;
@@ -84,10 +88,20 @@ public class PortfolioController {
         ApiResponseDTO<List<TechnologyDTO>> response = new ApiResponseDTO<>(
                 true,
                 "Technology information found successfully",
-                retrieveTechnologyUseCase.findByTechnologyDeletedWithProjects(
-                        false,
-                        false
-                ).stream().map(TechnologyWebMapper::fromDomain).toList()
+                retrieveTechnologyUseCase.findByTechnologyDeleted(false)
+                        .stream().map(TechnologyWebMapper::fromDomain).toList()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/project")
+    public ResponseEntity<ApiResponseDTO<List<ProjectDTO>>> getProject() {
+        ApiResponseDTO<List<ProjectDTO>> response = new ApiResponseDTO<>(
+                true,
+                "Project information found successfully",
+                retrieveProjectUseCase.findByProjectDeleted(false)
+                        .stream().map(ProjectWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);

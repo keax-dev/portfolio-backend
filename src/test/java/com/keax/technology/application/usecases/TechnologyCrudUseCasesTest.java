@@ -97,7 +97,7 @@ class TechnologyCrudUseCasesTest {
         // Arrange: la tecnología existe y un proyecto activo la referencia.
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
                 .thenReturn(Optional.of(technology(1L, "JAVA", 1, false)));
-        when(projectRepository.existsByTechnology_technologyIdAndProjectDeleted(1L, false))
+        when(projectRepository.existsByTechnologyIdAndProjectDeleted(1L, false))
                 .thenReturn(true);
 
         // Act y Assert: la relación impide el borrado lógico.
@@ -114,7 +114,7 @@ class TechnologyCrudUseCasesTest {
         Technology stored = technology(1L, "JAVA", 1, false);
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(projectRepository.existsByTechnology_technologyIdAndProjectDeleted(1L, false))
+        when(projectRepository.existsByTechnologyIdAndProjectDeleted(1L, false))
                 .thenReturn(false);
         when(technologyRepository.deleteTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -150,7 +150,7 @@ class TechnologyCrudUseCasesTest {
 
     private Technology technology(Long id, String name, int position, Boolean deleted) {
         // Crea un modelo sin proyectos para probar únicamente reglas CRUD.
-        return new Technology(id, name, position, deleted, new ArrayList<>());
+        return new Technology(id, name, position, deleted);
     }
 
 }

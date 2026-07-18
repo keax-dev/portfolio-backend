@@ -140,15 +140,17 @@ class ManagementApiIntegrationTest {
         // Arrange: se crea tecnología y se recupera su id.
         String token = token();
         performPost("/api/technology", """
-                {"name":"Java","position":1,"deleted":false,"projects":[]}
+                {"name":"Java","position":1,"deleted":false}
                 """, token).andExpect(status().isOk());
         Long technologyId = technologyRepository.findAll().getFirst().getTechnologyId();
 
         // Act: se crea un proyecto asociado.
         performPost("/api/project", """
                 {"title":"Portfolio","title_es":"Portafolio",
-                 "description":"Backend project","description_es":"Proyecto backend",
-                 "deploy":"","github":"","position":1,"technology":%d,"deleted":false}
+                 "description":"Full-stack project","description_es":"Proyecto full-stack",
+                 "position":1,"deleted":false,
+                 "technologies":[{"id":%d,"position":1}],
+                 "links":[{"type":"GITHUB","url":"https://github.com/keax/portfolio","position":1}]}
                 """.formatted(technologyId), token).andExpect(status().isOk());
         Long projectId = projectRepository.findAll().getFirst().getProjectId();
 

@@ -13,7 +13,7 @@ public interface ProjectRepositoryPort {
     List<Project> getListProject();
     Optional<Project> findByProjectTitleAndProjectDeleted(String projectTitle, Boolean deleted);
     Optional<Project> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted);
-    Optional<Project> findByProjectPositionAndProjectDeletedAndTechnology_technologyId(int position, Boolean deleted, Long technologyId);
-    Boolean existsByTechnology_technologyIdAndProjectDeleted(Long technologyId, Boolean deleted);
+    Optional<Project> findByProjectPositionAndProjectDeleted(int position, Boolean deleted);
+    Boolean existsByTechnologyIdAndProjectDeleted(Long technologyId, Boolean deleted);
 
 }
