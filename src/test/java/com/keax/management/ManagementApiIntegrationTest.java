@@ -19,6 +19,7 @@ import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -173,6 +174,57 @@ class ManagementApiIntegrationTest {
 
         // Assert adicional: se verifica el efecto persistido del comando DELETE.
         assertTrue(technologyRepository.findById(technologyId).orElseThrow().getTechnologyDeleted());
+    }
+
+    @Test
+    void removesAndReordersProjectTechnologiesWithoutTransientPositionConflicts() throws Exception {
+        String token = token();
+        performPost("/api/technology", "{\"name\":\"Java\"}", token)
+                .andExpect(status().isOk());
+        performPost("/api/technology", "{\"name\":\"Angular\"}", token)
+                .andExpect(status().isOk());
+        performPost("/api/technology", "{\"name\":\"MySQL\"}", token)
+                .andExpect(status().isOk());
+        Long javaId = technologyRepository
+                .findByTechnologyNameAndTechnologyDeleted("JAVA", false).orElseThrow().getTechnologyId();
+        Long angularId = technologyRepository
+                .findByTechnologyNameAndTechnologyDeleted("ANGULAR", false).orElseThrow().getTechnologyId();
+        Long mysqlId = technologyRepository
+                .findByTechnologyNameAndTechnologyDeleted("MYSQL", false).orElseThrow().getTechnologyId();
+
+        performPost("/api/project", """
+                {"title":"Portfolio","title_es":"Portafolio",
+                 "description":"Full-stack project","description_es":"Proyecto full-stack",
+                 "position":1,
+                 "technologies":[{"id":%d,"position":1},{"id":%d,"position":2},{"id":%d,"position":3}],
+                 "links":[]}
+                """.formatted(javaId, angularId, mysqlId), token)
+                .andExpect(status().isOk());
+        Long projectId = projectRepository.findAll().getFirst().getProjectId();
+
+        performPut("/api/project/" + projectId, """
+                {"title":"Portfolio","title_es":"Portafolio",
+                 "description":"Full-stack project","description_es":"Proyecto full-stack",
+                 "position":1,
+                 "technologies":[{"id":%d,"position":1},{"id":%d,"position":2}],
+                 "links":[]}
+                """.formatted(mysqlId, javaId), token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.technologies[0].id").value(mysqlId))
+                .andExpect(jsonPath("$.data.technologies[0].position").value(1))
+                .andExpect(jsonPath("$.data.technologies[1].id").value(javaId))
+                .andExpect(jsonPath("$.data.technologies[1].position").value(2));
+
+        var relations = projectRepository.findByProjectIdAndProjectDeleted(projectId, false)
+                .orElseThrow()
+                .getProjectTechnologies();
+        assertEquals(2, relations.size());
+        assertTrue(relations.stream().anyMatch(relation ->
+                relation.getTechnology().getTechnologyId().equals(mysqlId) && relation.getPosition() == 1
+        ));
+        assertTrue(relations.stream().anyMatch(relation ->
+                relation.getTechnology().getTechnologyId().equals(javaId) && relation.getPosition() == 2
+        ));
     }
 
     @Test

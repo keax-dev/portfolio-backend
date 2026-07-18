@@ -26,7 +26,9 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
 
     @Override
     public Project updateProject(Project project) {
-        ProjectEntity updated = jpaProjectRepository.save(
+        jpaProjectRepository.stageProjectTechnologyPositions(project.getProjectId());
+        jpaProjectRepository.stageProjectLinkPositions(project.getProjectId());
+        ProjectEntity updated = jpaProjectRepository.saveAndFlush(
                 ProjectPersistenceMapper.toEntity(project)
         );
         return ProjectPersistenceMapper.toDomain(updated);

@@ -3,6 +3,7 @@ package com.keax.project.infrastructure.out.persistence.repository;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
@@ -20,6 +21,22 @@ public interface JpaProjectRepository extends JpaRepository<ProjectEntity, Long>
     Optional<ProjectEntity> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted);
 
     Optional<ProjectEntity> findByProjectPositionAndProjectDeleted(int position, Boolean deleted);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update ProjectTechnologyEntity relation
+            set relation.position = -relation.position
+            where relation.project.projectId = :projectId
+            """)
+    int stageProjectTechnologyPositions(@Param("projectId") Long projectId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update ProjectLinkEntity link
+            set link.position = -link.position
+            where link.project.projectId = :projectId
+            """)
+    int stageProjectLinkPositions(@Param("projectId") Long projectId);
 
     @Query("""
             select case when count(project) > 0 then true else false end
