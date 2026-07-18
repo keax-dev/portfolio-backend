@@ -23,7 +23,7 @@ Rutas principales:
 - `/api/auth/login`: autenticación administrativa.
 - `/api/portfolio/*`: consumo público del portafolio.
 - `/api/profile`, `/api/education`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: CRUD administrativo.
-- `/api/image/*`: carga de imágenes.
+- `/api/image/*`: carga y eliminación de imágenes.
 - `/api/visitor` y `/api/visitor/dashboard`: registro y consulta de visitantes.
 
 ## Qué está implementado
@@ -38,7 +38,8 @@ Rutas principales:
 ### API pública del portafolio
 
 - Consulta del perfil principal.
-- Consulta de educación, habilidades, tecnologías y redes sociales.
+- Consulta de educación, habilidades, tecnologías, proyectos unificados y redes sociales.
+- Proyectos públicos con títulos y descripciones localizadas, tecnologías, links e imágenes ordenadas.
 - Envío de formulario de contacto.
 - Registro de visitantes con deduplicación por ventana de tiempo.
 - Resolución de IP cliente con soporte controlado para proxys.
@@ -49,11 +50,59 @@ Rutas principales:
 - CRUD de educación.
 - CRUD de instituciones.
 - CRUD de habilidades.
-- CRUD de tecnologías.
-- CRUD de proyectos.
+- CRUD de tecnologías por nombre, sin una posición global en el catálogo.
+- CRUD de proyectos con una o varias tecnologías y links ordenados por proyecto.
 - CRUD de redes sociales.
-- Carga de imágenes hacia Cloudinary.
+- Carga múltiple y eliminación controlada de imágenes de proyectos en Cloudinary.
 - Dashboard de visitantes.
+
+### Modelo y reglas de proyectos
+
+- Cada registro representa un proyecto completo; frontend y backend ya no se almacenan como proyectos independientes.
+- `technologies` requiere al menos una tecnología existente. Los IDs de tecnología y las posiciones deben ser únicos dentro del proyecto.
+- La posición de una tecnología pertenece a la relación proyecto-tecnología; el catálogo global de tecnologías conserva solamente `id`, `name` y `deleted`.
+- `links` puede estar vacío y admite `DEPLOY`, `GITHUB`, `GITHUB_FRONTEND` y `GITHUB_BACKEND`. Tipo y posición no pueden repetirse dentro del proyecto.
+- `images` reemplaza al campo legado `picture` y devuelve hasta tres imágenes con `id`, `url` y `position`.
+- La carga usa `POST /api/image/project/{projectId}` con uno o más archivos multipart bajo `images`, sin superar tres imágenes acumuladas.
+- La eliminación usa `DELETE /api/image/project/{projectId}/{projectImageId}` y evita dejar un proyecto sin imágenes.
+- Los cambios de orden de tecnologías y links se persisten en una sola transacción, evitando colisiones temporales con sus restricciones de posición única.
+
+Representación resumida devuelta por la API:
+
+```json
+{
+  "id": 4,
+  "title": "COURIER OPERATIONS PLATFORM",
+  "title_es": "PLATAFORMA DE OPERACIONES COURIER",
+  "description": "...",
+  "description_es": "...",
+  "position": 1,
+  "technologies": [
+    {
+      "relation_id": 1,
+      "id": 1,
+      "name": "ANGULAR",
+      "position": 1
+    }
+  ],
+  "links": [
+    {
+      "id": 1,
+      "type": "GITHUB_FRONTEND",
+      "url": "https://github.com/...",
+      "position": 1
+    }
+  ],
+  "images": [
+    {
+      "id": 1,
+      "url": "https://res.cloudinary.com/...",
+      "position": 1
+    }
+  ],
+  "deleted": false
+}
+```
 
 ### Infraestructura y observabilidad
 
@@ -191,6 +240,12 @@ Flyway quedó integrado como mecanismo oficial de versionado del esquema.
 Migraciones actuales:
 
 - `src/main/resources/db/migration/V1__init_schema.sql`
+- `src/main/resources/db/migration/V2__project_technologies_and_links.sql`
+- `src/main/java/db/migration/V3__merge_split_projects.java`
+- `src/main/java/db/migration/V4__project_images.java`
+- `src/main/resources/db/migration/V5__drop_technology_position.sql`
+
+Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado y eliminan la posición global del catálogo de tecnologías.
 
 Configuración relevante:
 
@@ -252,6 +307,9 @@ Ese comando cubre:
 - Pruebas de persistencia: `Jpa*RepositoryIntegrationTest`, `PostgreSqlPersistenceIntegrationTest`
 - Pruebas de arquitectura: `HexagonalArchitectureTest`
 - Pruebas de mapeo y contratos: `MapperContractsTest`
+- Pruebas de reglas estructurales de proyectos: `ProjectStructureValidatorTest`
+- Pruebas de migración de proyectos e imágenes: `V3MergeSplitProjectsTest`, `V4ProjectImagesTest`
+- Pruebas H2 y PostgreSQL para eliminar y reordenar relaciones sin conflictos de integridad.
 - Pruebas end-to-end backend: `BackendEndToEndTest`
 - Pruebas de observabilidad y documentación: `ActuatorApiIntegrationTest`, `ManagementApiIntegrationTest`, `OpenApiIntegrationTest`
 
@@ -431,6 +489,8 @@ Hoy el proyecto ya cuenta con:
 - Documentación Swagger,
 - Observabilidad con Actuator y Prometheus,
 - Migraciones con Flyway,
+- Proyectos unificados con tecnologías, links e imágenes ordenadas,
+- Reordenamiento transaccional de relaciones validado en PostgreSQL,
 - Cobertura mínima obligatoria,
 - Contenedor Docker multi-stage,
 - Pipeline de CI,
