@@ -28,7 +28,7 @@ public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
                 () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
-        if (projectRepositoryPort.existsByTechnology_technologyIdAndProjectDeleted(
+        if (projectRepositoryPort.existsByTechnologyIdAndProjectDeleted(
                 technologyId,
                 false
         )){

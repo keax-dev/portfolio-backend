@@ -42,14 +42,14 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
 
     @Override
     public List<Project> findByProjectDeleted(Boolean deleted) {
-        return jpaProjectRepository.findByProjectDeleted(deleted).stream()
+        return jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(deleted).stream()
                 .map(ProjectPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Project> getListProject() {
-        return jpaProjectRepository.findByProjectDeleted(false).stream()
+        return jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(false).stream()
                 .map(ProjectPersistenceMapper::toDomain)
                 .toList();
     }
@@ -71,17 +71,16 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     }
 
     @Override
-    public Optional<Project> findByProjectPositionAndProjectDeletedAndTechnology_technologyId(int position, Boolean deleted, Long technologyId) {
-        return jpaProjectRepository.findByProjectPositionAndProjectDeletedAndTechnology_technologyId(
+    public Optional<Project> findByProjectPositionAndProjectDeleted(int position, Boolean deleted) {
+        return jpaProjectRepository.findByProjectPositionAndProjectDeleted(
                 position,
-                deleted,
-                technologyId
+                deleted
         ).map(ProjectPersistenceMapper::toDomain);
     }
 
     @Override
-    public Boolean existsByTechnology_technologyIdAndProjectDeleted(Long technologyId, Boolean deleted) {
-        return jpaProjectRepository.existsByTechnology_technologyIdAndProjectDeleted(
+    public Boolean existsByTechnologyIdAndProjectDeleted(Long technologyId, Boolean deleted) {
+        return jpaProjectRepository.existsByTechnologyIdAndProjectDeleted(
                 technologyId,
                 deleted
         );

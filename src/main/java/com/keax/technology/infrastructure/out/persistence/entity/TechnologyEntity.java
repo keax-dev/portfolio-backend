@@ -1,11 +1,8 @@
 package com.keax.technology.infrastructure.out.persistence.entity;
 
-import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,8 +27,5 @@ public class TechnologyEntity {
 
     @Column(name = "technology_deleted", nullable = false)
     private Boolean technologyDeleted;
-
-    @OneToMany(mappedBy = "technology", fetch = FetchType.LAZY)
-    private List<ProjectEntity> projectEntityList = new ArrayList<>();
 
 }

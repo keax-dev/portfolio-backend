@@ -110,7 +110,7 @@ class UploadImageUseCasesTest {
         // Arrange: la carga remota funciona, pero persistir el proyecto falla.
         Project project = new Project(
                 1L, "PROJECT", "PROYECTO", "Description", "Descripción",
-                "old-url", null, null, 1, 10L, "JAVA", false
+                "old-url", 1, false, List.of(), List.of()
         );
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
                 .thenReturn(Optional.of(project));

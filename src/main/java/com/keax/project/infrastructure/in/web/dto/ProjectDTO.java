@@ -2,14 +2,17 @@ package com.keax.project.infrastructure.in.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -43,28 +46,21 @@ public class ProjectDTO {
     @JsonProperty("picture")
     private String projectPicture;
 
-    @JsonProperty("deploy")
-    @Pattern(regexp = "^$|https?://.+", message = "The project deploy url must start with http:// or https://")
-    @Size(max = 2048, message = "The project deploy url must not exceed 2048 characters")
-    private String projectDeploy;
-
-    @JsonProperty("github")
-    @Pattern(regexp = "^$|https?://.+", message = "The project github url must start with http:// or https://")
-    @Size(max = 2048, message = "The project github url must not exceed 2048 characters")
-    private String projectGithub;
-
     @JsonProperty("position")
     @Min(value = 1, message = "The project position must be greater than 0")
     private int projectPosition;
 
-    @JsonProperty("technology")
-    @NotNull(message = "The technology is required")
-    private Long technologyId;
-
-    @JsonProperty("technology_name")
-    private String technologyName;
-
     @JsonProperty("deleted")
     private Boolean projectDeleted;
+
+    @JsonProperty("technologies")
+    @Valid
+    @NotEmpty(message = "At least one project technology is required")
+    private List<ProjectTechnologyDTO> technologies = new ArrayList<>();
+
+    @JsonProperty("links")
+    @Valid
+    @NotNull(message = "The project links collection is required")
+    private List<ProjectLinkDTO> links = new ArrayList<>();
 
 }

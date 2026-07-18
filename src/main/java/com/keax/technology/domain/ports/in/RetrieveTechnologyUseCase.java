@@ -6,7 +6,6 @@ import java.util.List;
 public interface RetrieveTechnologyUseCase {
 
     List<Technology> findByTechnologyDeleted(Boolean deleted);
-    List<Technology> findByTechnologyDeletedWithProjects(Boolean deleted, Boolean projectDeleted);
     List<Technology> getListTechnology();
 
 }

@@ -1,22 +1,20 @@
 package com.keax.project.infrastructure.out.persistence.repository;
 
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
+import com.keax.project.infrastructure.out.persistence.entity.ProjectTechnologyEntity;
 import com.keax.technology.infrastructure.out.persistence.entity.TechnologyEntity;
 import com.keax.technology.infrastructure.out.persistence.repository.JpaTechnologyRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestConstructor;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Verifica consultas derivadas criticas del repositorio de proyectos que
- * sostienen la posicion por tecnologia y el borrado logico dependiente.
- */
+/** Verifies global project ordering and technology guards through the join table. */
 @DataJpaTest
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class JpaProjectRepositoryIntegrationTest {
@@ -33,156 +31,72 @@ class JpaProjectRepositoryIntegrationTest {
     }
 
     @Test
-    void resolvesPositionQueryInsideTheRequestedTechnologyOnly() {
-        // Arrange: se crean dos tecnologias para comprobar que la posicion se evalua por padre.
-        TechnologyEntity javaTechnology = technologyRepository.saveAndFlush(new TechnologyEntity(
-                null,
-                "JAVA",
-                1,
-                false,
-                new ArrayList<>()
-        ));
-        TechnologyEntity springTechnology = technologyRepository.saveAndFlush(new TechnologyEntity(
-                null,
-                "SPRING",
-                2,
-                false,
-                new ArrayList<>()
-        ));
+    void resolvesProjectPositionGlobally() {
+        TechnologyEntity java = saveTechnology("JAVA", 1);
+        TechnologyEntity spring = saveTechnology("SPRING", 2);
+        projectRepository.saveAndFlush(project("PORTFOLIO", 1, false, java));
+        projectRepository.saveAndFlush(project("API", 2, false, spring));
 
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "PORTFOLIO",
-                "PORTAFOLIO",
-                "Java portfolio",
-                "Portafolio Java",
-                null,
-                null,
-                null,
-                1,
-                false,
-                javaTechnology
-        ));
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "API",
-                "API",
-                "Spring API",
-                "API Spring",
-                null,
-                null,
-                null,
-                1,
-                false,
-                springTechnology
-        ));
+        var first = projectRepository.findByProjectPositionAndProjectDeleted(1, false);
+        var second = projectRepository.findByProjectPositionAndProjectDeleted(2, false);
 
-        // Act y Assert: la consulta por posicion debe respetar la tecnologia solicitada.
-        var foundInJava = projectRepository.findByProjectPositionAndProjectDeletedAndTechnology_technologyId(
-                1,
-                false,
-                javaTechnology.getTechnologyId()
-        );
-        var foundInSpring = projectRepository.findByProjectPositionAndProjectDeletedAndTechnology_technologyId(
-                1,
-                false,
-                springTechnology.getTechnologyId()
-        );
-
-        assertTrue(foundInJava.isPresent());
-        assertTrue(foundInSpring.isPresent());
-        assertEquals("PORTFOLIO", foundInJava.orElseThrow().getProjectTitle());
-        assertEquals("API", foundInSpring.orElseThrow().getProjectTitle());
+        assertEquals("PORTFOLIO", first.orElseThrow().getProjectTitle());
+        assertEquals("API", second.orElseThrow().getProjectTitle());
     }
 
     @Test
-    void reportsOnlyActiveChildProjectsInTheSoftDeleteGuardQuery() {
-        // Arrange: una tecnologia tiene un proyecto activo y otro eliminado logicamente.
-        TechnologyEntity technology = technologyRepository.saveAndFlush(new TechnologyEntity(
-                null,
-                "KOTLIN",
-                1,
-                false,
-                new ArrayList<>()
-        ));
+    void reportsProjectsRelatedThroughAnyTechnology() {
+        TechnologyEntity kotlin = saveTechnology("KOTLIN", 1);
+        TechnologyEntity angular = saveTechnology("ANGULAR", 2);
+        projectRepository.saveAndFlush(project("ACTIVE PROJECT", 1, false, angular, kotlin));
+        projectRepository.saveAndFlush(project("DELETED PROJECT", 2, true, kotlin));
 
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "ACTIVE PROJECT",
-                "PROYECTO ACTIVO",
-                "Active child",
-                "Hijo activo",
-                null,
-                null,
-                null,
-                1,
-                false,
-                technology
-        ));
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "DELETED PROJECT",
-                "PROYECTO ELIMINADO",
-                "Deleted child",
-                "Hijo eliminado",
-                null,
-                null,
-                null,
-                2,
-                true,
-                technology
-        ));
+        assertTrue(projectRepository.existsByTechnologyIdAndProjectDeleted(kotlin.getTechnologyId(), false));
+        assertTrue(projectRepository.existsByTechnologyIdAndProjectDeleted(kotlin.getTechnologyId(), true));
 
-        // Act: se ejecutan las consultas que usan los casos de uso de borrado logico.
-        boolean hasActiveProjects = projectRepository.existsByTechnology_technologyIdAndProjectDeleted(
-                technology.getTechnologyId(),
-                false
-        );
-        boolean hasDeletedProjects = projectRepository.existsByTechnology_technologyIdAndProjectDeleted(
-                technology.getTechnologyId(),
-                true
-        );
-        var activeProjects = projectRepository.findByProjectDeleted(false);
-
-        // Assert: el guardia distingue correctamente entre hijos activos y eliminados.
-        assertTrue(hasActiveProjects);
-        assertTrue(hasDeletedProjects);
+        var activeProjects = projectRepository.findByProjectDeletedOrderByProjectPosition(false);
         assertEquals(1, activeProjects.size());
-        assertEquals("ACTIVE PROJECT", activeProjects.getFirst().getProjectTitle());
+        assertEquals(2, activeProjects.getFirst().getProjectTechnologies().size());
     }
 
     @Test
     void returnsFalseWhenATechnologyHasNoActiveProjects() {
-        // Arrange: la tecnologia solo conserva hijos eliminados logicamente.
-        TechnologyEntity technology = technologyRepository.saveAndFlush(new TechnologyEntity(
-                null,
-                "RUST",
-                1,
-                false,
-                new ArrayList<>()
-        ));
+        TechnologyEntity rust = saveTechnology("RUST", 1);
+        projectRepository.saveAndFlush(project("OLD PROJECT", 1, true, rust));
 
-        projectRepository.saveAndFlush(new ProjectEntity(
-                null,
-                "OLD PROJECT",
-                "PROYECTO ANTIGUO",
-                "Only deleted child",
-                "Solo hijo eliminado",
-                null,
-                null,
-                null,
-                1,
-                true,
-                technology
-        ));
-
-        // Act y Assert: la proteccion de borrado no debe bloquear si no hay hijos activos.
-        boolean hasActiveProjects = projectRepository.existsByTechnology_technologyIdAndProjectDeleted(
-                technology.getTechnologyId(),
-                false
-        );
-
-        assertFalse(hasActiveProjects);
+        assertFalse(projectRepository.existsByTechnologyIdAndProjectDeleted(rust.getTechnologyId(), false));
     }
 
+    private TechnologyEntity saveTechnology(String name, int position) {
+        return technologyRepository.saveAndFlush(new TechnologyEntity(null, name, position, false));
+    }
+
+    private ProjectEntity project(
+            String title,
+            int position,
+            boolean deleted,
+            TechnologyEntity... technologies
+    ) {
+        ProjectEntity project = new ProjectEntity(
+                null,
+                title,
+                title,
+                "Description",
+                "Descripción",
+                null,
+                position,
+                deleted,
+                new LinkedHashSet<>(),
+                new LinkedHashSet<>()
+        );
+        for (int index = 0; index < technologies.length; index++) {
+            project.getProjectTechnologies().add(new ProjectTechnologyEntity(
+                    null,
+                    project,
+                    technologies[index],
+                    index + 1
+            ));
+        }
+        return project;
+    }
 }

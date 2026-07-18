@@ -2,11 +2,10 @@ package com.keax.project.application.usecases;
 
 import lombok.RequiredArgsConstructor;
 
-import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
+import com.keax.project.application.validation.ProjectStructureValidator;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import com.keax.project.domain.ports.in.CreateProjectUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
-import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.project.domain.model.Project;
@@ -16,17 +15,12 @@ import com.keax.project.domain.model.Project;
 @RequiredArgsConstructor
 public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
     private final ProjectRepositoryPort projectRepositoryPort;
-    private final TechnologyRepositoryPort technologyRepositoryPort;
+    private final ProjectStructureValidator projectStructureValidator;
 
     @Override
     public Project createProject(Project project) {
 
-        technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(
-                project.getTechnologyId(),
-                false
-        ).orElseThrow(
-                () -> new ResourceNotFoundException("The technology entered was not found")
-        );
+        projectStructureValidator.validate(project);
 
         project.setProjectTitle(project.getProjectTitle().toUpperCase());
         projectRepositoryPort.findByProjectTitleAndProjectDeleted(
@@ -38,10 +32,9 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
                 }
         );
 
-        projectRepositoryPort.findByProjectPositionAndProjectDeletedAndTechnology_technologyId(
+        projectRepositoryPort.findByProjectPositionAndProjectDeleted(
                 project.getProjectPosition(),
-                false,
-                project.getTechnologyId()
+                false
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("The project position is already filled");
@@ -53,6 +46,8 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
         project.setProjectId(null);
         project.setProjectPicture(null);
         project.setProjectDeleted(false);
+        project.getProjectTechnologies().forEach(technology -> technology.setProjectTechnologyId(null));
+        project.getProjectLinks().forEach(link -> link.setProjectLinkId(null));
 
         return projectRepositoryPort.createProject(project);
     }

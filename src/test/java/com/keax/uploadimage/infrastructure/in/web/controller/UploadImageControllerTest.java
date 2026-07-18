@@ -19,6 +19,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,8 +117,7 @@ class UploadImageControllerTest {
                 org.mockito.ArgumentMatchers.eq(30L), any(ImageFile.class)
         )).thenReturn(new Project(
                 30L, "PORTFOLIO", "PORTAFOLIO", "Description", "Descripción",
-                "image-url", "https://deploy.test", "https://github.test",
-                1, 3L, "JAVA", false
+                "image-url", 1, false, List.of(), List.of()
         ));
 
         // Act y Assert: el controlador responde con el DTO de proyecto.

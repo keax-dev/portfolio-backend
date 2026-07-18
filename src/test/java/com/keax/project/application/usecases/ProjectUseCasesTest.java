@@ -1,7 +1,11 @@
 package com.keax.project.application.usecases;
 
 import com.keax.project.domain.model.Project;
+import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectLinkType;
+import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
+import com.keax.project.application.validation.ProjectStructureValidator;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
@@ -31,12 +35,14 @@ class ProjectUseCasesTest {
 
     private ProjectRepositoryPort projectRepository;
     private TechnologyRepositoryPort technologyRepository;
+    private ProjectStructureValidator structureValidator;
 
     @BeforeEach
     void setUp() {
         // Los repositorios se sustituyen por puertos simulados.
         projectRepository = mock(ProjectRepositoryPort.class);
         technologyRepository = mock(TechnologyRepositoryPort.class);
+        structureValidator = new ProjectStructureValidator(technologyRepository);
     }
 
     @Test
@@ -45,16 +51,15 @@ class ProjectUseCasesTest {
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
         input.setProjectPicture("untrusted-picture");
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false, new ArrayList<>())));
+                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.empty());
-        when(projectRepository
-                .findByProjectPositionAndProjectDeletedAndTechnology_technologyId(1, false, 10L))
+        when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
                 .thenReturn(Optional.empty());
         when(projectRepository.createProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se crea el proyecto.
-        Project result = new CreateProjectUseCaseImpl(projectRepository, technologyRepository)
+        Project result = new CreateProjectUseCaseImpl(projectRepository, structureValidator)
                 .createProject(input);
 
         // Assert: se normalizan títulos y la imagen solo puede venir del upload.
@@ -74,27 +79,26 @@ class ProjectUseCasesTest {
         // Act y Assert: la relación se valida antes de persistir.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> new CreateProjectUseCaseImpl(projectRepository, technologyRepository)
+                () -> new CreateProjectUseCaseImpl(projectRepository, structureValidator)
                         .createProject(input)
         );
     }
 
     @Test
-    void rejectsDuplicatedProjectPositionInsideTechnology() {
+    void rejectsDuplicatedProjectPositionGlobally() {
         // Arrange: la posición ya está ocupada dentro de la misma tecnología.
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false, new ArrayList<>())));
+                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.empty());
-        when(projectRepository
-                .findByProjectPositionAndProjectDeletedAndTechnology_technologyId(1, false, 10L))
+        when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
                 .thenReturn(Optional.of(project(2L, "OTHER", "OTRO", 1, false, 10L)));
 
         // Act y Assert: se rechaza la posición duplicada.
         assertThrows(
                 ResourceConflictException.class,
-                () -> new CreateProjectUseCaseImpl(projectRepository, technologyRepository)
+                () -> new CreateProjectUseCaseImpl(projectRepository, structureValidator)
                         .createProject(input)
         );
     }
@@ -109,16 +113,15 @@ class ProjectUseCasesTest {
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false, new ArrayList<>())));
+                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.of(project(1L, "PORTFOLIO", "PORTAFOLIO", 2, false, 10L)));
-        when(projectRepository
-                .findByProjectPositionAndProjectDeletedAndTechnology_technologyId(2, false, 10L))
+        when(projectRepository.findByProjectPositionAndProjectDeleted(2, false))
                 .thenReturn(Optional.of(project(1L, "PORTFOLIO", "PORTAFOLIO", 2, false, 10L)));
         when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza el proyecto.
-        Project result = new UpdateProjectUseCaseImpl(projectRepository, technologyRepository)
+        Project result = new UpdateProjectUseCaseImpl(projectRepository, structureValidator)
                 .updateProject(1L, changes);
 
         // Assert: se preserva la imagen y cambian los datos editables.
@@ -127,6 +130,7 @@ class ProjectUseCasesTest {
         assertEquals(2, result.getProjectPosition());
         assertEquals("https://cdn/picture.jpg", result.getProjectPicture());
         assertEquals("Updated description", result.getProjectDescription());
+        assertEquals(101L, result.getProjectTechnologies().getFirst().getProjectTechnologyId());
     }
 
     @Test
@@ -177,10 +181,17 @@ class ProjectUseCasesTest {
             Long technologyId
     ) {
         // Construye un proyecto válido para concentrar cada prueba en una regla.
+        Long relationId = id == null ? null : id + 100;
         return new Project(
                 id, title, titleEs, "Description", "Descripción", null,
-                "https://deploy.example", "https://github.com/example", position,
-                technologyId, "JAVA", deleted
+                position, deleted,
+                List.of(new ProjectTechnology(relationId, technologyId, "JAVA", 1)),
+                List.of(new ProjectLink(
+                        relationId,
+                        ProjectLinkType.DEPLOY,
+                        "https://deploy.example",
+                        1
+                ))
         );
     }
 

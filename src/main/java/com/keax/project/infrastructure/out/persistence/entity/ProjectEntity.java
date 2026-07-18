@@ -1,9 +1,10 @@
 package com.keax.project.infrastructure.out.persistence.entity;
 
-import com.keax.technology.infrastructure.out.persistence.entity.TechnologyEntity;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import lombok.Setter;
 import lombok.Getter;
 
@@ -35,20 +36,16 @@ public class ProjectEntity {
     @Column(name = "project_picture")
     private String projectPicture;
 
-    @Column(name = "project_deploy")
-    private String projectDeploy;
-
-    @Column(name = "project_github")
-    private String projectGithub;
-
     @Column(name = "project_position", nullable = false)
     private int projectPosition;
 
     @Column(name = "project_deleted", nullable = false)
     private Boolean projectDeleted;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "technology_id", nullable = false)
-    private TechnologyEntity technology;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectTechnologyEntity> projectTechnologies = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectLinkEntity> projectLinks = new LinkedHashSet<>();
 
 }

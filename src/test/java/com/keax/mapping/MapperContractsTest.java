@@ -14,6 +14,9 @@ import com.keax.profile.domain.model.Profile;
 import com.keax.profile.infrastructure.in.web.mapper.ProfileWebMapper;
 import com.keax.profile.infrastructure.out.persistence.mapper.ProfilePersistenceMapper;
 import com.keax.project.domain.model.Project;
+import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectLinkType;
+import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
 import com.keax.project.infrastructure.out.persistence.mapper.ProjectPersistenceMapper;
 import com.keax.shared.domain.exceptions.ExceptionMessage;
@@ -94,11 +97,11 @@ class MapperContractsTest {
     }
 
     @Test
-    void relationalWebMappersPreserveIdentifiersAndNestedProjects() {
+    void relationalWebMappersPreserveIdentifiersAndNestedProjectData() {
         // Arrange: educación y proyecto contienen ids de sus módulos relacionados.
         Education education = education();
         Project project = project();
-        Technology technology = new Technology(10L, "JAVA", 1, false, List.of(project));
+        Technology technology = new Technology(10L, "JAVA", 1, false);
 
         // Act: se ejecutan los mappers que incluyen relaciones.
         Education educationResult = EducationWebMapper.toDomain(
@@ -111,24 +114,23 @@ class MapperContractsTest {
 
         // Assert: ids y colección anidada se conservan.
         assertEquals(20L, educationResult.getInstitutionId());
-        assertEquals(10L, projectResult.getTechnologyId());
-        assertEquals(1, technologyResult.getProjectList().size());
-        assertEquals(30L, technologyResult.getProjectList().getFirst().getProjectId());
+        assertEquals(10L, projectResult.getProjectTechnologies().getFirst().getTechnologyId());
+        assertEquals(ProjectLinkType.DEPLOY, projectResult.getProjectLinks().getFirst().getType());
+        assertEquals(10L, technologyResult.getTechnologyId());
     }
 
     @Test
     void technologyWebMapperTreatsNullProjectListAsEmpty() {
         // Arrange: un DTO administrativo llega sin la propiedad de proyectos.
         var dto = TechnologyWebMapper.fromDomain(
-                new Technology(10L, "JAVA", 1, false, List.of())
+                new Technology(10L, "JAVA", 1, false)
         );
-        dto.setProjectList(null);
 
         // Act: se convierte al modelo de dominio.
         Technology result = TechnologyWebMapper.toDomain(dto);
 
         // Assert: el dominio recibe una colección utilizable, nunca null.
-        assertEquals(0, result.getProjectList().size());
+        assertEquals(10L, result.getTechnologyId());
     }
 
     @Test
@@ -204,29 +206,30 @@ class MapperContractsTest {
         educationEntity.getInstitution().setInstitutionName("UNI");
         educationEntity.getInstitution().setInstitutionNameEs("UNI");
         var projectEntity = ProjectPersistenceMapper.toEntity(project);
-        projectEntity.getTechnology().setTechnologyName("JAVA");
+        projectEntity.getProjectTechnologies().iterator().next().getTechnology().setTechnologyName("JAVA");
         Education educationResult = EducationPersistenceMapper.toDomain(educationEntity);
         Project projectResult = ProjectPersistenceMapper.toDomain(projectEntity);
 
         // Assert: ids relacionales y campos propios se conservan.
         assertEquals(20L, educationResult.getInstitutionId());
         assertEquals("DEGREE", educationResult.getEducationTitle());
-        assertEquals(10L, projectResult.getTechnologyId());
+        assertEquals(10L, projectResult.getProjectTechnologies().getFirst().getTechnologyId());
+        assertEquals("JAVA", projectResult.getProjectTechnologies().getFirst().getTechnologyName());
+        assertEquals("https://deploy.example", projectResult.getProjectLinks().getFirst().getUrl());
         assertEquals("PROJECT", projectResult.getProjectTitle());
     }
 
     @Test
     void technologyPersistenceMapperKeepsProjectsOutOfWriteModel() {
         // Arrange: el dominio contiene proyectos, pero la relación la gobierna Project.
-        Technology technology = new Technology(10L, "JAVA", 1, false, List.of(project()));
+        Technology technology = new Technology(10L, "JAVA", 1, false);
 
         // Act: se transforma al modelo de escritura y luego al dominio simple.
         var entity = TechnologyPersistenceMapper.toEntity(technology);
         Technology result = TechnologyPersistenceMapper.toDomain(entity);
 
         // Assert: no se propagan hijos accidentalmente durante un update de tecnología.
-        assertEquals(0, entity.getProjectEntityList().size());
-        assertEquals(0, result.getProjectList().size());
+        assertEquals("JAVA", result.getTechnologyName());
         assertEquals(10L, TechnologyPersistenceMapper.toReference(10L).getTechnologyId());
         assertEquals(20L, InstitutionPersistenceMapper.toReference(20L).getInstitutionId());
     }
@@ -243,7 +246,9 @@ class MapperContractsTest {
         // Construye proyecto completo para mapeos web y JPA.
         return new Project(
                 30L, "PROJECT", "PROYECTO", "Description", "Descripción",
-                "picture", "deploy", "github", 1, 10L, "JAVA", false
+                "picture", 1, false,
+                List.of(new ProjectTechnology(40L, 10L, "JAVA", 1)),
+                List.of(new ProjectLink(50L, ProjectLinkType.DEPLOY, "https://deploy.example", 1))
         );
     }
 
