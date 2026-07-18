@@ -5,9 +5,11 @@ import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.profile.domain.model.Profile;
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
 import com.keax.project.domain.model.Project;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.skill.domain.model.Skill;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.uploadimage.domain.model.ImageFile;
@@ -110,7 +112,9 @@ class UploadImageUseCasesTest {
         // Arrange: la carga remota funciona, pero persistir el proyecto falla.
         Project project = new Project(
                 1L, "PROJECT", "PROYECTO", "Description", "Descripción",
-                "old-url", 1, false, List.of(), List.of()
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(1L, "old-url", 1)
+                ))
         );
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
                 .thenReturn(Optional.of(project));
@@ -121,12 +125,73 @@ class UploadImageUseCasesTest {
         // Act: se produce el fallo posterior a la carga.
         ExternalServiceException exception = assertThrows(
                 ExternalServiceException.class,
-                () -> useCase.uploadImageProject(1L, image)
+                () -> useCase.uploadProjectImages(1L, List.of(image))
         );
 
         // Assert: la imagen huérfana se elimina y se conserva la causa.
         verify(storage).delete("new-url");
         assertEquals("database down", exception.getCause().getMessage());
+    }
+
+    @Test
+    void appendsProjectImagesUpToTheMaximum() {
+        Project project = new Project(
+                1L, "PROJECT", "PROYECTO", "Description", "DescripciÃ³n",
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(1L, "first-url", 1)
+                ))
+        );
+        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+                .thenReturn(Optional.of(project));
+        when(storage.upload(image, "Projects")).thenReturn("second-url");
+        when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Project result = new UploadImageProjectUseCaseImpl(projectRepository, storage)
+                .uploadProjectImages(1L, List.of(image));
+
+        assertEquals(2, result.getProjectImages().size());
+        assertEquals("second-url", result.getProjectImages().get(1).getUrl());
+    }
+
+    @Test
+    void rejectsMoreThanThreeProjectImagesAndProtectsTheLastImage() {
+        Project project = new Project(
+                1L, "PROJECT", "PROYECTO", "Description", "DescripciÃ³n",
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(1L, "first-url", 1)
+                ))
+        );
+        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+                .thenReturn(Optional.of(project));
+        UploadImageProjectUseCaseImpl useCase = new UploadImageProjectUseCaseImpl(projectRepository, storage);
+
+        assertThrows(
+                ResourceConflictException.class,
+                () -> useCase.uploadProjectImages(1L, List.of(image, image, image))
+        );
+        assertThrows(ResourceConflictException.class, () -> useCase.deleteProjectImage(1L, 1L));
+        verify(storage, never()).upload(any(), any());
+    }
+
+    @Test
+    void deletesAProjectImageAndKeepsTheRemainingOrder() {
+        Project project = new Project(
+                1L, "PROJECT", "PROYECTO", "Description", "DescripciÃ³n",
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(10L, "first-url", 1),
+                        new ProjectImage(11L, "second-url", 2)
+                ))
+        );
+        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+                .thenReturn(Optional.of(project));
+        when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Project result = new UploadImageProjectUseCaseImpl(projectRepository, storage)
+                .deleteProjectImage(1L, 10L);
+
+        assertEquals(1, result.getProjectImages().size());
+        assertEquals(2, result.getProjectImages().getFirst().getPosition());
+        verify(storage).delete("first-url");
     }
 
     @Test

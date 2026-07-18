@@ -15,6 +15,7 @@ import com.keax.profile.infrastructure.in.web.mapper.ProfileWebMapper;
 import com.keax.profile.infrastructure.out.persistence.mapper.ProfilePersistenceMapper;
 import com.keax.project.domain.model.Project;
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
@@ -246,9 +247,10 @@ class MapperContractsTest {
         // Construye proyecto completo para mapeos web y JPA.
         return new Project(
                 30L, "PROJECT", "PROYECTO", "Description", "Descripción",
-                "picture", 1, false,
+                1, false,
                 List.of(new ProjectTechnology(40L, 10L, "JAVA", 1)),
-                List.of(new ProjectLink(50L, ProjectLinkType.DEPLOY, "https://deploy.example", 1))
+                List.of(new ProjectLink(50L, ProjectLinkType.DEPLOY, "https://deploy.example", 1)),
+                List.of(new ProjectImage(60L, "picture", 1))
         );
     }
 

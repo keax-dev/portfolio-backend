@@ -43,9 +43,6 @@ public class ProjectDTO {
     @Size(max = 10000, message = "The project es description must not exceed 10000 characters")
     private String projectDescriptionEs;
 
-    @JsonProperty("picture")
-    private String projectPicture;
-
     @JsonProperty("position")
     @Min(value = 1, message = "The project position must be greater than 0")
     private int projectPosition;
@@ -62,5 +59,11 @@ public class ProjectDTO {
     @Valid
     @NotNull(message = "The project links collection is required")
     private List<ProjectLinkDTO> links = new ArrayList<>();
+
+    @JsonProperty("images")
+    @Valid
+    @NotNull(message = "The project images collection is required")
+    @Size(max = 3, message = "A project can have at most 3 images")
+    private List<ProjectImageDTO> images = new ArrayList<>();
 
 }

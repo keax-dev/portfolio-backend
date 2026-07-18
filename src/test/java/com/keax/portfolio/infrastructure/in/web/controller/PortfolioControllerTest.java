@@ -9,6 +9,7 @@ import com.keax.profile.domain.model.Profile;
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
 import com.keax.project.domain.model.Project;
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.domain.ports.in.RetrieveProjectUseCase;
@@ -92,9 +93,10 @@ class PortfolioControllerTest {
         // Arrange: cada puerto entrega un modelo representativo, incluidas relaciones anidadas.
         Project project = new Project(
                 41L, "PORTFOLIO", "PORTAFOLIO", "Description", "Descripción",
-                "project.png", 1, false,
+                1, false,
                 List.of(new ProjectTechnology(61L, 31L, "JAVA", 1)),
-                List.of(new ProjectLink(71L, ProjectLinkType.DEPLOY, "https://deploy.test", 1))
+                List.of(new ProjectLink(71L, ProjectLinkType.DEPLOY, "https://deploy.test", 1)),
+                List.of(new ProjectImage(81L, "project.png", 1))
         );
         when(retrieveProfileUseCase.getProfile()).thenReturn(new Profile(
                 1L, "KEAX", "JIMENEZ", "DEVELOPER", "DESARROLLADOR", "cv", "profile.png"
@@ -129,7 +131,9 @@ class PortfolioControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].title").value("PORTFOLIO"))
                 .andExpect(jsonPath("$.data[0].technologies[0].name").value("JAVA"))
-                .andExpect(jsonPath("$.data[0].links[0].type").value("DEPLOY"));
+                .andExpect(jsonPath("$.data[0].links[0].type").value("DEPLOY"))
+                .andExpect(jsonPath("$.data[0].picture").doesNotExist())
+                .andExpect(jsonPath("$.data[0].images[0].url").value("project.png"));
         mockMvc.perform(get("/api/portfolio/socialNetwork"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].url").value("https://github.test"));

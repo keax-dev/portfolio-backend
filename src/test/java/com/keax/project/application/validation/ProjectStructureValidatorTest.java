@@ -121,11 +121,11 @@ class ProjectStructureValidatorTest {
                 "PROYECTO",
                 "Description",
                 "Descripción",
-                null,
                 1,
                 false,
                 new ArrayList<>(technologies),
-                new ArrayList<>(links)
+                new ArrayList<>(links),
+                new ArrayList<>()
         );
     }
 }

@@ -18,10 +18,10 @@ public class Project {
     private String projectTitleEs;
     private String projectDescription;
     private String projectDescriptionEs;
-    private String projectPicture;
     private int projectPosition;
     private Boolean projectDeleted;
     private List<ProjectTechnology> projectTechnologies = new ArrayList<>();
     private List<ProjectLink> projectLinks = new ArrayList<>();
+    private List<ProjectImage> projectImages = new ArrayList<>();
 
 }

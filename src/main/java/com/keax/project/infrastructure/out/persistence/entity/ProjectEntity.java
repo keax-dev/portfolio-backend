@@ -33,9 +33,6 @@ public class ProjectEntity {
     @Column(name = "project_description_es", columnDefinition = "text")
     private String projectDescriptionEs;
 
-    @Column(name = "project_picture")
-    private String projectPicture;
-
     @Column(name = "project_position", nullable = false)
     private int projectPosition;
 
@@ -47,5 +44,8 @@ public class ProjectEntity {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectLinkEntity> projectLinks = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectImageEntity> projectImages = new LinkedHashSet<>();
 
 }

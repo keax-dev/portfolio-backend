@@ -8,6 +8,7 @@ import com.keax.profile.infrastructure.out.persistence.entity.ProfileEntity;
 import com.keax.profile.infrastructure.out.persistence.repository.JpaProfileRepository;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectLinkEntity;
+import com.keax.project.infrastructure.out.persistence.entity.ProjectImageEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectTechnologyEntity;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.infrastructure.out.persistence.repository.JpaProjectRepository;
@@ -245,8 +246,8 @@ class PortfolioApiIntegrationTest {
             TechnologyEntity technology
     ) {
         ProjectEntity project = new ProjectEntity(
-                null, title, titleEs, description, descriptionEs, picture, position, deleted,
-                new LinkedHashSet<>(), new LinkedHashSet<>()
+                null, title, titleEs, description, descriptionEs, position, deleted,
+                new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>()
         );
         project.getProjectTechnologies().add(
                 new ProjectTechnologyEntity(null, project, technology, 1)
@@ -254,6 +255,9 @@ class PortfolioApiIntegrationTest {
         project.getProjectLinks().add(new ProjectLinkEntity(
                 null, project, ProjectLinkType.DEPLOY, "https://deploy.test", 1
         ));
+        if (picture != null) {
+            project.getProjectImages().add(new ProjectImageEntity(null, project, picture, 1));
+        }
         return project;
     }
 

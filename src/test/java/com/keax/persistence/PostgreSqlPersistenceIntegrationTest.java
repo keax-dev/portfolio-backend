@@ -118,7 +118,7 @@ class PostgreSqlPersistenceIntegrationTest {
         );
         ProjectEntity project = new ProjectEntity(
                 null, "PORTFOLIO", "PORTAFOLIO", "Description", "Descripción",
-                null, 1, false, new LinkedHashSet<>(), new LinkedHashSet<>()
+                1, false, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>()
         );
         project.getProjectTechnologies().add(
                 new ProjectTechnologyEntity(null, project, technology, 1)

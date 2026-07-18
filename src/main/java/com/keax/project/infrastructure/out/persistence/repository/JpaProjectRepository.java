@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface JpaProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
-    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks"})
+    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks", "projectImages"})
     List<ProjectEntity> findByProjectDeletedOrderByProjectPosition(Boolean deleted);
 
-    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks"})
+    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks", "projectImages"})
     Optional<ProjectEntity> findByProjectTitleAndProjectDeleted(String projectTitle, Boolean deleted);
 
-    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks"})
+    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks", "projectImages"})
     Optional<ProjectEntity> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted);
 
     Optional<ProjectEntity> findByProjectPositionAndProjectDeleted(int position, Boolean deleted);

@@ -2,6 +2,7 @@ package com.keax.project.application.usecases;
 
 import com.keax.project.domain.model.Project;
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
@@ -49,7 +50,9 @@ class ProjectUseCasesTest {
     void createsProjectForExistingTechnology() {
         // Arrange: la tecnología existe y no hay conflictos de título o posición.
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
-        input.setProjectPicture("untrusted-picture");
+        input.setProjectImages(new ArrayList<>(List.of(
+                new ProjectImage(null, "untrusted-picture", 1)
+        )));
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
                 .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
@@ -65,7 +68,7 @@ class ProjectUseCasesTest {
         // Assert: se normalizan títulos y la imagen solo puede venir del upload.
         assertEquals("PORTFOLIO", result.getProjectTitle());
         assertEquals("PORTAFOLIO", result.getProjectTitleEs());
-        assertNull(result.getProjectPicture());
+        assertTrue(result.getProjectImages().isEmpty());
         assertFalse(result.getProjectDeleted());
     }
 
@@ -107,7 +110,9 @@ class ProjectUseCasesTest {
     void updatesProjectWithoutSelfConflict() {
         // Arrange: los resultados de unicidad corresponden al mismo proyecto.
         Project stored = project(1L, "OLD", "ANTIGUO", 1, false, 10L);
-        stored.setProjectPicture("https://cdn/picture.jpg");
+        stored.setProjectImages(new ArrayList<>(List.of(
+                new ProjectImage(201L, "https://cdn/picture.jpg", 1)
+        )));
         Project changes = project(null, "Portfolio", "Portafolio", 2, null, 10L);
         changes.setProjectDescription("Updated description");
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
@@ -128,7 +133,7 @@ class ProjectUseCasesTest {
         assertEquals(1L, result.getProjectId());
         assertEquals("PORTFOLIO", result.getProjectTitle());
         assertEquals(2, result.getProjectPosition());
-        assertEquals("https://cdn/picture.jpg", result.getProjectPicture());
+        assertEquals("https://cdn/picture.jpg", result.getProjectImages().getFirst().getUrl());
         assertEquals("Updated description", result.getProjectDescription());
         assertEquals(101L, result.getProjectTechnologies().getFirst().getProjectTechnologyId());
     }
@@ -183,15 +188,15 @@ class ProjectUseCasesTest {
         // Construye un proyecto válido para concentrar cada prueba en una regla.
         Long relationId = id == null ? null : id + 100;
         return new Project(
-                id, title, titleEs, "Description", "Descripción", null,
-                position, deleted,
+                id, title, titleEs, "Description", "Descripción", position, deleted,
                 List.of(new ProjectTechnology(relationId, technologyId, "JAVA", 1)),
                 List.of(new ProjectLink(
                         relationId,
                         ProjectLinkType.DEPLOY,
                         "https://deploy.example",
                         1
-                ))
+                )),
+                new ArrayList<>()
         );
     }
 

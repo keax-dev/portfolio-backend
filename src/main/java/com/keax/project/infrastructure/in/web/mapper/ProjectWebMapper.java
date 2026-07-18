@@ -1,9 +1,11 @@
 package com.keax.project.infrastructure.in.web.mapper;
 
 import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectImageDTO;
 import com.keax.project.infrastructure.in.web.dto.ProjectLinkDTO;
 import com.keax.project.infrastructure.in.web.dto.ProjectTechnologyDTO;
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.domain.model.Project;
 
@@ -16,11 +18,11 @@ public final class ProjectWebMapper {
                 dto.getProjectTitleEs(),
                 dto.getProjectDescription(),
                 dto.getProjectDescriptionEs(),
-                dto.getProjectPicture(),
                 dto.getProjectPosition(),
                 dto.getProjectDeleted(),
                 dto.getTechnologies().stream().map(ProjectWebMapper::technologyToDomain).toList(),
-                dto.getLinks().stream().map(ProjectWebMapper::linkToDomain).toList()
+                dto.getLinks().stream().map(ProjectWebMapper::linkToDomain).toList(),
+                dto.getImages().stream().map(ProjectWebMapper::imageToDomain).toList()
         );
     }
 
@@ -31,11 +33,11 @@ public final class ProjectWebMapper {
                 project.getProjectTitleEs(),
                 project.getProjectDescription(),
                 project.getProjectDescriptionEs(),
-                project.getProjectPicture(),
                 project.getProjectPosition(),
                 project.getProjectDeleted(),
                 project.getProjectTechnologies().stream().map(ProjectWebMapper::technologyFromDomain).toList(),
-                project.getProjectLinks().stream().map(ProjectWebMapper::linkFromDomain).toList()
+                project.getProjectLinks().stream().map(ProjectWebMapper::linkFromDomain).toList(),
+                project.getProjectImages().stream().map(ProjectWebMapper::imageFromDomain).toList()
         );
     }
 
@@ -63,6 +65,14 @@ public final class ProjectWebMapper {
 
     private static ProjectLinkDTO linkFromDomain(ProjectLink link) {
         return new ProjectLinkDTO(link.getProjectLinkId(), link.getType(), link.getUrl(), link.getPosition());
+    }
+
+    private static ProjectImage imageToDomain(ProjectImageDTO dto) {
+        return new ProjectImage(dto.getProjectImageId(), dto.getUrl(), dto.getPosition());
+    }
+
+    private static ProjectImageDTO imageFromDomain(ProjectImage image) {
+        return new ProjectImageDTO(image.getProjectImageId(), image.getUrl(), image.getPosition());
     }
 
 }

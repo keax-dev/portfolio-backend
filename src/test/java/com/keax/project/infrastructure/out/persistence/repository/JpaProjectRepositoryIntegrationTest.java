@@ -83,11 +83,11 @@ class JpaProjectRepositoryIntegrationTest {
                 title,
                 "Description",
                 "Descripción",
-                null,
-                position,
+              position,
                 deleted,
                 new LinkedHashSet<>(),
-                new LinkedHashSet<>()
+              new LinkedHashSet<>(),
+              new LinkedHashSet<>()
         );
         for (int index = 0; index < technologies.length; index++) {
             project.getProjectTechnologies().add(new ProjectTechnologyEntity(
