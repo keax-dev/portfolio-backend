@@ -32,8 +32,8 @@ class JpaProjectRepositoryIntegrationTest {
 
     @Test
     void resolvesProjectPositionGlobally() {
-        TechnologyEntity java = saveTechnology("JAVA", 1);
-        TechnologyEntity spring = saveTechnology("SPRING", 2);
+        TechnologyEntity java = saveTechnology("JAVA");
+        TechnologyEntity spring = saveTechnology("SPRING");
         projectRepository.saveAndFlush(project("PORTFOLIO", 1, false, java));
         projectRepository.saveAndFlush(project("API", 2, false, spring));
 
@@ -46,8 +46,8 @@ class JpaProjectRepositoryIntegrationTest {
 
     @Test
     void reportsProjectsRelatedThroughAnyTechnology() {
-        TechnologyEntity kotlin = saveTechnology("KOTLIN", 1);
-        TechnologyEntity angular = saveTechnology("ANGULAR", 2);
+        TechnologyEntity kotlin = saveTechnology("KOTLIN");
+        TechnologyEntity angular = saveTechnology("ANGULAR");
         projectRepository.saveAndFlush(project("ACTIVE PROJECT", 1, false, angular, kotlin));
         projectRepository.saveAndFlush(project("DELETED PROJECT", 2, true, kotlin));
 
@@ -61,14 +61,28 @@ class JpaProjectRepositoryIntegrationTest {
 
     @Test
     void returnsFalseWhenATechnologyHasNoActiveProjects() {
-        TechnologyEntity rust = saveTechnology("RUST", 1);
+        TechnologyEntity rust = saveTechnology("RUST");
         projectRepository.saveAndFlush(project("OLD PROJECT", 1, true, rust));
 
         assertFalse(projectRepository.existsByTechnologyIdAndProjectDeleted(rust.getTechnologyId(), false));
     }
 
-    private TechnologyEntity saveTechnology(String name, int position) {
-        return technologyRepository.saveAndFlush(new TechnologyEntity(null, name, position, false));
+    @Test
+    void ordersTheTechnologyCatalogueByName() {
+        saveTechnology("JAVA");
+        saveTechnology("ANGULAR");
+
+        var technologies = technologyRepository
+                .findByTechnologyDeletedOrderByTechnologyNameAsc(false);
+
+        assertEquals(
+                java.util.List.of("ANGULAR", "JAVA"),
+                technologies.stream().map(TechnologyEntity::getTechnologyName).toList()
+        );
+    }
+
+    private TechnologyEntity saveTechnology(String name) {
+        return technologyRepository.saveAndFlush(new TechnologyEntity(null, name, false));
     }
 
     private ProjectEntity project(

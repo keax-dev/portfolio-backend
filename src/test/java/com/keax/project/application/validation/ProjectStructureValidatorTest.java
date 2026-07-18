@@ -31,9 +31,9 @@ class ProjectStructureValidatorTest {
         technologyRepository = mock(TechnologyRepositoryPort.class);
         validator = new ProjectStructureValidator(technologyRepository);
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
-                .thenReturn(Optional.of(new Technology(1L, "ANGULAR", 1, false)));
+                .thenReturn(Optional.of(new Technology(1L, "ANGULAR", false)));
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(2L, false))
-                .thenReturn(Optional.of(new Technology(2L, "SPRING BOOT", 2, false)));
+                .thenReturn(Optional.of(new Technology(2L, "SPRING BOOT", false)));
     }
 
     @Test

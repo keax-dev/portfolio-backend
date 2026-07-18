@@ -42,7 +42,7 @@ public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
 
     @Override
     public List<Technology> findByTechnologyDeleted(Boolean deleted) {
-        return jpaTechnologyRepository.findByTechnologyDeleted(deleted)
+        return jpaTechnologyRepository.findByTechnologyDeletedOrderByTechnologyNameAsc(deleted)
                 .stream()
                 .map(TechnologyPersistenceMapper::toDomain)
                 .toList();
@@ -50,7 +50,7 @@ public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
 
     @Override
     public List<Technology> getListTechnology() {
-        return jpaTechnologyRepository.findByTechnologyDeleted(false)
+        return jpaTechnologyRepository.findByTechnologyDeletedOrderByTechnologyNameAsc(false)
                 .stream()
                 .map(TechnologyPersistenceMapper::toDomain)
                 .toList();
@@ -68,14 +68,6 @@ public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
     public Optional<Technology> findByTechnologyIdAndTechnologyDeleted(Long technologyId, Boolean deleted) {
         return jpaTechnologyRepository.findByTechnologyIdAndTechnologyDeleted(
                 technologyId,
-                deleted
-        ).map(TechnologyPersistenceMapper::toDomain);
-    }
-
-    @Override
-    public Optional<Technology> findByTechnologyPositionAndTechnologyDeleted(int position, Boolean deleted) {
-        return jpaTechnologyRepository.findByTechnologyPositionAndTechnologyDeleted(
-                position,
                 deleted
         ).map(TechnologyPersistenceMapper::toDomain);
     }

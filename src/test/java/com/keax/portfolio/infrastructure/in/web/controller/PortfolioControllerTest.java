@@ -108,7 +108,7 @@ class PortfolioControllerTest {
         when(retrieveSkillUseCase.findBySkillDeleted(false))
                 .thenReturn(List.of(new Skill(21L, "SPRING", "skill.png", 1, false)));
         when(retrieveTechnologyUseCase.findByTechnologyDeleted(false))
-                .thenReturn(List.of(new Technology(31L, "JAVA", 1, false)));
+                .thenReturn(List.of(new Technology(31L, "JAVA", false)));
         when(retrieveProjectUseCase.findByProjectDeleted(false)).thenReturn(List.of(project));
         when(retrieveSocialNetworkUseCase.findBySocialNetworkDeleted(false)).thenReturn(List.of(
                 new SocialNetwork(51L, "GITHUB", "github", "#fff", 1, "https://github.test", false)
@@ -126,7 +126,8 @@ class PortfolioControllerTest {
                 .andExpect(jsonPath("$.data[0].picture").value("skill.png"));
         mockMvc.perform(get("/api/portfolio/technology"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].name").value("JAVA"));
+                .andExpect(jsonPath("$.data[0].name").value("JAVA"))
+                .andExpect(jsonPath("$.data[0].position").doesNotExist());
         mockMvc.perform(get("/api/portfolio/project"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].title").value("PORTFOLIO"))

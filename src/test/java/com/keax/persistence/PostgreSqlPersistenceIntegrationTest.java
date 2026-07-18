@@ -114,7 +114,7 @@ class PostgreSqlPersistenceIntegrationTest {
     void fetchesProjectTechnologiesAndLinksWithEntityGraphOnPostgreSql() {
         // Arrange: se persiste tecnología y un proyecto hijo.
         TechnologyEntity technology = technologyRepository.save(
-                new TechnologyEntity(null, "JAVA", 1, false)
+                new TechnologyEntity(null, "JAVA", false)
         );
         ProjectEntity project = new ProjectEntity(
                 null, "PORTFOLIO", "PORTAFOLIO", "Description", "Descripción",
@@ -137,6 +137,7 @@ class PostgreSqlPersistenceIntegrationTest {
         assertEquals(1, projects.size());
         assertEquals("JAVA", projects.getFirst().getProjectTechnologies().iterator().next()
                 .getTechnology().getTechnologyName());
+        assertEquals(1, projects.getFirst().getProjectTechnologies().iterator().next().getPosition());
         assertEquals(
                 ProjectLinkType.DEPLOY,
                 projects.getFirst().getProjectLinks().iterator().next().getType()

@@ -54,7 +54,7 @@ class ProjectUseCasesTest {
                 new ProjectImage(null, "untrusted-picture", 1)
         )));
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
+                .thenReturn(Optional.of(new Technology(10L, "JAVA", false)));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.empty());
         when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
@@ -92,7 +92,7 @@ class ProjectUseCasesTest {
         // Arrange: la posición ya está ocupada dentro de la misma tecnología.
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
+                .thenReturn(Optional.of(new Technology(10L, "JAVA", false)));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.empty());
         when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
@@ -118,7 +118,7 @@ class ProjectUseCasesTest {
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
+                .thenReturn(Optional.of(new Technology(10L, "JAVA", false)));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.of(project(1L, "PORTFOLIO", "PORTAFOLIO", 2, false, 10L)));
         when(projectRepository.findByProjectPositionAndProjectDeleted(2, false))

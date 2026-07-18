@@ -39,11 +39,9 @@ class TechnologyCrudUseCasesTest {
 
     @Test
     void createsNormalizedTechnology() {
-        // Arrange: nombre y posición están disponibles.
-        Technology input = technology(null, "Java", 1, null);
+        // Arrange: el nombre está disponible.
+        Technology input = technology(null, "Java", null);
         when(technologyRepository.findByTechnologyNameAndTechnologyDeleted("JAVA", false))
-                .thenReturn(Optional.empty());
-        when(technologyRepository.findByTechnologyPositionAndTechnologyDeleted(1, false))
                 .thenReturn(Optional.empty());
         when(technologyRepository.createTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -58,9 +56,9 @@ class TechnologyCrudUseCasesTest {
     @Test
     void rejectsDuplicatedTechnologyName() {
         // Arrange: el nombre ya pertenece a una tecnología activa.
-        Technology input = technology(null, "Java", 1, null);
+        Technology input = technology(null, "Java", null);
         when(technologyRepository.findByTechnologyNameAndTechnologyDeleted("JAVA", false))
-                .thenReturn(Optional.of(technology(2L, "JAVA", 2, false)));
+                .thenReturn(Optional.of(technology(2L, "JAVA", false)));
 
         // Act y Assert: se rechaza el nombre duplicado.
         assertThrows(
@@ -72,31 +70,28 @@ class TechnologyCrudUseCasesTest {
     @Test
     void updatesTechnologyWithoutSelfConflict() {
         // Arrange: los resultados de unicidad apuntan al mismo registro.
-        Technology stored = technology(1L, "OLD", 1, false);
-        Technology changes = technology(null, "Java", 2, null);
+        Technology stored = technology(1L, "OLD", false);
+        Technology changes = technology(null, "Java", null);
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
         when(technologyRepository.findByTechnologyNameAndTechnologyDeleted("JAVA", false))
-                .thenReturn(Optional.of(technology(1L, "JAVA", 2, false)));
-        when(technologyRepository.findByTechnologyPositionAndTechnologyDeleted(2, false))
-                .thenReturn(Optional.of(technology(1L, "JAVA", 2, false)));
+                .thenReturn(Optional.of(technology(1L, "JAVA", false)));
         when(technologyRepository.updateTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza el registro.
         Technology result = new UpdateTechnologyUseCaseImpl(technologyRepository)
                 .updateTechnology(1L, changes);
 
-        // Assert: cambia nombre/posición y conserva identidad.
+        // Assert: cambia el nombre y conserva la identidad.
         assertEquals(1L, result.getTechnologyId());
         assertEquals("JAVA", result.getTechnologyName());
-        assertEquals(2, result.getTechnologyPosition());
     }
 
     @Test
     void preventsTechnologyDeletionWithActiveProjects() {
         // Arrange: la tecnología existe y un proyecto activo la referencia.
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
-                .thenReturn(Optional.of(technology(1L, "JAVA", 1, false)));
+                .thenReturn(Optional.of(technology(1L, "JAVA", false)));
         when(projectRepository.existsByTechnologyIdAndProjectDeleted(1L, false))
                 .thenReturn(true);
 
@@ -111,7 +106,7 @@ class TechnologyCrudUseCasesTest {
     @Test
     void logicallyDeletesTechnologyWithoutProjects() {
         // Arrange: no existen proyectos activos asociados.
-        Technology stored = technology(1L, "JAVA", 1, false);
+        Technology stored = technology(1L, "JAVA", false);
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
         when(projectRepository.existsByTechnologyIdAndProjectDeleted(1L, false))
@@ -144,13 +139,13 @@ class TechnologyCrudUseCasesTest {
         assertThrows(
                 ResourceNotFoundException.class,
                 () -> new UpdateTechnologyUseCaseImpl(technologyRepository)
-                        .updateTechnology(99L, technology(null, "Java", 1, null))
+                        .updateTechnology(99L, technology(null, "Java", null))
         );
     }
 
-    private Technology technology(Long id, String name, int position, Boolean deleted) {
+    private Technology technology(Long id, String name, Boolean deleted) {
         // Crea un modelo sin proyectos para probar únicamente reglas CRUD.
-        return new Technology(id, name, position, deleted);
+        return new Technology(id, name, deleted);
     }
 
 }

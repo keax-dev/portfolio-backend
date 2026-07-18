@@ -140,8 +140,11 @@ class ManagementApiIntegrationTest {
         // Arrange: se crea tecnología y se recupera su id.
         String token = token();
         performPost("/api/technology", """
-                {"name":"Java","position":1,"deleted":false}
-                """, token).andExpect(status().isOk());
+                {"name":"Java"}
+                """, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value("JAVA"))
+                .andExpect(jsonPath("$.data.position").doesNotExist());
         Long technologyId = technologyRepository.findAll().getFirst().getTechnologyId();
 
         // Act: se crea un proyecto asociado.

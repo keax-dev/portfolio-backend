@@ -18,7 +18,7 @@ class RetrieveTechnologyUseCaseImplTest {
     @Test
     void retrievesActiveTechnologiesWithoutNestedProjects() {
         TechnologyRepositoryPort repository = mock(TechnologyRepositoryPort.class);
-        Technology technology = new Technology(1L, "JAVA", 1, false);
+        Technology technology = new Technology(1L, "JAVA", false);
         when(repository.findByTechnologyDeleted(false)).thenReturn(List.of(technology));
 
         List<Technology> result = new RetrieveTechnologyUseCaseImpl(repository)

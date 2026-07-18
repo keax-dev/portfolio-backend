@@ -102,7 +102,7 @@ class MapperContractsTest {
         // Arrange: educación y proyecto contienen ids de sus módulos relacionados.
         Education education = education();
         Project project = project();
-        Technology technology = new Technology(10L, "JAVA", 1, false);
+        Technology technology = new Technology(10L, "JAVA", false);
 
         // Act: se ejecutan los mappers que incluyen relaciones.
         Education educationResult = EducationWebMapper.toDomain(
@@ -124,7 +124,7 @@ class MapperContractsTest {
     void technologyWebMapperTreatsNullProjectListAsEmpty() {
         // Arrange: un DTO administrativo llega sin la propiedad de proyectos.
         var dto = TechnologyWebMapper.fromDomain(
-                new Technology(10L, "JAVA", 1, false)
+                new Technology(10L, "JAVA", false)
         );
 
         // Act: se convierte al modelo de dominio.
@@ -223,7 +223,7 @@ class MapperContractsTest {
     @Test
     void technologyPersistenceMapperKeepsProjectsOutOfWriteModel() {
         // Arrange: el dominio contiene proyectos, pero la relación la gobierna Project.
-        Technology technology = new Technology(10L, "JAVA", 1, false);
+        Technology technology = new Technology(10L, "JAVA", false);
 
         // Act: se transforma al modelo de escritura y luego al dominio simple.
         var entity = TechnologyPersistenceMapper.toEntity(technology);

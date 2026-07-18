@@ -135,9 +135,9 @@ class PortfolioApiIntegrationTest {
         skillRepository.saveAndFlush(new SkillEntity(null, "DELETED SKILL", "deleted-skill.png", 2, true));
 
         TechnologyEntity activeTechnology = technologyRepository.saveAndFlush(
-                new TechnologyEntity(null, "JAVA", 1, false)
+                new TechnologyEntity(null, "JAVA", false)
         );
-        technologyRepository.saveAndFlush(new TechnologyEntity(null, "LEGACY", 2, true));
+        technologyRepository.saveAndFlush(new TechnologyEntity(null, "LEGACY", true));
 
         projectRepository.saveAndFlush(project(
                 "PORTFOLIO", "PORTAFOLIO", "Backend portfolio", "Portafolio backend",
