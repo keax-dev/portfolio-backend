@@ -84,21 +84,38 @@ class ManagementApiIntegrationTest {
         // Act y Assert: se crea, actualiza y consulta el perfil único.
         performPost("/api/profile", """
                 {"name":"Keax","last_name":"Jimenez","title":"Developer",
-                 "title_es":"Desarrollador","cv":"","image":null}
+                 "title_es":"Desarrollador","cv":"https://example.com/cv-en",
+                 "cv_es":"https://example.com/cv-es","image":null}
                 """, token).andExpect(status().isOk());
 
         performPut("/api/profile", """
                 {"name":"Keax","last_name":"Jimenez","title":"Senior Developer",
-                 "title_es":"Desarrollador Senior","cv":"https://example.com/cv","image":null}
+                 "title_es":"Desarrollador Senior","cv":"https://example.com/cv-en-updated",
+                 "cv_es":"https://example.com/cv-es-updated","image":null}
                 """, token).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("SENIOR DEVELOPER"));
 
         mockMvc.perform(get("/api/profile").header("Authorization", bearer(token)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.cv").value("https://example.com/cv"));
+                .andExpect(jsonPath("$.data.cv").value("https://example.com/cv-en-updated"))
+                .andExpect(jsonPath("$.data.cv_es").value("https://example.com/cv-es-updated"));
 
         // Assert adicional: el flujo persistió un único perfil.
         org.junit.jupiter.api.Assertions.assertEquals(1, profileRepository.count());
+    }
+
+    @Test
+    void requiresBothLocalizedProfileCvUrls() throws Exception {
+        String token = token();
+
+        performPost("/api/profile", """
+                {"name":"Keax","last_name":"Jimenez","title":"Developer",
+                 "title_es":"Desarrollador","cv":"https://example.com/cv-en","image":null}
+                """, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.alert").value("Validation error"));
+
+        assertEquals(0, profileRepository.count());
     }
 
     @Test

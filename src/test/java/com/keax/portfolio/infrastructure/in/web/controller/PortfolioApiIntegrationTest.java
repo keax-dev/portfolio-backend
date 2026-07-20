@@ -85,7 +85,8 @@ class PortfolioApiIntegrationTest {
                 "JIMENEZ",
                 "DEVELOPER",
                 "DESARROLLADOR",
-                "https://example.com/cv",
+                "https://example.com/cv-en",
+                "https://example.com/cv-es",
                 "profile.png"
         ));
 
@@ -175,7 +176,9 @@ class PortfolioApiIntegrationTest {
         mockMvc.perform(get("/api/portfolio/profile"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(true))
-                .andExpect(jsonPath("$.data.name").value("KEAX"));
+                .andExpect(jsonPath("$.data.name").value("KEAX"))
+                .andExpect(jsonPath("$.data.cv").value("https://example.com/cv-en"))
+                .andExpect(jsonPath("$.data.cv_es").value("https://example.com/cv-es"));
 
         mockMvc.perform(get("/api/portfolio/education"))
                 .andExpect(status().isOk())

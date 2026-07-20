@@ -37,7 +37,7 @@ Rutas principales:
 
 ### API pública del portafolio
 
-- Consulta del perfil principal.
+- Consulta del perfil principal con URLs independientes de CV en inglés y español.
 - Consulta de educación, habilidades, tecnologías, proyectos unificados y redes sociales.
 - Proyectos públicos con títulos y descripciones localizadas, tecnologías, links e imágenes ordenadas.
 - Envío de formulario de contacto.
@@ -46,7 +46,7 @@ Rutas principales:
 
 ### API administrativa
 
-- CRUD de perfil.
+- CRUD de perfil con CV bilingüe mediante los campos `cv` y `cv_es`.
 - CRUD de educación.
 - CRUD de instituciones.
 - CRUD de habilidades.
@@ -103,6 +103,13 @@ Representación resumida devuelta por la API:
   "deleted": false
 }
 ```
+
+### CV bilingüe del perfil
+
+- `cv` almacena la URL del currículum en inglés y `cv_es` almacena la versión en español.
+- Ambos campos son obligatorios en las operaciones administrativas y deben comenzar con `http://` o `https://`.
+- La migración inicializa `cv_es` con el valor anterior de `cv`, evitando perder el enlace existente antes de configurar la versión traducida.
+- Cada URL admite hasta 2048 caracteres.
 
 ### Infraestructura y observabilidad
 
@@ -244,8 +251,9 @@ Migraciones actuales:
 - `src/main/java/db/migration/V3__merge_split_projects.java`
 - `src/main/java/db/migration/V4__project_images.java`
 - `src/main/resources/db/migration/V5__drop_technology_position.sql`
+- `src/main/resources/db/migration/V6__profile_bilingual_cv.sql`
 
-Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado y eliminan la posición global del catálogo de tecnologías.
+Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías y agregan el CV bilingüe al perfil.
 
 Configuración relevante:
 

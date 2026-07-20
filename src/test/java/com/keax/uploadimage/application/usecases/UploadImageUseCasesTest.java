@@ -62,7 +62,7 @@ class UploadImageUseCasesTest {
     @Test
     void uploadsProfilePictureAndDeletesPreviousImage() {
         // Arrange: existe perfil con una imagen anterior.
-        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", null, "old-url");
+        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", null, null, "old-url");
         when(profileRepository.getListProfile()).thenReturn(List.of(profile));
         when(storage.upload(image, "Profile")).thenReturn("new-url");
         when(profileRepository.saveProfile(any())).thenAnswer(invocation -> invocation.getArgument(0));

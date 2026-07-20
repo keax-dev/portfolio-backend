@@ -37,7 +37,7 @@ Main routes:
 
 ### Public portfolio API
 
-- Main profile retrieval.
+- Main profile retrieval with independent English and Spanish CV URLs.
 - Education, skills, technologies, unified projects, and social links retrieval.
 - Public projects with localized titles and descriptions, technologies, links, and ordered images.
 - Contact form submission.
@@ -46,7 +46,7 @@ Main routes:
 
 ### Administrative API
 
-- Profile CRUD.
+- Profile CRUD with bilingual CV fields through `cv` and `cv_es`.
 - Education CRUD.
 - Institution CRUD.
 - Skill CRUD.
@@ -103,6 +103,13 @@ Condensed representation returned by the API:
   "deleted": false
 }
 ```
+
+### Bilingual profile CV
+
+- `cv` stores the English resume URL and `cv_es` stores the Spanish version.
+- Both fields are required in administrative operations and must start with `http://` or `https://`.
+- The migration initializes `cv_es` with the previous `cv` value, preserving the existing link until the translated version is configured.
+- Each URL supports up to 2048 characters.
 
 ### Infrastructure and observability
 
@@ -244,8 +251,9 @@ Current migrations:
 - `src/main/java/db/migration/V3__merge_split_projects.java`
 - `src/main/java/db/migration/V4__project_images.java`
 - `src/main/resources/db/migration/V5__drop_technology_position.sql`
+- `src/main/resources/db/migration/V6__profile_bilingual_cv.sql`
 
-These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, and remove the global technology catalog position.
+These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, remove the global technology catalog position, and add bilingual CV support to the profile.
 
 Relevant configuration:
 

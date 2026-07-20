@@ -13,6 +13,7 @@ public final class ProfileWebMapper {
                 dto.getProfileTitle(),
                 dto.getProfileTitleEs(),
                 dto.getProfileCv(),
+                dto.getProfileCvEs(),
                 dto.getProfilePicture()
         );
     }
@@ -25,6 +26,7 @@ public final class ProfileWebMapper {
                 profile.getProfileTitle(),
                 profile.getProfileTitleEs(),
                 profile.getProfileCv(),
+                profile.getProfileCvEs(),
                 profile.getProfilePicture()
         );
     }

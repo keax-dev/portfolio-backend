@@ -70,7 +70,7 @@ class MapperContractsTest {
     @Test
     void simpleWebMappersPreserveBusinessFields() {
         // Arrange: se preparan modelos de módulos sin relaciones complejas.
-        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "picture");
+        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "cv-es", "picture");
         Institution institution = new Institution(2L, "UNI", "UNI", "url", false);
         Skill skill = new Skill(3L, "JAVA", "picture", 1, false);
         SocialNetwork social = new SocialNetwork(
@@ -90,6 +90,7 @@ class MapperContractsTest {
         Contact contactResult = ContactWebMapper.toDomain(ContactWebMapper.fromDomain(contact));
 
         // Assert: se verifican campos distintivos para detectar cruces de posición.
+        assertEquals("cv-es", profileResult.getProfileCvEs());
         assertEquals("picture", profileResult.getProfilePicture());
         assertEquals(2L, institutionResult.getInstitutionId());
         assertEquals(1, skillResult.getSkillPosition());
@@ -167,7 +168,7 @@ class MapperContractsTest {
     @Test
     void simplePersistenceMappersRoundTripDomainFields() {
         // Arrange: se preparan modelos persistibles independientes.
-        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "picture");
+        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "cv-es", "picture");
         Institution institution = new Institution(2L, "UNI", "UNI", "url", false);
         Skill skill = new Skill(3L, "JAVA", "picture", 1, false);
         SocialNetwork social = new SocialNetwork(
@@ -189,6 +190,7 @@ class MapperContractsTest {
         );
 
         // Assert: se conservan campos representativos y estado lógico.
+        assertEquals("cv-es", profileResult.getProfileCvEs());
         assertEquals("picture", profileResult.getProfilePicture());
         assertEquals("url", institutionResult.getInstitutionUrl());
         assertFalse(skillResult.getSkillDeleted());

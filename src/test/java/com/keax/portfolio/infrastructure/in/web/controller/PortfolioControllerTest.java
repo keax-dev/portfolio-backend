@@ -99,7 +99,7 @@ class PortfolioControllerTest {
                 List.of(new ProjectImage(81L, "project.png", 1))
         );
         when(retrieveProfileUseCase.getProfile()).thenReturn(new Profile(
-                1L, "KEAX", "JIMENEZ", "DEVELOPER", "DESARROLLADOR", "cv", "profile.png"
+                1L, "KEAX", "JIMENEZ", "DEVELOPER", "DESARROLLADOR", "cv", "cv-es", "profile.png"
         ));
         when(retrieveEducationUseCase.findByEducationDeleted(false)).thenReturn(List.of(new Education(
                 11L, "DEGREE", "TÍTULO", "UNIVERSITY", "2020", "2020",

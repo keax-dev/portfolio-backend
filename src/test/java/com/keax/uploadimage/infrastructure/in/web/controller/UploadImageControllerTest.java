@@ -83,7 +83,7 @@ class UploadImageControllerTest {
     void uploadsProfileImageThroughMultipartContract() throws Exception {
         // Arrange: el puerto devuelve el perfil actualizado.
         when(uploadImageProfileUseCase.uploadImageProfile(any(ImageFile.class))).thenReturn(
-                new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DESARROLLADOR", "cv", "image-url")
+                new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DESARROLLADOR", "cv", "cv-es", "image-url")
         );
 
         // Act y Assert: la ruta sin id serializa la imagen actualizada.

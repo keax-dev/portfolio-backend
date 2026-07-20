@@ -44,6 +44,7 @@ class RequestCorrelationFilterIntegrationTest {
                 "DEVELOPER",
                 "DESARROLLADOR",
                 null,
+                null,
                 null
         ));
 
