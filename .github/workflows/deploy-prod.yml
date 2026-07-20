@@ -46,7 +46,7 @@ jobs:
 
       # Prepara el builder moderno de Docker.
       - name: Configurar Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # GHCR exige nombres de imagen en minusculas.
       - name: Normalizar nombre de imagen
