@@ -92,6 +92,7 @@ class ProfileUseCasesTest {
         stored.setProfilePicture("https://cdn/picture.jpg");
         Profile changes = profile(null, "Keax", "Jimenez", "Developer", "Desarrollador");
         changes.setProfileCv("https://cdn/cv.pdf");
+        changes.setProfileCvEs("https://cdn/cv-es.pdf");
         when(repository.getListProfile()).thenReturn(List.of(stored));
         when(repository.saveProfile(any(Profile.class))).thenAnswer(invocation -> invocation.getArgument(0));
         UpdateProfileUseCaseImpl useCase = new UpdateProfileUseCaseImpl(repository);
@@ -104,11 +105,12 @@ class ProfileUseCasesTest {
         assertEquals("KEAX", result.getProfileName());
         assertEquals("https://cdn/picture.jpg", result.getProfilePicture());
         assertEquals("https://cdn/cv.pdf", result.getProfileCv());
+        assertEquals("https://cdn/cv-es.pdf", result.getProfileCvEs());
     }
 
     private Profile profile(Long id, String name, String lastName, String title, String titleEs) {
         // Crea el modelo mínimo reutilizado por los escenarios.
-        return new Profile(id, name, lastName, title, titleEs, null, null);
+        return new Profile(id, name, lastName, title, titleEs, null, null, null);
     }
 
 }

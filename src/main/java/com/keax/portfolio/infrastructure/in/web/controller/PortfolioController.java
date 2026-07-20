@@ -33,6 +33,8 @@ import com.keax.skill.infrastructure.in.web.dto.SkillDTO;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
+import com.keax.shared.infrastructure.in.web.client.ClientIpResolver;
+import com.keax.shared.infrastructure.in.web.client.ClientIdentityHasher;
 import java.util.List;
 
 @RestController
@@ -47,6 +49,8 @@ public class PortfolioController {
     private final RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
     private final ContactEmailUseCase contactEmailUseCase;
     private final ContactRateLimiter contactRateLimiter;
+    private final ClientIpResolver clientIpResolver;
+    private final ClientIdentityHasher clientIdentityHasher;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponseDTO<ProfileDTO>> getProfile() {
@@ -120,7 +124,9 @@ public class PortfolioController {
 
     @PostMapping("/contact")
     public ResponseEntity<ApiResponseDTO<ContactDTO>> sendContact(@Valid @RequestBody ContactDTO contact, HttpServletRequest request) {
-        contactRateLimiter.assertAllowed(request.getRemoteAddr());
+        contactRateLimiter.assertAllowed(
+                clientIdentityHasher.hash(clientIpResolver.resolve(request))
+        );
 
         ApiResponseDTO<ContactDTO> response = new ApiResponseDTO<>(
                 true,

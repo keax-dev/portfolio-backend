@@ -1,10 +1,9 @@
 package com.keax.institution.application.usecases;
 
-import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,13 +27,13 @@ import static org.mockito.Mockito.when;
 class InstitutionUseCasesTest {
 
     private InstitutionRepositoryPort institutionRepository;
-    private EducationRepositoryPort educationRepository;
+    private EducationInstitutionReferencePort institutionReferencePort;
 
     @BeforeEach
     void setUp() {
         // Los puertos simulados aíslan las reglas de negocio de JPA.
         institutionRepository = mock(InstitutionRepositoryPort.class);
-        educationRepository = mock(EducationRepositoryPort.class);
+        institutionReferencePort = mock(EducationInstitutionReferencePort.class);
     }
 
     @Test
@@ -94,11 +93,10 @@ class InstitutionUseCasesTest {
         Institution stored = institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false);
         when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(educationRepository.existsByInstitution_InstitutionIdAndEducationDeleted(1L, false))
-                .thenReturn(true);
+        when(institutionReferencePort.existsActiveEducationForInstitution(1L)).thenReturn(true);
         DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
                 institutionRepository,
-                educationRepository
+                institutionReferencePort
         );
 
         // Act y Assert: se protege la relación antes del borrado lógico.
@@ -111,12 +109,11 @@ class InstitutionUseCasesTest {
         Institution stored = institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false);
         when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(educationRepository.existsByInstitution_InstitutionIdAndEducationDeleted(1L, false))
-                .thenReturn(false);
+        when(institutionReferencePort.existsActiveEducationForInstitution(1L)).thenReturn(false);
         when(institutionRepository.deleteInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
         DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
                 institutionRepository,
-                educationRepository
+                institutionReferencePort
         );
 
         // Act: se elimina lógicamente.
@@ -128,13 +125,13 @@ class InstitutionUseCasesTest {
     }
 
     @Test
-    void rejectsEmptyInstitutionList() {
+    void returnsEmptyInstitutionList() {
         // Arrange: una consulta administrativa no devuelve instituciones.
         when(institutionRepository.getListInstitution()).thenReturn(List.of());
         RetrieveInstitutionUseCaseImpl useCase = new RetrieveInstitutionUseCaseImpl(institutionRepository);
 
-        // Act y Assert: se conserva el contrato de alerta existente.
-        assertThrows(ExceptionAlert.class, useCase::getListInstitution);
+        // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
+        assertTrue(useCase.getListInstitution().isEmpty());
     }
 
     private Institution institution(Long id, String name, String nameEs, String url, Boolean deleted) {

@@ -3,6 +3,7 @@ package com.keax.uploadimage.infrastructure.in.web.controller;
 import com.keax.institution.domain.model.Institution;
 import com.keax.profile.domain.model.Profile;
 import com.keax.project.domain.model.Project;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.skill.domain.model.Skill;
 import com.keax.uploadimage.domain.model.ImageFile;
 import com.keax.uploadimage.domain.ports.in.UploadImageInstitutionUseCase;
@@ -24,9 +25,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -80,7 +83,7 @@ class UploadImageControllerTest {
     void uploadsProfileImageThroughMultipartContract() throws Exception {
         // Arrange: el puerto devuelve el perfil actualizado.
         when(uploadImageProfileUseCase.uploadImageProfile(any(ImageFile.class))).thenReturn(
-                new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DESARROLLADOR", "cv", "image-url")
+                new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DESARROLLADOR", "cv", "cv-es", "image-url")
         );
 
         // Act y Assert: la ruta sin id serializa la imagen actualizada.
@@ -113,27 +116,49 @@ class UploadImageControllerTest {
     @Test
     void uploadsProjectImageThroughMultipartContract() throws Exception {
         // Arrange: el proyecto simula una imagen persistida por el proveedor externo.
-        when(uploadImageProjectUseCase.uploadImageProject(
-                org.mockito.ArgumentMatchers.eq(30L), any(ImageFile.class)
+        when(uploadImageProjectUseCase.uploadProjectImages(
+                org.mockito.ArgumentMatchers.eq(30L), anyList()
         )).thenReturn(new Project(
                 30L, "PORTFOLIO", "PORTAFOLIO", "Description", "Descripción",
-                "image-url", 1, false, List.of(), List.of()
+                1, false, List.of(), List.of(), List.of(
+                        new ProjectImage(1L, "image-url", 1)
+                )
         ));
 
         // Act y Assert: el controlador responde con el DTO de proyecto.
-        mockMvc.perform(multipart("/api/image/project/{id}", 30L).file(image()))
+        mockMvc.perform(multipart("/api/image/project/{id}", 30L).file(projectImage()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.picture").value("image-url"));
+                .andExpect(jsonPath("$.data.images[0].url").value("image-url"));
 
         // Assert adicional: se delegó al caso de uso de proyecto.
-        verify(uploadImageProjectUseCase).uploadImageProject(
-                org.mockito.ArgumentMatchers.eq(30L), any(ImageFile.class)
+        verify(uploadImageProjectUseCase).uploadProjectImages(
+                org.mockito.ArgumentMatchers.eq(30L), anyList()
         );
+    }
+
+    @Test
+    void deletesAProjectImageThroughItsDedicatedContract() throws Exception {
+        when(uploadImageProjectUseCase.deleteProjectImage(30L, 8L)).thenReturn(new Project(
+                30L, "PORTFOLIO", "PORTAFOLIO", "Description", "DescripciÃ³n",
+                1, false, List.of(), List.of(), List.of(
+                        new ProjectImage(9L, "remaining-url", 1)
+                )
+        ));
+
+        mockMvc.perform(delete("/api/image/project/{projectId}/{imageId}", 30L, 8L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.images[0].url").value("remaining-url"));
+
+        verify(uploadImageProjectUseCase).deleteProjectImage(30L, 8L);
     }
 
     private MockMultipartFile image() {
         // Crea una imagen mínima y determinista para todas las solicitudes multipart.
         return new MockMultipartFile("image", "avatar.png", "image/png", new byte[]{1, 2, 3});
+    }
+
+    private MockMultipartFile projectImage() {
+        return new MockMultipartFile("images", "project.png", "image/png", new byte[]{1, 2, 3});
     }
 
     private void verifyImagePassedToInstitution() {

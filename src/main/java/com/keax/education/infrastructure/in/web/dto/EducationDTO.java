@@ -35,9 +35,11 @@ public class EducationDTO {
     private String educationPlace;
 
     @JsonProperty("start")
+    @Size(max = 80, message = "The education start must not exceed 80 characters")
     private String educationStart;
 
     @JsonProperty("start_es")
+    @Size(max = 80, message = "The education es start must not exceed 80 characters")
     private String educationStartEs;
 
     @JsonProperty("end")

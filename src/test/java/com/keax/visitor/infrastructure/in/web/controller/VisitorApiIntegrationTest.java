@@ -49,9 +49,7 @@ class VisitorApiIntegrationTest {
         // Arrange: se crea una peticion anonima similar a la enviada por el frontend.
         String body = """
                 {
-                  "path": "/portfolio",
-                  "country": "Ecuador",
-                  "city": "Quito"
+                  "path": "/portfolio"
                 }
                 """;
 
@@ -66,7 +64,11 @@ class VisitorApiIntegrationTest {
                         .content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(true))
-                .andExpect(jsonPath("$.data.ip").value("203.0.113.10"))
+                .andExpect(jsonPath("$.data.ip").value(
+                        org.hamcrest.Matchers.matchesPattern("[0-9a-f]{12}\\.\\.\\.")
+                ))
+                .andExpect(jsonPath("$.data.country").doesNotExist())
+                .andExpect(jsonPath("$.data.city").doesNotExist())
                 .andExpect(jsonPath("$.data.path").value("/portfolio"));
     }
 

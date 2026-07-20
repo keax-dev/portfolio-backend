@@ -5,13 +5,17 @@ import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.profile.domain.model.Profile;
 import com.keax.profile.domain.ports.out.ProfileRepositoryPort;
 import com.keax.project.domain.model.Project;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
-import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
+import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.skill.domain.model.Skill;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
 import com.keax.uploadimage.domain.model.ImageFile;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
+import com.keax.uploadimage.domain.ports.out.ImageCleanupTaskPort;
+import com.keax.uploadimage.application.services.ImageCleanupProcessor;
+import com.keax.uploadimage.application.services.ImagePersistenceCoordinator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -23,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -40,6 +45,9 @@ class UploadImageUseCasesTest {
     private SkillRepositoryPort skillRepository;
     private ProjectRepositoryPort projectRepository;
     private InstitutionRepositoryPort institutionRepository;
+    private ImageCleanupTaskPort cleanupTaskPort;
+    private ImagePersistenceCoordinator persistenceCoordinator;
+    private ImageCleanupProcessor cleanupProcessor;
     private ImageFile image;
 
     @BeforeEach
@@ -50,6 +58,15 @@ class UploadImageUseCasesTest {
         skillRepository = mock(SkillRepositoryPort.class);
         projectRepository = mock(ProjectRepositoryPort.class);
         institutionRepository = mock(InstitutionRepositoryPort.class);
+        cleanupTaskPort = mock(ImageCleanupTaskPort.class);
+        persistenceCoordinator = new ImagePersistenceCoordinator(
+                projectRepository,
+                institutionRepository,
+                profileRepository,
+                skillRepository,
+                cleanupTaskPort
+        );
+        cleanupProcessor = new ImageCleanupProcessor(storage, cleanupTaskPort);
         image = new ImageFile(
                 "photo.jpg",
                 "image/jpeg",
@@ -60,11 +77,13 @@ class UploadImageUseCasesTest {
     @Test
     void uploadsProfilePictureAndDeletesPreviousImage() {
         // Arrange: existe perfil con una imagen anterior.
-        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", null, "old-url");
+        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", null, null, "old-url");
         when(profileRepository.getListProfile()).thenReturn(List.of(profile));
         when(storage.upload(image, "Profile")).thenReturn("new-url");
         when(profileRepository.saveProfile(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        UploadImageProfileUseCaseImpl useCase = new UploadImageProfileUseCaseImpl(profileRepository, storage);
+        UploadImageProfileUseCaseImpl useCase = new UploadImageProfileUseCaseImpl(
+                profileRepository, storage, persistenceCoordinator, cleanupProcessor
+        );
 
         // Act: se reemplaza la imagen.
         Profile result = useCase.uploadImageProfile(image);
@@ -81,7 +100,9 @@ class UploadImageUseCasesTest {
     void rejectsProfileUploadWhenProfileDoesNotExist() {
         // Arrange: el portafolio todavía no tiene perfil.
         when(profileRepository.getListProfile()).thenReturn(List.of());
-        UploadImageProfileUseCaseImpl useCase = new UploadImageProfileUseCaseImpl(profileRepository, storage);
+        UploadImageProfileUseCaseImpl useCase = new UploadImageProfileUseCaseImpl(
+                profileRepository, storage, persistenceCoordinator, cleanupProcessor
+        );
 
         // Act y Assert: no se consume Cloudinary para un recurso inexistente.
         assertThrows(ResourceNotFoundException.class, () -> useCase.uploadImageProfile(image));
@@ -95,7 +116,9 @@ class UploadImageUseCasesTest {
         when(skillRepository.findBySkillIdAndSkillDeleted(1L, false)).thenReturn(Optional.of(skill));
         when(storage.upload(image, "Skills")).thenReturn("new-url");
         when(skillRepository.updateSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        UploadImageSkillUseCaseImpl useCase = new UploadImageSkillUseCaseImpl(skillRepository, storage);
+        UploadImageSkillUseCaseImpl useCase = new UploadImageSkillUseCaseImpl(
+                skillRepository, storage, persistenceCoordinator, cleanupProcessor
+        );
 
         // Act: se reemplaza la imagen.
         Skill result = useCase.uploadImageSkill(1L, image);
@@ -110,23 +133,114 @@ class UploadImageUseCasesTest {
         // Arrange: la carga remota funciona, pero persistir el proyecto falla.
         Project project = new Project(
                 1L, "PROJECT", "PROYECTO", "Description", "Descripción",
-                "old-url", 1, false, List.of(), List.of()
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(1L, "old-url", 1)
+                ))
         );
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
                 .thenReturn(Optional.of(project));
         when(storage.upload(image, "Projects")).thenReturn("new-url");
         when(projectRepository.updateProject(any())).thenThrow(new IllegalStateException("database down"));
-        UploadImageProjectUseCaseImpl useCase = new UploadImageProjectUseCaseImpl(projectRepository, storage);
+        UploadImageProjectUseCaseImpl useCase = new UploadImageProjectUseCaseImpl(
+                projectRepository, storage, persistenceCoordinator, cleanupProcessor
+        );
 
         // Act: se produce el fallo posterior a la carga.
-        ExternalServiceException exception = assertThrows(
-                ExternalServiceException.class,
-                () -> useCase.uploadImageProject(1L, image)
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> useCase.uploadProjectImages(1L, List.of(image))
         );
 
         // Assert: la imagen huérfana se elimina y se conserva la causa.
         verify(storage).delete("new-url");
-        assertEquals("database down", exception.getCause().getMessage());
+        assertEquals("database down", exception.getMessage());
+    }
+
+    @Test
+    void appendsProjectImagesUpToTheMaximum() {
+        Project project = new Project(
+                1L, "PROJECT", "PROYECTO", "Description", "DescripciÃ³n",
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(1L, "first-url", 1)
+                ))
+        );
+        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+                .thenReturn(Optional.of(project));
+        when(storage.upload(image, "Projects")).thenReturn("second-url");
+        when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Project result = new UploadImageProjectUseCaseImpl(
+                projectRepository, storage, persistenceCoordinator, cleanupProcessor
+        )
+                .uploadProjectImages(1L, List.of(image));
+
+        assertEquals(2, result.getProjectImages().size());
+        assertEquals("second-url", result.getProjectImages().get(1).getUrl());
+        assertEquals(true, result.getProjectPublished());
+    }
+
+    @Test
+    void rejectsMoreThanThreeProjectImagesAndProtectsTheLastImage() {
+        Project project = new Project(
+                1L, "PROJECT", "PROYECTO", "Description", "DescripciÃ³n",
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(1L, "first-url", 1)
+                ))
+        );
+        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+                .thenReturn(Optional.of(project));
+        UploadImageProjectUseCaseImpl useCase = new UploadImageProjectUseCaseImpl(
+                projectRepository, storage, persistenceCoordinator, cleanupProcessor
+        );
+
+        assertThrows(
+                ResourceConflictException.class,
+                () -> useCase.uploadProjectImages(1L, List.of(image, image, image))
+        );
+        assertThrows(ResourceConflictException.class, () -> useCase.deleteProjectImage(1L, 1L));
+        verify(storage, never()).upload(any(), any());
+    }
+
+    @Test
+    void keepsNewProfileImageWhenPostCommitCleanupBookkeepingFails() {
+        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", null, null, "old-url");
+        when(profileRepository.getListProfile()).thenReturn(List.of(profile));
+        when(storage.upload(image, "Profile")).thenReturn("new-url");
+        when(profileRepository.saveProfile(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        doThrow(new IllegalStateException("cleanup database unavailable"))
+                .when(cleanupTaskPort).complete("old-url");
+        UploadImageProfileUseCaseImpl useCase = new UploadImageProfileUseCaseImpl(
+                profileRepository, storage, persistenceCoordinator, cleanupProcessor
+        );
+
+        Profile result = useCase.uploadImageProfile(image);
+
+        assertEquals("new-url", result.getProfilePicture());
+        verify(storage).delete("old-url");
+        verify(storage, never()).delete("new-url");
+    }
+
+    @Test
+    void deletesAProjectImageAndKeepsTheRemainingOrder() {
+        Project project = new Project(
+                1L, "PROJECT", "PROYECTO", "Description", "DescripciÃ³n",
+                1, false, List.of(), List.of(), new java.util.ArrayList<>(List.of(
+                        new ProjectImage(10L, "first-url", 1),
+                        new ProjectImage(11L, "second-url", 2)
+                ))
+        );
+        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+                .thenReturn(Optional.of(project));
+        when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Project result = new UploadImageProjectUseCaseImpl(
+                projectRepository, storage, persistenceCoordinator, cleanupProcessor
+        )
+                .deleteProjectImage(1L, 10L);
+
+        assertEquals(1, result.getProjectImages().size());
+        assertEquals(2, result.getProjectImages().getFirst().getPosition());
+        verify(storage).delete("first-url");
     }
 
     @Test
@@ -139,7 +253,9 @@ class UploadImageUseCasesTest {
         when(institutionRepository.updateInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
         UploadImageInstitutionUseCaseImpl useCase = new UploadImageInstitutionUseCaseImpl(
                 institutionRepository,
-                storage
+                storage,
+                persistenceCoordinator,
+                cleanupProcessor
         );
 
         // Act: se actualiza la imagen institucional.

@@ -22,7 +22,7 @@ public class SkillEntity {
     @Column(name = "skill_name", nullable = false)
     private String skillName;
 
-    @Column(name = "skill_picture")
+    @Column(name = "skill_picture", length = 2048)
     private String skillPicture;
 
     @Column(name = "skill_position", nullable = false)

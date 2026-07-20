@@ -20,10 +20,12 @@ import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import com.keax.skill.infrastructure.in.web.dto.SkillDTO;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/image")
@@ -96,13 +98,34 @@ public class UploadImageController {
     )
     public ResponseEntity<ApiResponseDTO<ProjectDTO>> uploadImgProject(
             @PathVariable Long projectId,
-            @RequestParam(value = "image", required = false) MultipartFile file
+            @RequestParam(value = "images", required = false) List<MultipartFile> files
     ) {
         ApiResponseDTO<ProjectDTO> response = new ApiResponseDTO<>(
                 true,
-                "The image of the project has been uploaded successfully",
+                "The project images have been uploaded successfully",
                 ProjectWebMapper.fromDomain(
-                        uploadImageProjectUseCase.uploadImageProject(projectId, ImageFileWebMapper.toDomain(file))
+                        uploadImageProjectUseCase.uploadProjectImages(
+                                projectId,
+                                files == null
+                                        ? List.of()
+                                        : files.stream().map(ImageFileWebMapper::toDomain).toList()
+                        )
+                )
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/project/{projectId}/{projectImageId}")
+    public ResponseEntity<ApiResponseDTO<ProjectDTO>> deleteProjectImage(
+            @PathVariable Long projectId,
+            @PathVariable Long projectImageId
+    ) {
+        ApiResponseDTO<ProjectDTO> response = new ApiResponseDTO<>(
+                true,
+                "The project image has been deleted successfully",
+                ProjectWebMapper.fromDomain(
+                        uploadImageProjectUseCase.deleteProjectImage(projectId, projectImageId)
                 )
         );
 

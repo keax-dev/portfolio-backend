@@ -15,9 +15,13 @@ import com.keax.profile.infrastructure.in.web.mapper.ProfileWebMapper;
 import com.keax.profile.infrastructure.out.persistence.mapper.ProfilePersistenceMapper;
 import com.keax.project.domain.model.Project;
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
+import com.keax.project.infrastructure.in.web.dto.CreateProjectRequestDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectLinkRequestDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectTechnologyRequestDTO;
 import com.keax.project.infrastructure.out.persistence.mapper.ProjectPersistenceMapper;
 import com.keax.shared.domain.exceptions.ExceptionMessage;
 import com.keax.skill.domain.model.Skill;
@@ -42,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,7 +74,7 @@ class MapperContractsTest {
     @Test
     void simpleWebMappersPreserveBusinessFields() {
         // Arrange: se preparan modelos de módulos sin relaciones complejas.
-        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "picture");
+        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "cv-es", "picture");
         Institution institution = new Institution(2L, "UNI", "UNI", "url", false);
         Skill skill = new Skill(3L, "JAVA", "picture", 1, false);
         SocialNetwork social = new SocialNetwork(
@@ -89,6 +94,7 @@ class MapperContractsTest {
         Contact contactResult = ContactWebMapper.toDomain(ContactWebMapper.fromDomain(contact));
 
         // Assert: se verifican campos distintivos para detectar cruces de posición.
+        assertEquals("cv-es", profileResult.getProfileCvEs());
         assertEquals("picture", profileResult.getProfilePicture());
         assertEquals(2L, institutionResult.getInstitutionId());
         assertEquals(1, skillResult.getSkillPosition());
@@ -101,13 +107,28 @@ class MapperContractsTest {
         // Arrange: educación y proyecto contienen ids de sus módulos relacionados.
         Education education = education();
         Project project = project();
-        Technology technology = new Technology(10L, "JAVA", 1, false);
+        Technology technology = new Technology(10L, "JAVA", false);
 
         // Act: se ejecutan los mappers que incluyen relaciones.
         Education educationResult = EducationWebMapper.toDomain(
                 EducationWebMapper.fromDomain(education)
         );
-        Project projectResult = ProjectWebMapper.toDomain(ProjectWebMapper.fromDomain(project));
+        CreateProjectRequestDTO projectRequest = new CreateProjectRequestDTO();
+        projectRequest.setProjectTitle(project.getProjectTitle());
+        projectRequest.setProjectTitleEs(project.getProjectTitleEs());
+        projectRequest.setProjectDescription(project.getProjectDescription());
+        projectRequest.setProjectDescriptionEs(project.getProjectDescriptionEs());
+        projectRequest.setProjectPosition(project.getProjectPosition());
+        ProjectTechnologyRequestDTO technologyRequest = new ProjectTechnologyRequestDTO();
+        technologyRequest.setTechnologyId(10L);
+        technologyRequest.setPosition(1);
+        projectRequest.setTechnologies(List.of(technologyRequest));
+        ProjectLinkRequestDTO linkRequest = new ProjectLinkRequestDTO();
+        linkRequest.setType(ProjectLinkType.DEPLOY);
+        linkRequest.setUrl("https://deploy.example");
+        linkRequest.setPosition(1);
+        projectRequest.setLinks(List.of(linkRequest));
+        Project projectResult = ProjectWebMapper.toDomain(projectRequest);
         Technology technologyResult = TechnologyWebMapper.toDomain(
                 TechnologyWebMapper.fromDomain(technology)
         );
@@ -116,6 +137,7 @@ class MapperContractsTest {
         assertEquals(20L, educationResult.getInstitutionId());
         assertEquals(10L, projectResult.getProjectTechnologies().getFirst().getTechnologyId());
         assertEquals(ProjectLinkType.DEPLOY, projectResult.getProjectLinks().getFirst().getType());
+        assertTrue(projectResult.getProjectImages().isEmpty());
         assertEquals(10L, technologyResult.getTechnologyId());
     }
 
@@ -123,7 +145,7 @@ class MapperContractsTest {
     void technologyWebMapperTreatsNullProjectListAsEmpty() {
         // Arrange: un DTO administrativo llega sin la propiedad de proyectos.
         var dto = TechnologyWebMapper.fromDomain(
-                new Technology(10L, "JAVA", 1, false)
+                new Technology(10L, "JAVA", false)
         );
 
         // Act: se convierte al modelo de dominio.
@@ -166,7 +188,7 @@ class MapperContractsTest {
     @Test
     void simplePersistenceMappersRoundTripDomainFields() {
         // Arrange: se preparan modelos persistibles independientes.
-        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "picture");
+        Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "cv-es", "picture");
         Institution institution = new Institution(2L, "UNI", "UNI", "url", false);
         Skill skill = new Skill(3L, "JAVA", "picture", 1, false);
         SocialNetwork social = new SocialNetwork(
@@ -188,6 +210,7 @@ class MapperContractsTest {
         );
 
         // Assert: se conservan campos representativos y estado lógico.
+        assertEquals("cv-es", profileResult.getProfileCvEs());
         assertEquals("picture", profileResult.getProfilePicture());
         assertEquals("url", institutionResult.getInstitutionUrl());
         assertFalse(skillResult.getSkillDeleted());
@@ -222,7 +245,7 @@ class MapperContractsTest {
     @Test
     void technologyPersistenceMapperKeepsProjectsOutOfWriteModel() {
         // Arrange: el dominio contiene proyectos, pero la relación la gobierna Project.
-        Technology technology = new Technology(10L, "JAVA", 1, false);
+        Technology technology = new Technology(10L, "JAVA", false);
 
         // Act: se transforma al modelo de escritura y luego al dominio simple.
         var entity = TechnologyPersistenceMapper.toEntity(technology);
@@ -246,9 +269,10 @@ class MapperContractsTest {
         // Construye proyecto completo para mapeos web y JPA.
         return new Project(
                 30L, "PROJECT", "PROYECTO", "Description", "Descripción",
-                "picture", 1, false,
+                1, false,
                 List.of(new ProjectTechnology(40L, 10L, "JAVA", 1)),
-                List.of(new ProjectLink(50L, ProjectLinkType.DEPLOY, "https://deploy.example", 1))
+                List.of(new ProjectLink(50L, ProjectLinkType.DEPLOY, "https://deploy.example", 1)),
+                List.of(new ProjectImage(60L, "picture", 1))
         );
     }
 

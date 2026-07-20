@@ -31,10 +31,13 @@ public class ProfileEntity {
     @Column(name = "profile_title_es")
     private String profileTitleEs;
 
-    @Column(name = "profile_cv")
+    @Column(name = "profile_cv", length = 2048)
     private String profileCv;
 
-    @Column(name = "profile_picture")
+    @Column(name = "profile_cv_es", length = 2048)
+    private String profileCvEs;
+
+    @Column(name = "profile_picture", length = 2048)
     private String profilePicture;
 
 }

@@ -1,6 +1,5 @@
 package com.keax.skill.application.usecases;
 
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.skill.domain.model.Skill;
@@ -112,15 +111,14 @@ class SkillUseCasesTest {
     }
 
     @Test
-    void rejectsEmptySkillList() {
+    void returnsEmptySkillList() {
         // Arrange: la consulta no encuentra habilidades.
         when(repository.findBySkillDeleted(false)).thenReturn(List.of());
 
-        // Act y Assert: se mantiene la alerta funcional del API.
-        assertThrows(
-                ExceptionAlert.class,
-                () -> new RetrieveSkillUseCaseImpl(repository).findBySkillDeleted(false)
-        );
+        // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
+        assertTrue(new RetrieveSkillUseCaseImpl(repository)
+                .findBySkillDeleted(false)
+                .isEmpty());
     }
 
     private Skill skill(Long id, String name, String picture, int position, Boolean deleted) {

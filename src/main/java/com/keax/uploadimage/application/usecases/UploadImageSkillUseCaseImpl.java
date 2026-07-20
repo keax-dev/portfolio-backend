@@ -5,20 +5,21 @@ import lombok.RequiredArgsConstructor;
 import com.keax.uploadimage.application.validation.ImageFileValidator;
 import com.keax.uploadimage.domain.ports.in.UploadImageSkillUseCase;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
+import com.keax.uploadimage.application.services.ImagePersistenceCoordinator;
+import com.keax.uploadimage.application.services.ImageCleanupProcessor;
 import com.keax.skill.domain.ports.out.SkillRepositoryPort;
-import com.keax.shared.domain.exceptions.ExternalServiceException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.uploadimage.domain.model.ImageFile;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
     private final SkillRepositoryPort skillRepositoryPort;
     private final ImageStoragePort imageStoragePort;
+    private final ImagePersistenceCoordinator imagePersistenceCoordinator;
+    private final ImageCleanupProcessor imageCleanupProcessor;
 
     @Override
     public Skill uploadImageSkill(Long skillId, ImageFile img) {
@@ -33,19 +34,23 @@ public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
         );
 
         String oldImageUrl = skill.getSkillPicture();
-        String newImageUrl = null;
-
+        String newImageUrl = imageStoragePort.upload(img, "Skills");
+        skill.setSkillPicture(newImageUrl);
+        java.util.List<String> obsoleteUrls = oldImageUrl == null || oldImageUrl.isBlank()
+                ? java.util.List.of()
+                : java.util.List.of(oldImageUrl);
+        Skill updatedSkill;
         try {
-            newImageUrl = imageStoragePort.upload(img, "Skills");
-            skill.setSkillPicture(newImageUrl);
-
-            Skill updatedSkill = skillRepositoryPort.updateSkill(skill);
-            imageStoragePort.delete(oldImageUrl);
-            return updatedSkill;
-        } catch (Exception e) {
-            imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the skill's image", e);
+            updatedSkill = imagePersistenceCoordinator.updateSkill(
+                    skill,
+                    obsoleteUrls
+            );
+        } catch (RuntimeException ex) {
+            imageCleanupProcessor.deleteOrEnqueue(java.util.List.of(newImageUrl));
+            throw ex;
         }
+        imageCleanupProcessor.processQueuedUrls(obsoleteUrls);
+        return updatedSkill;
     }
 
 }

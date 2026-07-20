@@ -1,13 +1,16 @@
 package com.keax.project.infrastructure.out.persistence.mapper;
 
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
+import com.keax.project.infrastructure.out.persistence.entity.ProjectImageEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectLinkEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectTechnologyEntity;
 import com.keax.technology.infrastructure.out.persistence.mapper.TechnologyPersistenceMapper;
 import com.keax.project.domain.model.Project;
 import java.util.Comparator;
+import java.util.ArrayList;
 
 public final class ProjectPersistenceMapper {
 
@@ -18,9 +21,9 @@ public final class ProjectPersistenceMapper {
                 entity.getProjectTitleEs(),
                 entity.getProjectDescription(),
                 entity.getProjectDescriptionEs(),
-                entity.getProjectPicture(),
                 entity.getProjectPosition(),
                 entity.getProjectDeleted(),
+                entity.getProjectPublished(),
                 entity.getProjectTechnologies().stream()
                         .map(ProjectPersistenceMapper::technologyToDomain)
                         .sorted(Comparator.comparingInt(ProjectTechnology::getPosition))
@@ -28,7 +31,11 @@ public final class ProjectPersistenceMapper {
                 entity.getProjectLinks().stream()
                         .map(ProjectPersistenceMapper::linkToDomain)
                         .sorted(Comparator.comparingInt(ProjectLink::getPosition))
-                        .toList()
+                        .toList(),
+                new ArrayList<>(entity.getProjectImages().stream()
+                        .map(ProjectPersistenceMapper::imageToDomain)
+                        .sorted(Comparator.comparingInt(ProjectImage::getPosition))
+                        .toList())
         );
     }
 
@@ -39,9 +46,9 @@ public final class ProjectPersistenceMapper {
         entity.setProjectTitleEs(project.getProjectTitleEs());
         entity.setProjectDescription(project.getProjectDescription());
         entity.setProjectDescriptionEs(project.getProjectDescriptionEs());
-        entity.setProjectPicture(project.getProjectPicture());
         entity.setProjectPosition(project.getProjectPosition());
         entity.setProjectDeleted(project.getProjectDeleted());
+        entity.setProjectPublished(project.getProjectPublished());
 
         project.getProjectTechnologies().forEach(technology -> entity.getProjectTechnologies().add(
                 new ProjectTechnologyEntity(
@@ -58,6 +65,14 @@ public final class ProjectPersistenceMapper {
                         link.getType(),
                         link.getUrl(),
                         link.getPosition()
+                )
+        ));
+        project.getProjectImages().forEach(image -> entity.getProjectImages().add(
+                new ProjectImageEntity(
+                        image.getProjectImageId(),
+                        entity,
+                        image.getUrl(),
+                        image.getPosition()
                 )
         ));
 
@@ -77,6 +92,14 @@ public final class ProjectPersistenceMapper {
         return new ProjectLink(
                 entity.getProjectLinkId(),
                 entity.getType(),
+                entity.getUrl(),
+                entity.getPosition()
+        );
+    }
+
+    private static ProjectImage imageToDomain(ProjectImageEntity entity) {
+        return new ProjectImage(
+                entity.getProjectImageId(),
                 entity.getUrl(),
                 entity.getPosition()
         );

@@ -19,6 +19,7 @@ import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -83,21 +84,38 @@ class ManagementApiIntegrationTest {
         // Act y Assert: se crea, actualiza y consulta el perfil único.
         performPost("/api/profile", """
                 {"name":"Keax","last_name":"Jimenez","title":"Developer",
-                 "title_es":"Desarrollador","cv":"","image":null}
+                 "title_es":"Desarrollador","cv":"https://example.com/cv-en",
+                 "cv_es":"https://example.com/cv-es","image":null}
                 """, token).andExpect(status().isOk());
 
         performPut("/api/profile", """
                 {"name":"Keax","last_name":"Jimenez","title":"Senior Developer",
-                 "title_es":"Desarrollador Senior","cv":"https://example.com/cv","image":null}
+                 "title_es":"Desarrollador Senior","cv":"https://example.com/cv-en-updated",
+                 "cv_es":"https://example.com/cv-es-updated","image":null}
                 """, token).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("SENIOR DEVELOPER"));
 
         mockMvc.perform(get("/api/profile").header("Authorization", bearer(token)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.cv").value("https://example.com/cv"));
+                .andExpect(jsonPath("$.data.cv").value("https://example.com/cv-en-updated"))
+                .andExpect(jsonPath("$.data.cv_es").value("https://example.com/cv-es-updated"));
 
         // Assert adicional: el flujo persistió un único perfil.
         org.junit.jupiter.api.Assertions.assertEquals(1, profileRepository.count());
+    }
+
+    @Test
+    void requiresBothLocalizedProfileCvUrls() throws Exception {
+        String token = token();
+
+        performPost("/api/profile", """
+                {"name":"Keax","last_name":"Jimenez","title":"Developer",
+                 "title_es":"Desarrollador","cv":"https://example.com/cv-en","image":null}
+                """, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.alert").value("Validation error"));
+
+        assertEquals(0, profileRepository.count());
     }
 
     @Test
@@ -140,8 +158,11 @@ class ManagementApiIntegrationTest {
         // Arrange: se crea tecnología y se recupera su id.
         String token = token();
         performPost("/api/technology", """
-                {"name":"Java","position":1,"deleted":false}
-                """, token).andExpect(status().isOk());
+                {"name":"Java"}
+                """, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value("JAVA"))
+                .andExpect(jsonPath("$.data.position").doesNotExist());
         Long technologyId = technologyRepository.findAll().getFirst().getTechnologyId();
 
         // Act: se crea un proyecto asociado.
@@ -151,7 +172,7 @@ class ManagementApiIntegrationTest {
                  "position":1,"deleted":false,
                  "technologies":[{"id":%d,"position":1}],
                  "links":[{"type":"GITHUB","url":"https://github.com/keax/portfolio","position":1}]}
-                """.formatted(technologyId), token).andExpect(status().isOk());
+                """.formatted(technologyId), token).andExpect(status().isCreated());
         Long projectId = projectRepository.findAll().getFirst().getProjectId();
 
         // Assert: la tecnología referenciada no puede eliminarse.
@@ -162,7 +183,7 @@ class ManagementApiIntegrationTest {
         // Act y Assert: al borrar el proyecto se habilita el borrado lógico padre.
         mockMvc.perform(delete("/api/project/{id}", projectId)
                         .header("Authorization", bearer(token)))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
         mockMvc.perform(delete("/api/technology/{id}", technologyId)
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk())
@@ -170,6 +191,57 @@ class ManagementApiIntegrationTest {
 
         // Assert adicional: se verifica el efecto persistido del comando DELETE.
         assertTrue(technologyRepository.findById(technologyId).orElseThrow().getTechnologyDeleted());
+    }
+
+    @Test
+    void removesAndReordersProjectTechnologiesWithoutTransientPositionConflicts() throws Exception {
+        String token = token();
+        performPost("/api/technology", "{\"name\":\"Java\"}", token)
+                .andExpect(status().isOk());
+        performPost("/api/technology", "{\"name\":\"Angular\"}", token)
+                .andExpect(status().isOk());
+        performPost("/api/technology", "{\"name\":\"MySQL\"}", token)
+                .andExpect(status().isOk());
+        Long javaId = technologyRepository
+                .findByTechnologyNameAndTechnologyDeleted("JAVA", false).orElseThrow().getTechnologyId();
+        Long angularId = technologyRepository
+                .findByTechnologyNameAndTechnologyDeleted("ANGULAR", false).orElseThrow().getTechnologyId();
+        Long mysqlId = technologyRepository
+                .findByTechnologyNameAndTechnologyDeleted("MYSQL", false).orElseThrow().getTechnologyId();
+
+        performPost("/api/project", """
+                {"title":"Portfolio","title_es":"Portafolio",
+                 "description":"Full-stack project","description_es":"Proyecto full-stack",
+                 "position":1,
+                 "technologies":[{"id":%d,"position":1},{"id":%d,"position":2},{"id":%d,"position":3}],
+                 "links":[]}
+                """.formatted(javaId, angularId, mysqlId), token)
+                .andExpect(status().isCreated());
+        Long projectId = projectRepository.findAll().getFirst().getProjectId();
+
+        performPut("/api/project/" + projectId, """
+                {"title":"Portfolio","title_es":"Portafolio",
+                 "description":"Full-stack project","description_es":"Proyecto full-stack",
+                 "position":1,
+                 "technologies":[{"id":%d,"position":1},{"id":%d,"position":2}],
+                 "links":[]}
+                """.formatted(mysqlId, javaId), token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.technologies[0].id").value(mysqlId))
+                .andExpect(jsonPath("$.data.technologies[0].position").value(1))
+                .andExpect(jsonPath("$.data.technologies[1].id").value(javaId))
+                .andExpect(jsonPath("$.data.technologies[1].position").value(2));
+
+        var relations = projectRepository.findByProjectIdAndProjectDeleted(projectId, false)
+                .orElseThrow()
+                .getProjectTechnologies();
+        assertEquals(2, relations.size());
+        assertTrue(relations.stream().anyMatch(relation ->
+                relation.getTechnology().getTechnologyId().equals(mysqlId) && relation.getPosition() == 1
+        ));
+        assertTrue(relations.stream().anyMatch(relation ->
+                relation.getTechnology().getTechnologyId().equals(javaId) && relation.getPosition() == 2
+        ));
     }
 
     @Test

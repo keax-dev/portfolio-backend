@@ -1,6 +1,5 @@
 package com.keax.technology.application.usecases;
 
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.technology.domain.model.Technology;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -8,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,7 +17,7 @@ class RetrieveTechnologyUseCaseImplTest {
     @Test
     void retrievesActiveTechnologiesWithoutNestedProjects() {
         TechnologyRepositoryPort repository = mock(TechnologyRepositoryPort.class);
-        Technology technology = new Technology(1L, "JAVA", 1, false);
+        Technology technology = new Technology(1L, "JAVA", false);
         when(repository.findByTechnologyDeleted(false)).thenReturn(List.of(technology));
 
         List<Technology> result = new RetrieveTechnologyUseCaseImpl(repository)
@@ -29,13 +28,12 @@ class RetrieveTechnologyUseCaseImplTest {
     }
 
     @Test
-    void rejectsAnEmptyActiveTechnologyCatalogue() {
+    void returnsAnEmptyActiveTechnologyCatalogue() {
         TechnologyRepositoryPort repository = mock(TechnologyRepositoryPort.class);
         when(repository.findByTechnologyDeleted(false)).thenReturn(List.of());
 
-        assertThrows(
-                ExceptionAlert.class,
-                () -> new RetrieveTechnologyUseCaseImpl(repository).findByTechnologyDeleted(false)
-        );
+        assertTrue(new RetrieveTechnologyUseCaseImpl(repository)
+                .findByTechnologyDeleted(false)
+                .isEmpty());
     }
 }

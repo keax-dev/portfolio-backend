@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Setter;
 import lombok.Getter;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "project")
@@ -33,19 +34,52 @@ public class ProjectEntity {
     @Column(name = "project_description_es", columnDefinition = "text")
     private String projectDescriptionEs;
 
-    @Column(name = "project_picture")
-    private String projectPicture;
-
     @Column(name = "project_position", nullable = false)
     private int projectPosition;
 
     @Column(name = "project_deleted", nullable = false)
     private Boolean projectDeleted;
 
+    @Column(name = "project_published", nullable = false)
+    private Boolean projectPublished;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     private Set<ProjectTechnologyEntity> projectTechnologies = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     private Set<ProjectLinkEntity> projectLinks = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
+    private Set<ProjectImageEntity> projectImages = new LinkedHashSet<>();
+
+    public ProjectEntity(
+            Long projectId,
+            String projectTitle,
+            String projectTitleEs,
+            String projectDescription,
+            String projectDescriptionEs,
+            int projectPosition,
+            Boolean projectDeleted,
+            Set<ProjectTechnologyEntity> projectTechnologies,
+            Set<ProjectLinkEntity> projectLinks,
+            Set<ProjectImageEntity> projectImages
+    ) {
+        this(
+                projectId,
+                projectTitle,
+                projectTitleEs,
+                projectDescription,
+                projectDescriptionEs,
+                projectPosition,
+                projectDeleted,
+                true,
+                projectTechnologies,
+                projectLinks,
+                projectImages
+        );
+    }
 
 }

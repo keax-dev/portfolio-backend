@@ -61,6 +61,15 @@ jobs:
       - name: Validar build Docker
         run: docker build -t portfolio-backend:ci .
 
+      # Analiza dependencias Java y paquetes del sistema dentro de la imagen final.
+      - name: Escanear vulnerabilidades de la imagen
+        uses: anchore/scan-action@v7.4.0
+        with:
+          image: portfolio-backend:ci
+          fail-build: true
+          severity-cutoff: high
+          output-format: table
+
       # Si falla Maven, sube reportes para analizar la causa desde GitHub Actions.
       - name: Subir reportes de pruebas si falla
         if: failure()

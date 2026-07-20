@@ -39,9 +39,16 @@ public class ProfileDTO {
     private String profileTitleEs;
 
     @JsonProperty("cv")
+    @NotBlank(message = "The English profile cv url is required")
     @Pattern(regexp = "^$|https?://.+", message = "The profile cv url must start with http:// or https://")
     @Size(max = 2048, message = "The profile cv url must not exceed 2048 characters")
     private String profileCv;
+
+    @JsonProperty("cv_es")
+    @NotBlank(message = "The Spanish profile cv url is required")
+    @Pattern(regexp = "^$|https?://.+", message = "The Spanish profile cv url must start with http:// or https://")
+    @Size(max = 2048, message = "The Spanish profile cv url must not exceed 2048 characters")
+    private String profileCvEs;
 
     @JsonProperty("image")
     private String profilePicture;

@@ -8,6 +8,7 @@ import com.keax.profile.infrastructure.out.persistence.entity.ProfileEntity;
 import com.keax.profile.infrastructure.out.persistence.repository.JpaProfileRepository;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectLinkEntity;
+import com.keax.project.infrastructure.out.persistence.entity.ProjectImageEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectTechnologyEntity;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.infrastructure.out.persistence.repository.JpaProjectRepository;
@@ -84,7 +85,8 @@ class PortfolioApiIntegrationTest {
                 "JIMENEZ",
                 "DEVELOPER",
                 "DESARROLLADOR",
-                "https://example.com/cv",
+                "https://example.com/cv-en",
+                "https://example.com/cv-es",
                 "profile.png"
         ));
 
@@ -134,9 +136,9 @@ class PortfolioApiIntegrationTest {
         skillRepository.saveAndFlush(new SkillEntity(null, "DELETED SKILL", "deleted-skill.png", 2, true));
 
         TechnologyEntity activeTechnology = technologyRepository.saveAndFlush(
-                new TechnologyEntity(null, "JAVA", 1, false)
+                new TechnologyEntity(null, "JAVA", false)
         );
-        technologyRepository.saveAndFlush(new TechnologyEntity(null, "LEGACY", 2, true));
+        technologyRepository.saveAndFlush(new TechnologyEntity(null, "LEGACY", true));
 
         projectRepository.saveAndFlush(project(
                 "PORTFOLIO", "PORTAFOLIO", "Backend portfolio", "Portafolio backend",
@@ -174,7 +176,9 @@ class PortfolioApiIntegrationTest {
         mockMvc.perform(get("/api/portfolio/profile"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(true))
-                .andExpect(jsonPath("$.data.name").value("KEAX"));
+                .andExpect(jsonPath("$.data.name").value("KEAX"))
+                .andExpect(jsonPath("$.data.cv").value("https://example.com/cv-en"))
+                .andExpect(jsonPath("$.data.cv_es").value("https://example.com/cv-es"));
 
         mockMvc.perform(get("/api/portfolio/education"))
                 .andExpect(status().isOk())
@@ -245,8 +249,8 @@ class PortfolioApiIntegrationTest {
             TechnologyEntity technology
     ) {
         ProjectEntity project = new ProjectEntity(
-                null, title, titleEs, description, descriptionEs, picture, position, deleted,
-                new LinkedHashSet<>(), new LinkedHashSet<>()
+                null, title, titleEs, description, descriptionEs, position, deleted,
+                new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>()
         );
         project.getProjectTechnologies().add(
                 new ProjectTechnologyEntity(null, project, technology, 1)
@@ -254,6 +258,9 @@ class PortfolioApiIntegrationTest {
         project.getProjectLinks().add(new ProjectLinkEntity(
                 null, project, ProjectLinkType.DEPLOY, "https://deploy.test", 1
         ));
+        if (picture != null) {
+            project.getProjectImages().add(new ProjectImageEntity(null, project, picture, 1));
+        }
         return project;
     }
 

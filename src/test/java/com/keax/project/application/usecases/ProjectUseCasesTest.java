@@ -2,21 +2,21 @@ package com.keax.project.application.usecases;
 
 import com.keax.project.domain.model.Project;
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import com.keax.project.application.validation.ProjectStructureValidator;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
-import com.keax.technology.domain.model.Technology;
-import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
+import com.keax.shared.domain.ports.out.ProjectTechnologyReferencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,24 +34,25 @@ import static org.mockito.Mockito.when;
 class ProjectUseCasesTest {
 
     private ProjectRepositoryPort projectRepository;
-    private TechnologyRepositoryPort technologyRepository;
+    private ProjectTechnologyReferencePort technologyReferencePort;
     private ProjectStructureValidator structureValidator;
 
     @BeforeEach
     void setUp() {
         // Los repositorios se sustituyen por puertos simulados.
         projectRepository = mock(ProjectRepositoryPort.class);
-        technologyRepository = mock(TechnologyRepositoryPort.class);
-        structureValidator = new ProjectStructureValidator(technologyRepository);
+        technologyReferencePort = mock(ProjectTechnologyReferencePort.class);
+        structureValidator = new ProjectStructureValidator(technologyReferencePort);
     }
 
     @Test
     void createsProjectForExistingTechnology() {
         // Arrange: la tecnología existe y no hay conflictos de título o posición.
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
-        input.setProjectPicture("untrusted-picture");
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
+        input.setProjectImages(new ArrayList<>(List.of(
+                new ProjectImage(null, "untrusted-picture", 1)
+        )));
+        when(technologyReferencePort.findActiveTechnologyIds(Set.of(10L))).thenReturn(Set.of(10L));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.empty());
         when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
@@ -65,16 +66,16 @@ class ProjectUseCasesTest {
         // Assert: se normalizan títulos y la imagen solo puede venir del upload.
         assertEquals("PORTFOLIO", result.getProjectTitle());
         assertEquals("PORTAFOLIO", result.getProjectTitleEs());
-        assertNull(result.getProjectPicture());
+        assertTrue(result.getProjectImages().isEmpty());
         assertFalse(result.getProjectDeleted());
+        assertFalse(result.getProjectPublished());
     }
 
     @Test
     void rejectsProjectForMissingTechnology() {
         // Arrange: la tecnología relacionada no existe.
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.empty());
+        when(technologyReferencePort.findActiveTechnologyIds(Set.of(10L))).thenReturn(Set.of());
 
         // Act y Assert: la relación se valida antes de persistir.
         assertThrows(
@@ -88,8 +89,7 @@ class ProjectUseCasesTest {
     void rejectsDuplicatedProjectPositionGlobally() {
         // Arrange: la posición ya está ocupada dentro de la misma tecnología.
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
+        when(technologyReferencePort.findActiveTechnologyIds(Set.of(10L))).thenReturn(Set.of(10L));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.empty());
         when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
@@ -107,13 +107,14 @@ class ProjectUseCasesTest {
     void updatesProjectWithoutSelfConflict() {
         // Arrange: los resultados de unicidad corresponden al mismo proyecto.
         Project stored = project(1L, "OLD", "ANTIGUO", 1, false, 10L);
-        stored.setProjectPicture("https://cdn/picture.jpg");
+        stored.setProjectImages(new ArrayList<>(List.of(
+                new ProjectImage(201L, "https://cdn/picture.jpg", 1)
+        )));
         Project changes = project(null, "Portfolio", "Portafolio", 2, null, 10L);
         changes.setProjectDescription("Updated description");
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(10L, false))
-                .thenReturn(Optional.of(new Technology(10L, "JAVA", 1, false)));
+        when(technologyReferencePort.findActiveTechnologyIds(Set.of(10L))).thenReturn(Set.of(10L));
         when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
                 .thenReturn(Optional.of(project(1L, "PORTFOLIO", "PORTAFOLIO", 2, false, 10L)));
         when(projectRepository.findByProjectPositionAndProjectDeleted(2, false))
@@ -128,7 +129,7 @@ class ProjectUseCasesTest {
         assertEquals(1L, result.getProjectId());
         assertEquals("PORTFOLIO", result.getProjectTitle());
         assertEquals(2, result.getProjectPosition());
-        assertEquals("https://cdn/picture.jpg", result.getProjectPicture());
+        assertEquals("https://cdn/picture.jpg", result.getProjectImages().getFirst().getUrl());
         assertEquals("Updated description", result.getProjectDescription());
         assertEquals(101L, result.getProjectTechnologies().getFirst().getProjectTechnologyId());
     }
@@ -161,15 +162,14 @@ class ProjectUseCasesTest {
     }
 
     @Test
-    void rejectsEmptyProjectList() {
+    void returnsEmptyProjectList() {
         // Arrange: el filtro no devuelve proyectos.
         when(projectRepository.findByProjectDeleted(false)).thenReturn(List.of());
 
-        // Act y Assert: se conserva la alerta funcional existente.
-        assertThrows(
-                ExceptionAlert.class,
-                () -> new RetrieveProjectUseCaseImpl(projectRepository).findByProjectDeleted(false)
-        );
+        // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
+        assertTrue(new RetrieveProjectUseCaseImpl(projectRepository)
+                .findByProjectDeleted(false)
+                .isEmpty());
     }
 
     private Project project(
@@ -183,15 +183,15 @@ class ProjectUseCasesTest {
         // Construye un proyecto válido para concentrar cada prueba en una regla.
         Long relationId = id == null ? null : id + 100;
         return new Project(
-                id, title, titleEs, "Description", "Descripción", null,
-                position, deleted,
+                id, title, titleEs, "Description", "Descripción", position, deleted,
                 List.of(new ProjectTechnology(relationId, technologyId, "JAVA", 1)),
                 List.of(new ProjectLink(
                         relationId,
                         ProjectLinkType.DEPLOY,
                         "https://deploy.example",
                         1
-                ))
+                )),
+                new ArrayList<>()
         );
     }
 

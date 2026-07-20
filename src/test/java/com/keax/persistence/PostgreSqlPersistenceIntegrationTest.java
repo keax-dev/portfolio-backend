@@ -10,6 +10,9 @@ import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectLinkEntity;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectTechnologyEntity;
 import com.keax.project.domain.model.ProjectLinkType;
+import com.keax.project.domain.model.ProjectTechnology;
+import com.keax.project.infrastructure.out.persistence.adapter.ProjectPersistenceAdapter;
+import com.keax.project.infrastructure.out.persistence.mapper.ProjectPersistenceMapper;
 import com.keax.project.infrastructure.out.persistence.repository.JpaProjectRepository;
 import com.keax.technology.infrastructure.out.persistence.entity.TechnologyEntity;
 import com.keax.technology.infrastructure.out.persistence.repository.JpaTechnologyRepository;
@@ -27,6 +30,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -114,11 +119,11 @@ class PostgreSqlPersistenceIntegrationTest {
     void fetchesProjectTechnologiesAndLinksWithEntityGraphOnPostgreSql() {
         // Arrange: se persiste tecnología y un proyecto hijo.
         TechnologyEntity technology = technologyRepository.save(
-                new TechnologyEntity(null, "JAVA", 1, false)
+                new TechnologyEntity(null, "JAVA", false)
         );
         ProjectEntity project = new ProjectEntity(
                 null, "PORTFOLIO", "PORTAFOLIO", "Description", "Descripción",
-                null, 1, false, new LinkedHashSet<>(), new LinkedHashSet<>()
+                1, false, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>()
         );
         project.getProjectTechnologies().add(
                 new ProjectTechnologyEntity(null, project, technology, 1)
@@ -137,10 +142,49 @@ class PostgreSqlPersistenceIntegrationTest {
         assertEquals(1, projects.size());
         assertEquals("JAVA", projects.getFirst().getProjectTechnologies().iterator().next()
                 .getTechnology().getTechnologyName());
+        assertEquals(1, projects.getFirst().getProjectTechnologies().iterator().next().getPosition());
         assertEquals(
                 ProjectLinkType.DEPLOY,
                 projects.getFirst().getProjectLinks().iterator().next().getType()
         );
+    }
+
+    @Test
+    void removesAndReordersProjectTechnologiesOnPostgreSql() {
+        TechnologyEntity java = technologyRepository.save(new TechnologyEntity(null, "JAVA", false));
+        TechnologyEntity angular = technologyRepository.save(new TechnologyEntity(null, "ANGULAR", false));
+        TechnologyEntity mysql = technologyRepository.save(new TechnologyEntity(null, "MYSQL", false));
+        ProjectEntity entity = new ProjectEntity(
+                null, "PORTFOLIO", "PORTAFOLIO", "Description", "DescripciÃ³n",
+                1, false, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>()
+        );
+        entity.getProjectTechnologies().add(new ProjectTechnologyEntity(null, entity, java, 1));
+        entity.getProjectTechnologies().add(new ProjectTechnologyEntity(null, entity, angular, 2));
+        entity.getProjectTechnologies().add(new ProjectTechnologyEntity(null, entity, mysql, 3));
+        ProjectEntity saved = projectRepository.saveAndFlush(entity);
+        entityManager.clear();
+
+        var project = ProjectPersistenceMapper.toDomain(
+                projectRepository.findByProjectIdAndProjectDeleted(saved.getProjectId(), false).orElseThrow()
+        );
+        Long javaRelationId = project.getProjectTechnologies().stream()
+                .filter(relation -> relation.getTechnologyId().equals(java.getTechnologyId()))
+                .findFirst().orElseThrow().getProjectTechnologyId();
+        Long mysqlRelationId = project.getProjectTechnologies().stream()
+                .filter(relation -> relation.getTechnologyId().equals(mysql.getTechnologyId()))
+                .findFirst().orElseThrow().getProjectTechnologyId();
+        project.setProjectTechnologies(new ArrayList<>(List.of(
+                new ProjectTechnology(mysqlRelationId, mysql.getTechnologyId(), "MYSQL", 1),
+                new ProjectTechnology(javaRelationId, java.getTechnologyId(), "JAVA", 2)
+        )));
+
+        var updated = new ProjectPersistenceAdapter(projectRepository).updateProject(project);
+
+        assertEquals(2, updated.getProjectTechnologies().size());
+        assertEquals(mysql.getTechnologyId(), updated.getProjectTechnologies().getFirst().getTechnologyId());
+        assertEquals(1, updated.getProjectTechnologies().getFirst().getPosition());
+        assertEquals(java.getTechnologyId(), updated.getProjectTechnologies().get(1).getTechnologyId());
+        assertEquals(2, updated.getProjectTechnologies().get(1).getPosition());
     }
 
     @Test

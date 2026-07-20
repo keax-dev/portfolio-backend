@@ -1,26 +1,32 @@
 package com.keax.project.infrastructure.in.web.mapper;
 
 import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectImageDTO;
 import com.keax.project.infrastructure.in.web.dto.ProjectLinkDTO;
 import com.keax.project.infrastructure.in.web.dto.ProjectTechnologyDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectTechnologyRequestDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectLinkRequestDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectWriteDTO;
 import com.keax.project.domain.model.ProjectLink;
+import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.domain.model.Project;
 
 public final class ProjectWebMapper {
 
-    public static Project toDomain(ProjectDTO dto) {
+    public static Project toDomain(ProjectWriteDTO dto) {
         return new Project(
-                dto.getProjectId(),
+                null,
                 dto.getProjectTitle(),
                 dto.getProjectTitleEs(),
                 dto.getProjectDescription(),
                 dto.getProjectDescriptionEs(),
-                dto.getProjectPicture(),
                 dto.getProjectPosition(),
-                dto.getProjectDeleted(),
+                false,
+                false,
                 dto.getTechnologies().stream().map(ProjectWebMapper::technologyToDomain).toList(),
-                dto.getLinks().stream().map(ProjectWebMapper::linkToDomain).toList()
+                dto.getLinks().stream().map(ProjectWebMapper::linkToDomain).toList(),
+                new java.util.ArrayList<>()
         );
     }
 
@@ -31,19 +37,20 @@ public final class ProjectWebMapper {
                 project.getProjectTitleEs(),
                 project.getProjectDescription(),
                 project.getProjectDescriptionEs(),
-                project.getProjectPicture(),
                 project.getProjectPosition(),
                 project.getProjectDeleted(),
+                project.getProjectPublished(),
                 project.getProjectTechnologies().stream().map(ProjectWebMapper::technologyFromDomain).toList(),
-                project.getProjectLinks().stream().map(ProjectWebMapper::linkFromDomain).toList()
+                project.getProjectLinks().stream().map(ProjectWebMapper::linkFromDomain).toList(),
+                project.getProjectImages().stream().map(ProjectWebMapper::imageFromDomain).toList()
         );
     }
 
-    private static ProjectTechnology technologyToDomain(ProjectTechnologyDTO dto) {
+    private static ProjectTechnology technologyToDomain(ProjectTechnologyRequestDTO dto) {
         return new ProjectTechnology(
-                dto.getProjectTechnologyId(),
+                null,
                 dto.getTechnologyId(),
-                dto.getTechnologyName(),
+                null,
                 dto.getPosition()
         );
     }
@@ -57,12 +64,16 @@ public final class ProjectWebMapper {
         );
     }
 
-    private static ProjectLink linkToDomain(ProjectLinkDTO dto) {
-        return new ProjectLink(dto.getProjectLinkId(), dto.getType(), dto.getUrl(), dto.getPosition());
+    private static ProjectLink linkToDomain(ProjectLinkRequestDTO dto) {
+        return new ProjectLink(null, dto.getType(), dto.getUrl(), dto.getPosition());
     }
 
     private static ProjectLinkDTO linkFromDomain(ProjectLink link) {
         return new ProjectLinkDTO(link.getProjectLinkId(), link.getType(), link.getUrl(), link.getPosition());
+    }
+
+    private static ProjectImageDTO imageFromDomain(ProjectImage image) {
+        return new ProjectImageDTO(image.getProjectImageId(), image.getUrl(), image.getPosition());
     }
 
 }

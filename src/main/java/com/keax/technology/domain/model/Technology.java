@@ -13,7 +13,6 @@ public class Technology {
 
     private Long technologyId;
     private String technologyName;
-    private int technologyPosition;
     private Boolean technologyDeleted;
 
 }

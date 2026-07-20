@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Spring injects these collaborators and owns their lifecycle. Keeping the
+         injected reference is intentional and does not expose it through the API. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="com.keax.email.infrastructure.out.email.MailContactEmailSenderAdapter"/>
+            <Class name="com.keax.technology.application.usecases.RetrieveTechnologyUseCaseImpl"/>
+        </Or>
+    </Match>
+
+    <!-- These Spring beans validate immutable configuration during construction.
+         They define no finalizer, never publish `this`, and fail before Spring
+         exposes the bean, so the reported finalizer-attack scenario cannot occur. -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Or>
+            <Class name="com.keax.auth.infrastructure.out.security.JwtUtil"/>
+            <Class name="com.keax.shared.infrastructure.in.web.client.ClientIdentityHasher"/>
+            <Class name="com.keax.shared.infrastructure.in.web.client.ClientIpResolver"/>
+            <Class name="com.keax.visitor.application.usecases.RegisterVisitorUseCaseImpl"/>
+        </Or>
+    </Match>
+</FindBugsFilter>

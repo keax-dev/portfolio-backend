@@ -31,7 +31,7 @@ public class SocialNetworkEntity {
     @Column(name = "social_network_position", nullable = false)
     private int socialNetworkPosition;
 
-    @Column(name = "social_network_url", nullable = false)
+    @Column(name = "social_network_url", nullable = false, length = 2048)
     private String socialNetworkUrl;
 
     @Column(name = "social_network_deleted", nullable = false)

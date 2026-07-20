@@ -2,11 +2,9 @@ package com.keax.education.application.usecases;
 
 import com.keax.education.domain.model.Education;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
-import com.keax.institution.domain.model.Institution;
-import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
+import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,13 +27,13 @@ import static org.mockito.Mockito.when;
 class EducationUseCasesTest {
 
     private EducationRepositoryPort educationRepository;
-    private InstitutionRepositoryPort institutionRepository;
+    private EducationInstitutionReferencePort institutionReferencePort;
 
     @BeforeEach
     void setUp() {
         // Cada caso se ejecuta contra contratos simulados.
         educationRepository = mock(EducationRepositoryPort.class);
-        institutionRepository = mock(InstitutionRepositoryPort.class);
+        institutionReferencePort = mock(EducationInstitutionReferencePort.class);
     }
 
     @Test
@@ -51,12 +49,11 @@ class EducationUseCasesTest {
                 .thenReturn(Optional.empty());
         when(educationRepository.findByEducationPositionAndEducationDeleted(1, false))
                 .thenReturn(Optional.empty());
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(10L, false))
-                .thenReturn(Optional.of(new Institution(10L, "UNIVERSITY", "UNIVERSIDAD", null, false)));
+        when(institutionReferencePort.existsActiveInstitution(10L)).thenReturn(true);
         when(educationRepository.createEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se crea el registro educativo.
-        Education result = new CreateEducationUseCaseImpl(educationRepository, institutionRepository)
+        Education result = new CreateEducationUseCaseImpl(educationRepository, institutionReferencePort)
                 .createEducation(input);
 
         // Assert: los obligatorios se normalizan y los opcionales vacíos quedan nulos.
@@ -78,13 +75,12 @@ class EducationUseCasesTest {
                 .thenReturn(Optional.empty());
         when(educationRepository.findByEducationPositionAndEducationDeleted(1, false))
                 .thenReturn(Optional.empty());
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(10L, false))
-                .thenReturn(Optional.empty());
+        when(institutionReferencePort.existsActiveInstitution(10L)).thenReturn(false);
 
         // Act y Assert: no se permite una referencia inexistente.
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> new CreateEducationUseCaseImpl(educationRepository, institutionRepository)
+                () -> new CreateEducationUseCaseImpl(educationRepository, institutionReferencePort)
                         .createEducation(input)
         );
     }
@@ -102,7 +98,7 @@ class EducationUseCasesTest {
         // Act y Assert: se detiene antes de validar el resto de datos.
         assertThrows(
                 ResourceConflictException.class,
-                () -> new CreateEducationUseCaseImpl(educationRepository, institutionRepository)
+                () -> new CreateEducationUseCaseImpl(educationRepository, institutionReferencePort)
                         .createEducation(input)
         );
     }
@@ -116,8 +112,7 @@ class EducationUseCasesTest {
         changes.setEducationStartEs("Enero");
         when(educationRepository.findByEducationIdAndEducationDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(10L, false))
-                .thenReturn(Optional.of(new Institution(10L, "UNI", "UNI", null, false)));
+        when(institutionReferencePort.existsActiveInstitution(10L)).thenReturn(true);
         when(educationRepository
                 .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
                         "DEGREE", false, 10L
@@ -128,7 +123,7 @@ class EducationUseCasesTest {
         when(educationRepository.updateEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se actualiza el registro.
-        Education result = new UpdateEducationUseCaseImpl(educationRepository, institutionRepository)
+        Education result = new UpdateEducationUseCaseImpl(educationRepository, institutionReferencePort)
                 .updateEducation(1L, changes);
 
         // Assert: los campos temporales y descriptivos se aplican normalizados.
@@ -166,15 +161,14 @@ class EducationUseCasesTest {
     }
 
     @Test
-    void rejectsEmptyEducationList() {
+    void returnsEmptyEducationList() {
         // Arrange: la consulta filtrada no devuelve registros.
         when(educationRepository.findByEducationDeleted(false)).thenReturn(List.of());
 
-        // Act y Assert: se mantiene el contrato de alerta.
-        assertThrows(
-                ExceptionAlert.class,
-                () -> new RetrieveEducationUseCaseImpl(educationRepository).findByEducationDeleted(false)
-        );
+        // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
+        assertTrue(new RetrieveEducationUseCaseImpl(educationRepository)
+                .findByEducationDeleted(false)
+                .isEmpty());
     }
 
     private Education education(

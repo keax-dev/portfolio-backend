@@ -3,7 +3,6 @@ package com.keax.technology.application.usecases;
 import com.keax.technology.domain.ports.in.RetrieveTechnologyUseCase;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import org.springframework.transaction.annotation.Transactional;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.technology.domain.model.Technology;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -21,26 +20,13 @@ public class RetrieveTechnologyUseCaseImpl implements RetrieveTechnologyUseCase 
     @Override
     public List<Technology> findByTechnologyDeleted(Boolean deleted) {
 
-        List<Technology> technologyList =  technologyRepositoryPort.findByTechnologyDeleted(deleted);
-
-        return validateNotEmpty(technologyList);
+        return technologyRepositoryPort.findByTechnologyDeleted(deleted);
     }
 
     @Override
     public List<Technology> getListTechnology() {
 
-        List<Technology> technologyList =  technologyRepositoryPort.getListTechnology();
-
-        return validateNotEmpty(technologyList);
-    }
-
-    private List<Technology> validateNotEmpty(List<Technology> technologyList) {
-
-        if (technologyList.isEmpty()) {
-            throw new ExceptionAlert("There are no created technologies");
-        }
-
-        return technologyList;
+        return technologyRepositoryPort.getListTechnology();
     }
 
 }

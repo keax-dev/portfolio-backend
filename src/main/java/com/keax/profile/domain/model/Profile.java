@@ -17,6 +17,7 @@ public class Profile {
     private String profileTitle;
     private String profileTitleEs;
     private String profileCv;
+    private String profileCvEs;
     private String profilePicture;
 
 }

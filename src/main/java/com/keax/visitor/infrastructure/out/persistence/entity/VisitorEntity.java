@@ -20,7 +20,7 @@ public class VisitorEntity {
     @Column(name = "visitor_id")
     private Long visitorId;
 
-    @Column(name = "visitor_ip", nullable = false, length = 45)
+    @Column(name = "visitor_ip", nullable = false, length = 64)
     private String visitorIp;
 
     @Column(name = "visitor_country", length = 120)

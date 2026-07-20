@@ -2,7 +2,7 @@ package com.keax.education.application.usecases;
 
 import lombok.RequiredArgsConstructor;
 
-import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
+import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.UpdateEducationUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
@@ -17,7 +17,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
     private final EducationRepositoryPort educationRepositoryPort;
-    private final InstitutionRepositoryPort institutionRepositoryPort;
+    private final EducationInstitutionReferencePort educationInstitutionReferencePort;
 
     @Override
     public Education updateEducation(Long educationId, Education education) {
@@ -29,12 +29,9 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
                 () -> new ResourceNotFoundException("The education to be updated was not found")
         );
 
-        institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(
-                education.getInstitutionId(),
-                false
-        ).orElseThrow(
-                () -> new ResourceNotFoundException("The institution entered was not found")
-        );
+        if (!educationInstitutionReferencePort.existsActiveInstitution(education.getInstitutionId())) {
+            throw new ResourceNotFoundException("The institution entered was not found");
+        }
 
         educationUpdate.setEducationTitle(education.getEducationTitle().toUpperCase());
         educationUpdate.setInstitutionId(education.getInstitutionId());
@@ -67,12 +64,9 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
         educationUpdate.setEducationPlace(education.getEducationPlace().toUpperCase());
         educationUpdate.setEducationEnd(education.getEducationEnd().toUpperCase());
         educationUpdate.setEducationEndEs(education.getEducationEndEs().toUpperCase());
+        educationUpdate.setEducationStart(toUpperCaseOrNull(education.getEducationStart()));
+        educationUpdate.setEducationStartEs(toUpperCaseOrNull(education.getEducationStartEs()));
         educationUpdate.setEducationDeleted(false);
-
-        if (education.getEducationStart() != null && !education.getEducationStart().isEmpty()){
-            educationUpdate.setEducationStart(education.getEducationStart().toUpperCase());
-            educationUpdate.setEducationStartEs(toUpperCaseOrNull(education.getEducationStartEs()));
-        }
 
         return educationRepositoryPort.updateEducation(educationUpdate);
     }
