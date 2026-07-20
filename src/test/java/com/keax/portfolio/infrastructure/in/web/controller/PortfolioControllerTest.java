@@ -20,6 +20,8 @@ import com.keax.socialnetwork.domain.model.SocialNetwork;
 import com.keax.socialnetwork.domain.ports.in.RetrieveSocialNetworkUseCase;
 import com.keax.technology.domain.model.Technology;
 import com.keax.technology.domain.ports.in.RetrieveTechnologyUseCase;
+import com.keax.shared.infrastructure.in.web.client.ClientIdentityHasher;
+import com.keax.shared.infrastructure.in.web.client.ClientIpResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +67,10 @@ class PortfolioControllerTest {
     private ContactEmailUseCase contactEmailUseCase;
     @Mock
     private ContactRateLimiter contactRateLimiter;
+    @Mock
+    private ClientIpResolver clientIpResolver;
+    @Mock
+    private ClientIdentityHasher clientIdentityHasher;
 
     private MockMvc mockMvc;
 
@@ -79,7 +85,9 @@ class PortfolioControllerTest {
                 retrieveProjectUseCase,
                 retrieveSocialNetworkUseCase,
                 contactEmailUseCase,
-                contactRateLimiter
+                contactRateLimiter,
+                clientIpResolver,
+                clientIdentityHasher
         );
 
         // Se levanta únicamente Spring MVC para probar rutas, JSON y Bean Validation.
@@ -152,6 +160,8 @@ class PortfolioControllerTest {
         // Arrange: el caso de uso devuelve el contacto que logró enviar.
         when(contactEmailUseCase.sendContactEmail(org.mockito.ArgumentMatchers.any(Contact.class)))
                 .thenReturn(new Contact("Ana", "ana@example.com", "Hello"));
+        when(clientIpResolver.resolve(org.mockito.ArgumentMatchers.any())).thenReturn("198.51.100.25");
+        when(clientIdentityHasher.hash("198.51.100.25")).thenReturn("anonymous-client-key");
 
         // Act: se envía JSON válido desde una IP conocida.
         mockMvc.perform(post("/api/portfolio/contact")
@@ -167,7 +177,7 @@ class PortfolioControllerTest {
                 .andExpect(jsonPath("$.data.email").value("ana@example.com"));
 
         // Assert: primero se limita por IP y luego se entrega el dominio correctamente mapeado.
-        verify(contactRateLimiter).assertAllowed("198.51.100.25");
+        verify(contactRateLimiter).assertAllowed("anonymous-client-key");
         ArgumentCaptor<Contact> contactCaptor = ArgumentCaptor.forClass(Contact.class);
         verify(contactEmailUseCase).sendContactEmail(contactCaptor.capture());
         assertEquals("Hello", contactCaptor.getValue().getMessage());

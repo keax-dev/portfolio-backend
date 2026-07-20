@@ -46,6 +46,7 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
         project.setProjectId(null);
         project.setProjectImages(new java.util.ArrayList<>());
         project.setProjectDeleted(false);
+        project.setProjectPublished(false);
         project.getProjectTechnologies().forEach(technology -> technology.setProjectTechnologyId(null));
         project.getProjectLinks().forEach(link -> link.setProjectLinkId(null));
 

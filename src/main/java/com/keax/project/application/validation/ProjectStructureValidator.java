@@ -7,7 +7,7 @@ import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
-import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
+import com.keax.shared.domain.ports.out.ProjectTechnologyReferencePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ProjectStructureValidator {
 
-    private final TechnologyRepositoryPort technologyRepositoryPort;
+    private final ProjectTechnologyReferencePort projectTechnologyReferencePort;
 
     public void validate(Project project) {
         List<ProjectTechnology> technologies = project.getProjectTechnologies();
@@ -41,10 +41,11 @@ public class ProjectStructureValidator {
                 throw new ResourceConflictException("Project technology positions must be positive and unique");
             }
 
-            technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(
-                    technology.getTechnologyId(),
-                    false
-            ).orElseThrow(() -> new ResourceNotFoundException("The technology entered was not found"));
+        }
+
+        Set<Long> existingTechnologyIds = projectTechnologyReferencePort.findActiveTechnologyIds(technologyIds);
+        if (!existingTechnologyIds.containsAll(technologyIds)) {
+            throw new ResourceNotFoundException("One or more technologies were not found");
         }
 
         if (project.getProjectLinks() == null) {

@@ -17,12 +17,4 @@ public class RegisterVisitorRequestDTO {
     @Size(max = 255, message = "The visited path must not exceed 255 characters")
     private String path;
 
-    @JsonProperty("country")
-    @Size(max = 120, message = "The visitor country must not exceed 120 characters")
-    private String country;
-
-    @JsonProperty("city")
-    @Size(max = 120, message = "The visitor city must not exceed 120 characters")
-    private String city;
-
 }

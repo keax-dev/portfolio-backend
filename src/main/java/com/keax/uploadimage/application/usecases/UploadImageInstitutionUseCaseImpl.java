@@ -6,19 +6,20 @@ import com.keax.uploadimage.application.validation.ImageFileValidator;
 import com.keax.uploadimage.domain.ports.in.UploadImageInstitutionUseCase;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
-import com.keax.shared.domain.exceptions.ExternalServiceException;
+import com.keax.uploadimage.application.services.ImagePersistenceCoordinator;
+import com.keax.uploadimage.application.services.ImageCleanupProcessor;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.institution.domain.model.Institution;
 import com.keax.uploadimage.domain.model.ImageFile;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitutionUseCase {
     private final InstitutionRepositoryPort institutionRepositoryPort;
     private final ImageStoragePort imageStoragePort;
+    private final ImagePersistenceCoordinator imagePersistenceCoordinator;
+    private final ImageCleanupProcessor imageCleanupProcessor;
 
     @Override
     public Institution uploadImageInstitution(Long institutionId, ImageFile img) {
@@ -33,19 +34,23 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
         );
 
         String oldImageUrl = institution.getInstitutionUrl();
-        String newImageUrl = null;
-
+        String newImageUrl = imageStoragePort.upload(img, "Institutions");
+        institution.setInstitutionUrl(newImageUrl);
+        java.util.List<String> obsoleteUrls = oldImageUrl == null || oldImageUrl.isBlank()
+                ? java.util.List.of()
+                : java.util.List.of(oldImageUrl);
+        Institution updatedInstitution;
         try {
-            newImageUrl = imageStoragePort.upload(img, "Institutions");
-            institution.setInstitutionUrl(newImageUrl);
-
-            Institution updatedInstitution = institutionRepositoryPort.updateInstitution(institution);
-            imageStoragePort.delete(oldImageUrl);
-            return updatedInstitution;
-        } catch (Exception e) {
-            imageStoragePort.delete(newImageUrl);
-            throw new ExternalServiceException("An error occurred while uploading the institution's image", e);
+            updatedInstitution = imagePersistenceCoordinator.updateInstitution(
+                    institution,
+                    obsoleteUrls
+            );
+        } catch (RuntimeException ex) {
+            imageCleanupProcessor.deleteOrEnqueue(java.util.List.of(newImageUrl));
+            throw ex;
         }
+        imageCleanupProcessor.processQueuedUrls(obsoleteUrls);
+        return updatedInstitution;
     }
 
 }

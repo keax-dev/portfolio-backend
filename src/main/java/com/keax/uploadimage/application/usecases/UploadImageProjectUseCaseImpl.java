@@ -6,13 +6,13 @@ import com.keax.uploadimage.application.validation.ImageFileValidator;
 import com.keax.uploadimage.domain.ports.in.UploadImageProjectUseCase;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
 import com.keax.uploadimage.domain.ports.out.ImageStoragePort;
-import com.keax.shared.domain.exceptions.ExternalServiceException;
+import com.keax.uploadimage.application.services.ImagePersistenceCoordinator;
+import com.keax.uploadimage.application.services.ImageCleanupProcessor;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.uploadimage.domain.model.ImageFile;
 import com.keax.project.domain.model.ProjectImage;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.project.domain.model.Project;
 import java.util.ArrayList;
@@ -21,11 +21,12 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UploadImageProjectUseCaseImpl implements UploadImageProjectUseCase {
     private final ProjectRepositoryPort projectRepositoryPort;
     private final ImageStoragePort imageStoragePort;
+    private final ImagePersistenceCoordinator imagePersistenceCoordinator;
+    private final ImageCleanupProcessor imageCleanupProcessor;
 
     @Override
     public Project uploadProjectImages(Long projectId, List<ImageFile> images) {
@@ -52,22 +53,27 @@ public class UploadImageProjectUseCaseImpl implements UploadImageProjectUseCase 
 
         List<String> uploadedUrls = new ArrayList<>();
 
+        int nextPosition = currentImages.stream()
+                .map(ProjectImage::getPosition)
+                .max(Comparator.naturalOrder())
+                .orElse(0) + 1;
         try {
-            int nextPosition = currentImages.stream()
-                    .map(ProjectImage::getPosition)
-                    .max(Comparator.naturalOrder())
-                    .orElse(0) + 1;
-
             for (ImageFile image : images) {
                 String url = imageStoragePort.upload(image, "Projects");
                 uploadedUrls.add(url);
                 currentImages.add(new ProjectImage(null, url, nextPosition++));
             }
+        } catch (RuntimeException ex) {
+            imageCleanupProcessor.deleteOrEnqueue(uploadedUrls);
+            throw ex;
+        }
 
-            return projectRepositoryPort.updateProject(project);
-        } catch (Exception e) {
-            uploadedUrls.forEach(imageStoragePort::delete);
-            throw new ExternalServiceException("An error occurred while uploading the project's images", e);
+        project.setProjectPublished(true);
+        try {
+            return imagePersistenceCoordinator.updateProject(project, List.of());
+        } catch (RuntimeException ex) {
+            imageCleanupProcessor.deleteOrEnqueue(uploadedUrls);
+            throw ex;
         }
     }
 
@@ -87,13 +93,9 @@ public class UploadImageProjectUseCaseImpl implements UploadImageProjectUseCase 
 
         project.getProjectImages().remove(image);
 
-        try {
-            Project updatedProject = projectRepositoryPort.updateProject(project);
-            imageStoragePort.delete(image.getUrl());
-            return updatedProject;
-        } catch (Exception e) {
-            throw new ExternalServiceException("An error occurred while deleting the project's image", e);
-        }
+        Project updatedProject = imagePersistenceCoordinator.updateProject(project, List.of(image.getUrl()));
+        imageCleanupProcessor.processQueuedUrls(List.of(image.getUrl()));
+        return updatedProject;
     }
 
 }

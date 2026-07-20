@@ -1,6 +1,5 @@
 package com.keax.socialnetwork.application.usecases;
 
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
@@ -119,15 +118,14 @@ class SocialNetworkUseCasesTest {
     }
 
     @Test
-    void rejectsEmptySocialNetworkList() {
+    void returnsEmptySocialNetworkList() {
         // Arrange: no existen redes para el filtro solicitado.
         when(repository.findBySocialNetworkDeleted(false)).thenReturn(List.of());
 
-        // Act y Assert: se mantiene la alerta funcional existente.
-        assertThrows(
-                ExceptionAlert.class,
-                () -> new RetrieveSocialNetworkUseCaseImpl(repository).findBySocialNetworkDeleted(false)
-        );
+        // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
+        assertTrue(new RetrieveSocialNetworkUseCaseImpl(repository)
+                .findBySocialNetworkDeleted(false)
+                .isEmpty());
     }
 
     private SocialNetwork social(Long id, String name, int position, Boolean deleted) {

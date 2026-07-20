@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.technology.domain.ports.in.DeleteTechnologyUseCase;
-import com.keax.project.domain.ports.out.ProjectRepositoryPort;
+import com.keax.shared.domain.ports.out.ProjectTechnologyReferencePort;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.technology.domain.model.Technology;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
     private final TechnologyRepositoryPort technologyRepositoryPort;
-    private final ProjectRepositoryPort projectRepositoryPort;
+    private final ProjectTechnologyReferencePort projectTechnologyReferencePort;
 
     @Override
     public Technology deleteTechnology(Long technologyId) {
@@ -28,10 +28,7 @@ public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
                 () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
-        if (projectRepositoryPort.existsByTechnologyIdAndProjectDeleted(
-                technologyId,
-                false
-        )){
+        if (projectTechnologyReferencePort.existsActiveProjectForTechnology(technologyId)){
             throw new ResourceConflictException("Technology cannot be deleted because it has associated records");
         }
 

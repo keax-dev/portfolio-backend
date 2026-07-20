@@ -172,7 +172,7 @@ class ManagementApiIntegrationTest {
                  "position":1,"deleted":false,
                  "technologies":[{"id":%d,"position":1}],
                  "links":[{"type":"GITHUB","url":"https://github.com/keax/portfolio","position":1}]}
-                """.formatted(technologyId), token).andExpect(status().isOk());
+                """.formatted(technologyId), token).andExpect(status().isCreated());
         Long projectId = projectRepository.findAll().getFirst().getProjectId();
 
         // Assert: la tecnología referenciada no puede eliminarse.
@@ -183,7 +183,7 @@ class ManagementApiIntegrationTest {
         // Act y Assert: al borrar el proyecto se habilita el borrado lógico padre.
         mockMvc.perform(delete("/api/project/{id}", projectId)
                         .header("Authorization", bearer(token)))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
         mockMvc.perform(delete("/api/technology/{id}", technologyId)
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk())
@@ -216,7 +216,7 @@ class ManagementApiIntegrationTest {
                  "technologies":[{"id":%d,"position":1},{"id":%d,"position":2},{"id":%d,"position":3}],
                  "links":[]}
                 """.formatted(javaId, angularId, mysqlId), token)
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
         Long projectId = projectRepository.findAll().getFirst().getProjectId();
 
         performPut("/api/project/" + projectId, """

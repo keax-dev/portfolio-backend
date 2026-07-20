@@ -79,7 +79,7 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
 
         requested.getProjectLinks().forEach(link -> link.setProjectLinkId(
                 existing.getProjectLinks().stream()
-                        .filter(current -> Objects.equals(current.getProjectLinkId(), link.getProjectLinkId()))
+                        .filter(current -> Objects.equals(current.getType(), link.getType()))
                         .map(ProjectLink::getProjectLinkId)
                         .findFirst()
                         .orElse(null)

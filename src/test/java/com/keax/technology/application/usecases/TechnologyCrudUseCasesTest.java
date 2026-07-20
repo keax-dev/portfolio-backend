@@ -1,9 +1,8 @@
 package com.keax.technology.application.usecases;
 
-import com.keax.project.domain.ports.out.ProjectRepositoryPort;
-import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
+import com.keax.shared.domain.ports.out.ProjectTechnologyReferencePort;
 import com.keax.technology.domain.model.Technology;
 import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,13 +27,13 @@ import static org.mockito.Mockito.when;
 class TechnologyCrudUseCasesTest {
 
     private TechnologyRepositoryPort technologyRepository;
-    private ProjectRepositoryPort projectRepository;
+    private ProjectTechnologyReferencePort projectTechnologyReferencePort;
 
     @BeforeEach
     void setUp() {
         // Se aíslan ambos módulos mediante sus puertos públicos.
         technologyRepository = mock(TechnologyRepositoryPort.class);
-        projectRepository = mock(ProjectRepositoryPort.class);
+        projectTechnologyReferencePort = mock(ProjectTechnologyReferencePort.class);
     }
 
     @Test
@@ -92,13 +91,12 @@ class TechnologyCrudUseCasesTest {
         // Arrange: la tecnología existe y un proyecto activo la referencia.
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
                 .thenReturn(Optional.of(technology(1L, "JAVA", false)));
-        when(projectRepository.existsByTechnologyIdAndProjectDeleted(1L, false))
-                .thenReturn(true);
+        when(projectTechnologyReferencePort.existsActiveProjectForTechnology(1L)).thenReturn(true);
 
         // Act y Assert: la relación impide el borrado lógico.
         assertThrows(
                 ResourceConflictException.class,
-                () -> new DeleteTechnologyUseCaseImpl(technologyRepository, projectRepository)
+                () -> new DeleteTechnologyUseCaseImpl(technologyRepository, projectTechnologyReferencePort)
                         .deleteTechnology(1L)
         );
     }
@@ -109,24 +107,23 @@ class TechnologyCrudUseCasesTest {
         Technology stored = technology(1L, "JAVA", false);
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(projectRepository.existsByTechnologyIdAndProjectDeleted(1L, false))
-                .thenReturn(false);
+        when(projectTechnologyReferencePort.existsActiveProjectForTechnology(1L)).thenReturn(false);
         when(technologyRepository.deleteTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act y Assert: se activa el borrado lógico.
-        assertTrue(new DeleteTechnologyUseCaseImpl(technologyRepository, projectRepository)
+        assertTrue(new DeleteTechnologyUseCaseImpl(technologyRepository, projectTechnologyReferencePort)
                 .deleteTechnology(1L)
                 .getTechnologyDeleted());
     }
 
     @Test
-    void rejectsEmptyTechnologyList() {
+    void returnsEmptyTechnologyList() {
         // Arrange: el repositorio no devuelve tecnologías.
         when(technologyRepository.getListTechnology()).thenReturn(List.of());
         RetrieveTechnologyUseCaseImpl useCase = new RetrieveTechnologyUseCaseImpl(technologyRepository);
 
-        // Act y Assert: se conserva el contrato de alerta.
-        assertThrows(ExceptionAlert.class, useCase::getListTechnology);
+        // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
+        assertTrue(useCase.getListTechnology().isEmpty());
     }
 
     @Test

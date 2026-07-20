@@ -17,6 +17,8 @@ import java.util.UUID;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestCorrelationFilter extends OncePerRequestFilter {
 
+    private static final String VALID_REQUEST_ID = "[A-Za-z0-9._-]{1,64}";
+
     public static final String REQUEST_ID_HEADER = "X-Request-Id";
     public static final String REQUEST_ID_ATTRIBUTE = "requestId";
     public static final String REQUEST_ID_MDC_KEY = "requestId";
@@ -43,7 +45,7 @@ public class RequestCorrelationFilter extends OncePerRequestFilter {
     private String resolveRequestId(HttpServletRequest request) {
         String incoming = request.getHeader(REQUEST_ID_HEADER);
 
-        if (incoming != null && !incoming.isBlank()) {
+        if (incoming != null && incoming.trim().matches(VALID_REQUEST_ID)) {
             return incoming.trim();
         }
 

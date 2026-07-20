@@ -1,7 +1,6 @@
 package com.keax.project.infrastructure.out.persistence.repository;
 
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,13 +10,15 @@ import java.util.List;
 
 public interface JpaProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
-    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks", "projectImages"})
     List<ProjectEntity> findByProjectDeletedOrderByProjectPosition(Boolean deleted);
 
-    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks", "projectImages"})
+    List<ProjectEntity> findByProjectDeletedAndProjectPublishedOrderByProjectPosition(
+            Boolean deleted,
+            Boolean published
+    );
+
     Optional<ProjectEntity> findByProjectTitleAndProjectDeleted(String projectTitle, Boolean deleted);
 
-    @EntityGraph(attributePaths = {"projectTechnologies", "projectTechnologies.technology", "projectLinks", "projectImages"})
     Optional<ProjectEntity> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted);
 
     Optional<ProjectEntity> findByProjectPositionAndProjectDeleted(int position, Boolean deleted);

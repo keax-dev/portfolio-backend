@@ -23,6 +23,7 @@ public final class ProjectPersistenceMapper {
                 entity.getProjectDescriptionEs(),
                 entity.getProjectPosition(),
                 entity.getProjectDeleted(),
+                entity.getProjectPublished(),
                 entity.getProjectTechnologies().stream()
                         .map(ProjectPersistenceMapper::technologyToDomain)
                         .sorted(Comparator.comparingInt(ProjectTechnology::getPosition))
@@ -47,6 +48,7 @@ public final class ProjectPersistenceMapper {
         entity.setProjectDescriptionEs(project.getProjectDescriptionEs());
         entity.setProjectPosition(project.getProjectPosition());
         entity.setProjectDeleted(project.getProjectDeleted());
+        entity.setProjectPublished(project.getProjectPublished());
 
         project.getProjectTechnologies().forEach(technology -> entity.getProjectTechnologies().add(
                 new ProjectTechnologyEntity(

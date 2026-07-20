@@ -74,4 +74,18 @@ class RequestCorrelationFilterIntegrationTest {
                 ));
     }
 
+    @Test
+    void replacesMalformedIncomingRequestIds() throws Exception {
+        String maliciousRequestId = "invalid request id\r\nInjected: value";
+
+        MvcResult result = mockMvc.perform(get("/api/skill")
+                        .header(RequestCorrelationFilter.REQUEST_ID_HEADER, maliciousRequestId))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+        assertFalse(maliciousRequestId.equals(
+                result.getResponse().getHeader(RequestCorrelationFilter.REQUEST_ID_HEADER)
+        ));
+    }
+
 }

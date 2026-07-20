@@ -6,14 +6,13 @@ import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
-import com.keax.technology.domain.model.Technology;
-import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
+import com.keax.shared.domain.ports.out.ProjectTechnologyReferencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,17 +22,17 @@ import static org.mockito.Mockito.when;
 
 class ProjectStructureValidatorTest {
 
-    private TechnologyRepositoryPort technologyRepository;
+    private ProjectTechnologyReferencePort technologyReferencePort;
     private ProjectStructureValidator validator;
 
     @BeforeEach
     void setUp() {
-        technologyRepository = mock(TechnologyRepositoryPort.class);
-        validator = new ProjectStructureValidator(technologyRepository);
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
-                .thenReturn(Optional.of(new Technology(1L, "ANGULAR", false)));
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(2L, false))
-                .thenReturn(Optional.of(new Technology(2L, "SPRING BOOT", false)));
+        technologyReferencePort = mock(ProjectTechnologyReferencePort.class);
+        validator = new ProjectStructureValidator(technologyReferencePort);
+        when(technologyReferencePort.findActiveTechnologyIds(Set.of(1L)))
+                .thenReturn(Set.of(1L));
+        when(technologyReferencePort.findActiveTechnologyIds(Set.of(1L, 2L)))
+                .thenReturn(Set.of(1L, 2L));
     }
 
     @Test

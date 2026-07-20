@@ -19,6 +19,9 @@ import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
 import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
+import com.keax.project.infrastructure.in.web.dto.CreateProjectRequestDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectLinkRequestDTO;
+import com.keax.project.infrastructure.in.web.dto.ProjectTechnologyRequestDTO;
 import com.keax.project.infrastructure.out.persistence.mapper.ProjectPersistenceMapper;
 import com.keax.shared.domain.exceptions.ExceptionMessage;
 import com.keax.skill.domain.model.Skill;
@@ -43,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -109,7 +113,22 @@ class MapperContractsTest {
         Education educationResult = EducationWebMapper.toDomain(
                 EducationWebMapper.fromDomain(education)
         );
-        Project projectResult = ProjectWebMapper.toDomain(ProjectWebMapper.fromDomain(project));
+        CreateProjectRequestDTO projectRequest = new CreateProjectRequestDTO();
+        projectRequest.setProjectTitle(project.getProjectTitle());
+        projectRequest.setProjectTitleEs(project.getProjectTitleEs());
+        projectRequest.setProjectDescription(project.getProjectDescription());
+        projectRequest.setProjectDescriptionEs(project.getProjectDescriptionEs());
+        projectRequest.setProjectPosition(project.getProjectPosition());
+        ProjectTechnologyRequestDTO technologyRequest = new ProjectTechnologyRequestDTO();
+        technologyRequest.setTechnologyId(10L);
+        technologyRequest.setPosition(1);
+        projectRequest.setTechnologies(List.of(technologyRequest));
+        ProjectLinkRequestDTO linkRequest = new ProjectLinkRequestDTO();
+        linkRequest.setType(ProjectLinkType.DEPLOY);
+        linkRequest.setUrl("https://deploy.example");
+        linkRequest.setPosition(1);
+        projectRequest.setLinks(List.of(linkRequest));
+        Project projectResult = ProjectWebMapper.toDomain(projectRequest);
         Technology technologyResult = TechnologyWebMapper.toDomain(
                 TechnologyWebMapper.fromDomain(technology)
         );
@@ -118,6 +137,7 @@ class MapperContractsTest {
         assertEquals(20L, educationResult.getInstitutionId());
         assertEquals(10L, projectResult.getProjectTechnologies().getFirst().getTechnologyId());
         assertEquals(ProjectLinkType.DEPLOY, projectResult.getProjectLinks().getFirst().getType());
+        assertTrue(projectResult.getProjectImages().isEmpty());
         assertEquals(10L, technologyResult.getTechnologyId());
     }
 

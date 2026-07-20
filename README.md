@@ -233,8 +233,10 @@ El backend usa variables para:
 - Cloudinary
 - Correo SMTP
 - JWT
-- Rate limiting de contacto
-- Deduplicación de visitantes
+- Rate limiting de contacto y autenticación
+- Deduplicación y anonimización de visitantes
+- Proxies confiables para resolver la IP del cliente
+- Reintentos de limpieza de imágenes externas
 
 La plantilla base está en:
 
@@ -252,8 +254,9 @@ Migraciones actuales:
 - `src/main/java/db/migration/V4__project_images.java`
 - `src/main/resources/db/migration/V5__drop_technology_position.sql`
 - `src/main/resources/db/migration/V6__profile_bilingual_cv.sql`
+- `src/main/java/db/migration/V7__harden_integrity_and_assets.java`
 
-Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías y agregan el CV bilingüe al perfil.
+Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías, agregan el CV bilingüe y endurecen restricciones, publicación de proyectos, privacidad de visitantes y limpieza diferida de recursos externos.
 
 Configuración relevante:
 
@@ -306,6 +309,7 @@ Ese comando cubre:
 - Pruebas de arquitectura
 - Reporte JaCoCo
 - Validación de cobertura mínima
+- Análisis estático SpotBugs con umbral medio
 
 ### Tipos de pruebas que ya existen
 
@@ -348,7 +352,9 @@ Características de la imagen:
 
 - Instala `curl` para healthchecks internos,
 - Expone `8080`,
-- Permite inyectar `JAVA_OPTS`,
+- Permite inyectar opciones mediante `JAVA_TOOL_OPTIONS`,
+- Ejecuta con el usuario no privilegiado `app`,
+- Aprovecha la caché BuildKit de Maven,
 - Usa `/actuator/health` como healthcheck del contenedor.
 
 Build local de ejemplo:
@@ -406,6 +412,7 @@ Qué hace:
 - Corre en `pull_request` hacia `main`
 - Ejecuta `./mvnw -B verify`
 - Valida que la imagen Docker del backend construya correctamente
+- Bloquea vulnerabilidades altas o críticas detectadas en la imagen
 - Sube artefactos de pruebas si algo falla
 
 ### 2. Deploy Prod

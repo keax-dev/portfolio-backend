@@ -6,15 +6,12 @@ import com.keax.uploadimage.domain.model.ImageFile;
 import org.springframework.stereotype.Component;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.Cloudinary;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class CloudinaryImageStorageAdapter implements ImageStoragePort {
 
-    private static final Logger log = LoggerFactory.getLogger(CloudinaryImageStorageAdapter.class);
     private static final String UPLOAD_PATH = "/upload/";
 
     private final Cloudinary cloudinary;
@@ -44,7 +41,7 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
         try {
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
         } catch (Exception ex) {
-            log.warn("Image cleanup failed for stored asset. imageUrl={}", imageUrl, ex);
+            throw new ExternalServiceException("Image storage cleanup is not available", ex);
         }
     }
 

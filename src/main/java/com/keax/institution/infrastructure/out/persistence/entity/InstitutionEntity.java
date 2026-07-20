@@ -25,7 +25,7 @@ public class InstitutionEntity {
     @Column(name = "institution_name_es")
     private String institutionNameEs;
 
-    @Column(name = "institution_url")
+    @Column(name = "institution_url", length = 2048)
     private String institutionUrl;
 
     @Column(name = "institution_deleted", nullable = false)

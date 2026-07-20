@@ -11,6 +11,8 @@ import com.keax.project.domain.ports.in.DeleteProjectUseCase;
 import com.keax.project.domain.ports.in.UpdateProjectUseCase;
 import com.keax.shared.infrastructure.in.web.dto.ApiResponseDTO;
 import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
+import com.keax.project.infrastructure.in.web.dto.CreateProjectRequestDTO;
+import com.keax.project.infrastructure.in.web.dto.UpdateProjectRequestDTO;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/project")
@@ -31,20 +34,21 @@ public class ProjectController {
     private final DeleteProjectUseCase deleteProjectUseCase;
 
     @PostMapping
-    public ResponseEntity<ApiResponseDTO<ProjectDTO>> create(@Valid @RequestBody ProjectDTO project) {
+    public ResponseEntity<ApiResponseDTO<ProjectDTO>> create(@Valid @RequestBody CreateProjectRequestDTO project) {
+        ProjectDTO createdProject = ProjectWebMapper.fromDomain(
+                createProjectUseCase.createProject(ProjectWebMapper.toDomain(project))
+        );
         ApiResponseDTO<ProjectDTO> response = new ApiResponseDTO<>(
                 true,
                 "The project was created successfully",
-                ProjectWebMapper.fromDomain(
-                        createProjectUseCase.createProject(ProjectWebMapper.toDomain(project))
-                )
+                createdProject
         );
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.created(URI.create("/api/project/" + createdProject.getProjectId())).body(response);
     }
 
     @PutMapping("/{projectId}")
-    public ResponseEntity<ApiResponseDTO<ProjectDTO>> update(@PathVariable Long projectId, @Valid @RequestBody ProjectDTO project) {
+    public ResponseEntity<ApiResponseDTO<ProjectDTO>> update(@PathVariable Long projectId, @Valid @RequestBody UpdateProjectRequestDTO project) {
         ApiResponseDTO<ProjectDTO> response = new ApiResponseDTO<>(
                 true,
                 "The project was successfully updated",
@@ -68,16 +72,9 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<ApiResponseDTO<ProjectDTO>> delete(@PathVariable Long projectId) {
+    public ResponseEntity<Void> delete(@PathVariable Long projectId) {
         deleteProjectUseCase.deleteProject(projectId);
-
-        ApiResponseDTO<ProjectDTO> response = new ApiResponseDTO<>(
-                true,
-                "The project was successfully deleted",
-                null
-        );
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
 }

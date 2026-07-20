@@ -233,8 +233,10 @@ The backend uses environment variables for:
 - Cloudinary
 - SMTP mail
 - JWT
-- Contact rate limiting
-- Visitor deduplication.
+- Contact and login rate limiting
+- Visitor deduplication and anonymization
+- Trusted proxies for client IP resolution
+- Deferred external-image cleanup retries.
 
 The base template lives in:
 
@@ -252,8 +254,9 @@ Current migrations:
 - `src/main/java/db/migration/V4__project_images.java`
 - `src/main/resources/db/migration/V5__drop_technology_position.sql`
 - `src/main/resources/db/migration/V6__profile_bilingual_cv.sql`
+- `src/main/java/db/migration/V7__harden_integrity_and_assets.java`
 
-These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, remove the global technology catalog position, and add bilingual CV support to the profile.
+These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, remove the global technology catalog position, add bilingual CV support, and harden constraints, project publication, visitor privacy, and deferred external-resource cleanup.
 
 Relevant configuration:
 
@@ -306,6 +309,7 @@ That command covers:
 - Architecture tests
 - JaCoCo reporting
 - Minimum coverage enforcement.
+- SpotBugs static analysis with a medium-severity threshold.
 
 ### Test types already present
 
@@ -348,7 +352,9 @@ Image characteristics:
 
 - Installs `curl` for internal healthchecks
 - Exposes `8080`
-- Allows `JAVA_OPTS` injection
+- Accepts JVM options through `JAVA_TOOL_OPTIONS`
+- Runs as the unprivileged `app` user
+- Uses a BuildKit Maven cache
 - Uses `/actuator/health` as the container healthcheck.
 
 Example local build:
@@ -406,6 +412,7 @@ What it does:
 - Runs on `pull_request` targeting `main`
 - Executes `./mvnw -B verify`
 - Validates that the backend Docker image can be built
+- Fails on high or critical vulnerabilities found in the image
 - Uploads test artifacts if something fails
 
 ### 2. Deploy Prod

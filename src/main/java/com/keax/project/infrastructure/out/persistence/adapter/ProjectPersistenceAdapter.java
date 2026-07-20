@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.keax.project.domain.model.Project;
 import java.util.Optional;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    @Transactional
     public Project updateProject(Project project) {
         jpaProjectRepository.stageProjectTechnologyPositions(project.getProjectId());
         jpaProjectRepository.stageProjectLinkPositions(project.getProjectId());
@@ -43,13 +45,19 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Project> findByProjectDeleted(Boolean deleted) {
-        return jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(deleted).stream()
+        List<ProjectEntity> projects = Boolean.FALSE.equals(deleted)
+                ? jpaProjectRepository.findByProjectDeletedAndProjectPublishedOrderByProjectPosition(false, true)
+                : jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(deleted);
+
+        return projects.stream()
                 .map(ProjectPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Project> getListProject() {
         return jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(false).stream()
                 .map(ProjectPersistenceMapper::toDomain)
@@ -57,6 +65,7 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Project> findByProjectTitleAndProjectDeleted(String projectTitle, Boolean deleted) {
         return jpaProjectRepository.findByProjectTitleAndProjectDeleted(
                 projectTitle,
@@ -65,6 +74,7 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Project> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted) {
         return jpaProjectRepository.findByProjectIdAndProjectDeleted(
                 projectId,

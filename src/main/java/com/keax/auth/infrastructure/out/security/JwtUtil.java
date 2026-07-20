@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.Date;
 
 @Component
-public class JwtUtil implements TokenProviderPort {
+public final class JwtUtil implements TokenProviderPort {
 
     private final SecretKey signingKey;
     private final long expirationMs;
