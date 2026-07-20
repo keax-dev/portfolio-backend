@@ -73,7 +73,7 @@ jobs:
       # Si falla Maven, sube reportes para analizar la causa desde GitHub Actions.
       - name: Subir reportes de pruebas si falla
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-test-reports
           path: |
