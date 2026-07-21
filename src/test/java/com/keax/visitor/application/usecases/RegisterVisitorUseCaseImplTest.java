@@ -75,6 +75,30 @@ class RegisterVisitorUseCaseImplTest {
     }
 
     @Test
+    void ignoresOwnerIpRangeBeforeDeduplication() {
+        // Arrange: la IP pertenece al rango propio excluido del dashboard.
+        VisitorRepositoryPort repository = mock(VisitorRepositoryPort.class);
+        RegisterVisitorUseCaseImpl useCase = useCase(repository, 30);
+        Visitor incoming = new Visitor(
+                null,
+                "45.70.58.27",
+                "Ecuador",
+                "Quito",
+                "JUnit",
+                "/",
+                null
+        );
+
+        // Act: se intenta registrar la visita propia.
+        Optional<Visitor> result = useCase.registerVisitor(incoming);
+
+        // Assert: no consulta ni persiste datos para esa IP.
+        assertTrue(result.isEmpty());
+        verify(repository, never()).findLatestByVisitorIp(any());
+        verify(repository, never()).saveVisitor(any());
+    }
+
+    @Test
     void rejectsNegativeDeduplicationWindow() {
         // Act y Assert: una configuracion negativa falla de forma temprana.
         assertThrows(

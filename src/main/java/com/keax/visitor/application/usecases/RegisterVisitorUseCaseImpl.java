@@ -15,6 +15,8 @@ import java.util.Optional;
 @Transactional
 public class RegisterVisitorUseCaseImpl implements RegisterVisitorUseCase {
 
+    private static final String EXCLUDED_VISITOR_IP_PREFIX = "45.70.58.";
+
     private final VisitorRepositoryPort visitorRepositoryPort;
     private final long dedupeWindowMinutes;
     private final Clock clock;
@@ -36,6 +38,10 @@ public class RegisterVisitorUseCaseImpl implements RegisterVisitorUseCase {
 
     @Override
     public Optional<Visitor> registerVisitor(Visitor visitor) {
+        if (isExcludedVisitorIp(visitor.getVisitorIp())) {
+            return Optional.empty();
+        }
+
         Instant now = clock.instant();
         Instant dedupeLimit = now.minus(Duration.ofMinutes(dedupeWindowMinutes));
 
@@ -51,6 +57,10 @@ public class RegisterVisitorUseCaseImpl implements RegisterVisitorUseCase {
         visitor.setVisitorVisitedAt(now);
 
         return Optional.of(visitorRepositoryPort.saveVisitor(visitor));
+    }
+
+    private boolean isExcludedVisitorIp(String ipAddress) {
+        return ipAddress != null && ipAddress.startsWith(EXCLUDED_VISITOR_IP_PREFIX);
     }
 
 }

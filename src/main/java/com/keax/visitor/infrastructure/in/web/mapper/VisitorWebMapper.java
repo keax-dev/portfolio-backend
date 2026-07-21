@@ -19,8 +19,8 @@ public final class VisitorWebMapper {
         return new Visitor(
                 null,
                 ipAddress,
-                null,
-                null,
+                trimToLength(dto == null ? null : dto.getCountry(), 120),
+                trimToLength(dto == null ? null : dto.getCity(), 120),
                 trimToLength(userAgent, 500),
                 trimToLength(dto == null ? null : dto.getPath(), 255),
                 null
@@ -30,7 +30,7 @@ public final class VisitorWebMapper {
     public static VisitorDTO fromDomain(Visitor visitor) {
         return new VisitorDTO(
                 visitor.getVisitorId(),
-                protectedIdentity(visitor.getVisitorIp()),
+                displayIdentity(visitor.getVisitorIp()),
                 visitor.getVisitorCountry(),
                 visitor.getVisitorCity(),
                 visitor.getVisitorUserAgent(),
@@ -77,14 +77,14 @@ public final class VisitorWebMapper {
         return trimmed.substring(0, maxLength);
     }
 
-    private static String protectedIdentity(String identity) {
+    private static String displayIdentity(String identity) {
         if (identity == null || identity.isBlank()) {
             return null;
         }
         if (identity.matches("[0-9a-f]{64}")) {
             return identity.substring(0, 12) + "...";
         }
-        return "legacy-redacted";
+        return identity;
     }
 
 }

@@ -3,7 +3,6 @@ package com.keax.visitor.infrastructure.in.web.controller;
 import com.keax.visitor.infrastructure.in.web.dto.RegisterVisitorRequestDTO;
 import com.keax.visitor.infrastructure.in.web.dto.VisitorDashboardDTO;
 import com.keax.shared.infrastructure.in.web.client.ClientIpResolver;
-import com.keax.shared.infrastructure.in.web.client.ClientIdentityHasher;
 import com.keax.visitor.infrastructure.in.web.mapper.VisitorWebMapper;
 import com.keax.visitor.domain.ports.in.RegisterVisitorUseCase;
 import com.keax.visitor.infrastructure.in.web.dto.VisitorDTO;
@@ -31,18 +30,15 @@ public class VisitorController {
     private final RegisterVisitorUseCase registerVisitorUseCase;
     private final RetrieveVisitorUseCase retrieveVisitorUseCase;
     private final ClientIpResolver clientIpResolver;
-    private final ClientIdentityHasher clientIdentityHasher;
 
     public VisitorController(
             RegisterVisitorUseCase registerVisitorUseCase,
             RetrieveVisitorUseCase retrieveVisitorUseCase,
-            ClientIpResolver clientIpResolver,
-            ClientIdentityHasher clientIdentityHasher
+            ClientIpResolver clientIpResolver
     ) {
         this.registerVisitorUseCase = registerVisitorUseCase;
         this.retrieveVisitorUseCase = retrieveVisitorUseCase;
         this.clientIpResolver = clientIpResolver;
-        this.clientIdentityHasher = clientIdentityHasher;
     }
 
     @PostMapping
@@ -50,10 +46,10 @@ public class VisitorController {
             @Valid @RequestBody(required = false) RegisterVisitorRequestDTO requestDTO,
             HttpServletRequest request
     ) {
-        String clientIdentity = clientIdentityHasher.hash(clientIpResolver.resolve(request));
+        String visitorIp = resolveVisitorIp(requestDTO, request);
 
         ApiResponseDTO<VisitorDTO> response = registerVisitorUseCase.registerVisitor(
-                        VisitorWebMapper.toDomain(requestDTO, clientIdentity, request.getHeader("User-Agent"))
+                        VisitorWebMapper.toDomain(requestDTO, visitorIp, request.getHeader("User-Agent"))
                 )
                 .map(visitor -> new ApiResponseDTO<>(
                         true,
@@ -115,6 +111,11 @@ public class VisitorController {
     }
 
     private record DateRange(Instant startAt, Instant endAt) {
+    }
+
+    private String resolveVisitorIp(RegisterVisitorRequestDTO requestDTO, HttpServletRequest request) {
+        String payloadIp = requestDTO == null ? null : clientIpResolver.normalize(requestDTO.getIp());
+        return payloadIp == null ? clientIpResolver.resolve(request) : payloadIp;
     }
 
 }
