@@ -13,8 +13,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegisterVisitorRequestDTO {
 
+    @JsonProperty("ip")
+    @Size(max = 45, message = "The visitor IP must not exceed 45 characters")
+    private String ip;
+
     @JsonProperty("path")
     @Size(max = 255, message = "The visited path must not exceed 255 characters")
     private String path;
+
+    @JsonProperty("country")
+    @Size(max = 120, message = "The visitor country must not exceed 120 characters")
+    private String country;
+
+    @JsonProperty("city")
+    @Size(max = 120, message = "The visitor city must not exceed 120 characters")
+    private String city;
 
 }

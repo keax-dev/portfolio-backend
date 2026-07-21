@@ -49,7 +49,10 @@ class VisitorApiIntegrationTest {
         // Arrange: se crea una peticion anonima similar a la enviada por el frontend.
         String body = """
                 {
-                  "path": "/portfolio"
+                  "ip": "203.0.113.10",
+                  "path": "/portfolio",
+                  "country": "Ecuador",
+                  "city": "Quito"
                 }
                 """;
 
@@ -64,12 +67,32 @@ class VisitorApiIntegrationTest {
                         .content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(true))
-                .andExpect(jsonPath("$.data.ip").value(
-                        org.hamcrest.Matchers.matchesPattern("[0-9a-f]{12}\\.\\.\\.")
-                ))
-                .andExpect(jsonPath("$.data.country").doesNotExist())
-                .andExpect(jsonPath("$.data.city").doesNotExist())
+                .andExpect(jsonPath("$.data.ip").value("203.0.113.10"))
+                .andExpect(jsonPath("$.data.country").value("Ecuador"))
+                .andExpect(jsonPath("$.data.city").value("Quito"))
                 .andExpect(jsonPath("$.data.path").value("/portfolio"));
+    }
+
+    @Test
+    void ignoresOwnerVisitorIpRange() throws Exception {
+        // Arrange: se recibe una visita desde el rango propio que no debe contaminar metricas.
+        String body = """
+                {
+                  "ip": "45.70.58.27",
+                  "path": "/portfolio",
+                  "country": "Ecuador",
+                  "city": "Quito"
+                }
+                """;
+
+        // Act y Assert: el endpoint responde OK, pero no devuelve visita persistida.
+        mockMvc.perform(post("/api/visitor")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("User-Agent", "JUnit")
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(true))
+                .andExpect(jsonPath("$.data").doesNotExist());
     }
 
     @Test

@@ -37,7 +37,7 @@ public final class ClientIpResolver {
     }
 
     public String resolve(HttpServletRequest request) {
-        String remoteAddress = normalizeIp(request.getRemoteAddr());
+        String remoteAddress = normalize(request.getRemoteAddr());
         if (!trustForwardedHeaders || !isTrustedProxy(remoteAddress)) {
             return remoteAddress;
         }
@@ -59,7 +59,7 @@ public final class ClientIpResolver {
                 .map(String::trim)
                 .filter(this::hasText)
                 .filter(value -> !"unknown".equalsIgnoreCase(value))
-                .map(this::normalizeIp)
+                .map(this::normalize)
                 .filter(this::hasText)
                 .findFirst()
                 .orElse(null);
@@ -77,13 +77,13 @@ public final class ClientIpResolver {
         Arrays.stream(value.split(","))
                 .map(String::trim)
                 .filter(this::hasText)
-                .map(this::normalizeIp)
+                .map(this::normalize)
                 .filter(this::hasText)
                 .forEach(proxies::add);
         return proxies;
     }
 
-    private String normalizeIp(String value) {
+    public String normalize(String value) {
         if (!hasText(value) || value.length() > 45 || !value.matches("[0-9a-fA-F:.]+")) {
             return null;
         }
