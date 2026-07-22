@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 # Etapa 1: compilar la aplicacion Spring Boot y generar el jar listo para produccion.
-FROM maven:3.9.11-eclipse-temurin-21 AS build
+FROM maven:3.9.15-eclipse-temurin-26 AS build
 
 # Carpeta de trabajo comun para toda la etapa de build.
 WORKDIR /app
