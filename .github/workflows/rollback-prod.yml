@@ -31,7 +31,7 @@ jobs:
     steps:
       # Descarga el repositorio para reutilizar el compose de produccion versionado.
       - name: Descargar el codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Asegura la carpeta local de despliegue donde vive el backend dockerizado.
       - name: Preparar carpeta de despliegue
