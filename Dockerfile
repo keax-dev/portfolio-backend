@@ -23,7 +23,7 @@ COPY src src
 RUN --mount=type=cache,target=/root/.m2 ./mvnw -B clean package -DskipTests
 
 # Etapa 2: imagen ligera de ejecucion solamente con JRE.
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:25-jre-jammy
 
 # Instala curl para el healthcheck del contenedor.
 RUN apt-get update \
