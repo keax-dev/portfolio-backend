@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Verifies global project ordering and technology guards through the join table. */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class JpaProjectRepositoryIntegrationTest {
 

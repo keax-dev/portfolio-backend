@@ -179,7 +179,7 @@ Relevant files:
 
 - `src/main/resources/application.properties`: base configuration expressed through environment variables.
 - `src/main/resources/application-dev.properties`: imports `.env.dev`.
-- `src/main/resources/application-prod.properties`: imports `.env`.
+- `src/main/resources/application-prod.properties`: imports `.env` and disables OpenAPI/Swagger.
 - `.env.example`: reference template for real environment files.
 - `.env.dev`: local development values.
 - `.env`: production values when the backend runs with the `prod` profile.
@@ -273,13 +273,15 @@ This allows you to:
 
 ### Swagger UI
 
-With the application running:
+With the application running under the `dev` profile:
 
 - `http://localhost:8080/swagger-ui.html`
 
 ### OpenAPI JSON
 
 - `http://localhost:8080/v3/api-docs`
+
+OpenAPI and Swagger UI remain disabled under the `prod` profile; `docker-compose.prod.yml` also enforces this policy.
 
 ### Actuator
 

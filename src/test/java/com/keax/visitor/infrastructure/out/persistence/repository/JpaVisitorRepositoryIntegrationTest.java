@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Integra Spring Data JPA con H2 en modo PostgreSQL para verificar el rango,
  * visitantes unicos y agregaciones geograficas del repositorio de visitas.
  */
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class JpaVisitorRepositoryIntegrationTest {
 
