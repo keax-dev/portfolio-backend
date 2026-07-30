@@ -2,6 +2,7 @@ package com.keax.auth.infrastructure.out.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import com.keax.auth.domain.ports.out.TokenProviderPort;
+import com.keax.auth.domain.ports.out.TokenVerifierPort;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.JwtException;
@@ -11,9 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
-public final class JwtUtil implements TokenProviderPort {
+public final class JwtUtil implements TokenProviderPort, TokenVerifierPort {
 
     private final SecretKey signingKey;
     private final long expirationMs;
@@ -68,6 +70,16 @@ public final class JwtUtil implements TokenProviderPort {
         } catch (JwtException | IllegalArgumentException ex) {
             return false;
         }
+    }
+
+    @Override
+    public Optional<String> extractSubject(String token) {
+        if (!validateToken(token)) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(extractUsername(token))
+                .filter(subject -> !subject.isBlank());
     }
 
 }

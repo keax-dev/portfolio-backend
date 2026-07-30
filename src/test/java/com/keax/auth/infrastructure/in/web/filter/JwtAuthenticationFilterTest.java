@@ -1,6 +1,6 @@
 package com.keax.auth.infrastructure.in.web.filter;
 
-import com.keax.auth.infrastructure.out.security.JwtUtil;
+import com.keax.auth.domain.ports.out.TokenVerifierPort;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -43,7 +44,7 @@ class JwtAuthenticationFilterTest {
 
         // Assert: no consulta JWT y siempre continúa la cadena.
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-        verify(fixture.jwtUtil, never()).validateToken(org.mockito.ArgumentMatchers.any());
+        verify(fixture.tokenVerifier, never()).extractSubject(org.mockito.ArgumentMatchers.any());
         verify(fixture.chain).doFilter(fixture.request, fixture.response);
     }
 
@@ -52,7 +53,7 @@ class JwtAuthenticationFilterTest {
         // Arrange: existe Bearer, pero su firma o expiración no es válida.
         Fixture fixture = fixture();
         when(fixture.request.getHeader("Authorization")).thenReturn("Bearer invalid");
-        when(fixture.jwtUtil.validateToken("invalid")).thenReturn(false);
+        when(fixture.tokenVerifier.extractSubject("invalid")).thenReturn(Optional.empty());
 
         // Act: se procesa la solicitud.
         fixture.filter.doFilterInternal(fixture.request, fixture.response, fixture.chain);
@@ -67,8 +68,7 @@ class JwtAuthenticationFilterTest {
         // Arrange: token válido y usuario existente.
         Fixture fixture = fixture();
         when(fixture.request.getHeader("Authorization")).thenReturn("Bearer valid");
-        when(fixture.jwtUtil.validateToken("valid")).thenReturn(true);
-        when(fixture.jwtUtil.extractUsername("valid")).thenReturn("admin");
+        when(fixture.tokenVerifier.extractSubject("valid")).thenReturn(Optional.of("admin"));
         when(fixture.userDetailsService.loadUserByUsername("admin"))
                 .thenReturn(new User("admin", "password", List.of()));
 
@@ -88,8 +88,7 @@ class JwtAuthenticationFilterTest {
         // Arrange: el JWT es válido, pero el usuario fue eliminado.
         Fixture fixture = fixture();
         when(fixture.request.getHeader("Authorization")).thenReturn("Bearer valid");
-        when(fixture.jwtUtil.validateToken("valid")).thenReturn(true);
-        when(fixture.jwtUtil.extractUsername("valid")).thenReturn("deleted-user");
+        when(fixture.tokenVerifier.extractSubject("valid")).thenReturn(Optional.of("deleted-user"));
         when(fixture.userDetailsService.loadUserByUsername("deleted-user"))
                 .thenThrow(new UsernameNotFoundException("missing"));
 
@@ -104,11 +103,11 @@ class JwtAuthenticationFilterTest {
     private Fixture fixture() {
         // Agrupa todos los colaboradores necesarios para cada escenario.
         UserDetailsService userDetailsService = mock(UserDetailsService.class);
-        JwtUtil jwtUtil = mock(JwtUtil.class);
+        TokenVerifierPort tokenVerifier = mock(TokenVerifierPort.class);
         return new Fixture(
-                new JwtAuthenticationFilter(userDetailsService, jwtUtil),
+                new JwtAuthenticationFilter(userDetailsService, tokenVerifier),
                 userDetailsService,
-                jwtUtil,
+                tokenVerifier,
                 mock(HttpServletRequest.class),
                 mock(HttpServletResponse.class),
                 mock(FilterChain.class)
@@ -118,7 +117,7 @@ class JwtAuthenticationFilterTest {
     private record Fixture(
             JwtAuthenticationFilter filter,
             UserDetailsService userDetailsService,
-            JwtUtil jwtUtil,
+            TokenVerifierPort tokenVerifier,
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain
