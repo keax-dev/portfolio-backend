@@ -19,5 +19,29 @@ public class Profile {
     private String profileCv;
     private String profileCvEs;
     private String profilePicture;
+    private Long version;
+
+    public Profile(
+            Long profileId,
+            String profileName,
+            String profileLastName,
+            String profileTitle,
+            String profileTitleEs,
+            String profileCv,
+            String profileCvEs,
+            String profilePicture
+    ) {
+        this(
+                profileId,
+                profileName,
+                profileLastName,
+                profileTitle,
+                profileTitleEs,
+                profileCv,
+                profileCvEs,
+                profilePicture,
+                null
+        );
+    }
 
 }

@@ -14,7 +14,8 @@ public final class ProfileWebMapper {
                 dto.getProfileTitleEs(),
                 dto.getProfileCv(),
                 dto.getProfileCvEs(),
-                dto.getProfilePicture()
+                dto.getProfilePicture(),
+                null
         );
     }
 

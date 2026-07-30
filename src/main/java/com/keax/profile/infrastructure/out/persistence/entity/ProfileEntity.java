@@ -40,4 +40,31 @@ public class ProfileEntity {
     @Column(name = "profile_picture", length = 2048)
     private String profilePicture;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    public ProfileEntity(
+            Long profileId,
+            String profileName,
+            String profileLastName,
+            String profileTitle,
+            String profileTitleEs,
+            String profileCv,
+            String profileCvEs,
+            String profilePicture
+    ) {
+        this(
+                profileId,
+                profileName,
+                profileLastName,
+                profileTitle,
+                profileTitleEs,
+                profileCv,
+                profileCvEs,
+                profilePicture,
+                null
+        );
+    }
+
 }

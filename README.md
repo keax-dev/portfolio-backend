@@ -48,7 +48,7 @@ Rutas principales:
 
 - CRUD de perfil con CV bilingüe mediante los campos `cv` y `cv_es`.
 - CRUD de educación.
-- CRUD de cursos y certificados asociados a instituciones, con nombre en español e inglés, imagen y URL pública opcional.
+- CRUD de cursos y certificados asociados a instituciones, con nombre en español e inglés, posición de visualización, imagen y URL pública opcional.
 - CRUD de instituciones.
 - CRUD de habilidades.
 - CRUD de tecnologías por nombre, sin una posición global en el catálogo.
@@ -260,8 +260,9 @@ Migraciones actuales:
 - `src/main/resources/db/migration/V8__soft_delete_defaults.sql`
 - `src/main/resources/db/migration/V9__courses.sql`
 - `src/main/resources/db/migration/V10__course_bilingual_name_and_certificate_links.sql`
+- `src/main/resources/db/migration/V11__course_position.sql`
 
-Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías, agregan el CV bilingüe, incorporan cursos bilingües vinculados a instituciones, separan la imagen del certificado de su URL pública opcional y endurecen restricciones, publicación de proyectos, privacidad de visitantes y limpieza diferida de recursos externos.
+Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías, agregan el CV bilingüe, incorporan cursos bilingües y ordenables vinculados a instituciones, separan la imagen del certificado de su URL pública opcional y endurecen restricciones, publicación de proyectos, privacidad de visitantes y limpieza diferida de recursos externos.
 
 Las entidades administrativas usan `@SQLDelete` y `@SQLRestriction`: un `delete()` de JPA actualiza el indicador `deleted`, conserva la fila y excluye automáticamente los registros eliminados de las consultas ordinarias.
 

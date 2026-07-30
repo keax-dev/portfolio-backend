@@ -14,6 +14,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -122,6 +123,24 @@ public class GlobalExceptionHandler {
         List<String> messages = List.of("The requested operation conflicts with persisted data");
         logClientError(HttpStatus.CONFLICT, request, "Data integrity error", messages, ex);
         return errorResponse(HttpStatus.CONFLICT, "Data integrity error", messages);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponseDTO<Object>> handleOptimisticLockingFailure(
+            ObjectOptimisticLockingFailureException ex,
+            HttpServletRequest request
+    ) {
+        List<String> messages = List.of(
+                "The resource was modified by another request. Reload it and try again"
+        );
+        logClientError(
+                HttpStatus.CONFLICT,
+                request,
+                "Concurrent modification",
+                messages,
+                ex
+        );
+        return errorResponse(HttpStatus.CONFLICT, "Concurrent modification", messages);
     }
 
     @ExceptionHandler(RateLimitExceededException.class)
