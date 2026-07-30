@@ -38,10 +38,10 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
 
     @Override
     public Project deleteProject(Project project) {
-        ProjectEntity deleted = jpaProjectRepository.save(
-                ProjectPersistenceMapper.toEntity(project)
-        );
-        return ProjectPersistenceMapper.toDomain(deleted);
+        jpaProjectRepository.deleteById(project.getProjectId());
+        jpaProjectRepository.flush();
+        project.setProjectDeleted(true);
+        return project;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     @Override
     @Transactional(readOnly = true)
     public List<Project> getListProject() {
-        return jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(false).stream()
+        return jpaProjectRepository.findAllByOrderByProjectPosition().stream()
                 .map(ProjectPersistenceMapper::toDomain)
                 .toList();
     }

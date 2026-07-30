@@ -25,8 +25,6 @@ public class DeleteSkillUseCaseImpl implements DeleteSkillUseCase {
                 () -> new ResourceNotFoundException("The skill entered was not found")
         );
 
-        skill.setSkillDeleted(true);
-
         return skillRepositoryPort.deleteSkill(skill);
     }
 

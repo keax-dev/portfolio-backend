@@ -110,7 +110,11 @@ class InstitutionUseCasesTest {
         when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
         when(institutionReferencePort.existsActiveEducationForInstitution(1L)).thenReturn(false);
-        when(institutionRepository.deleteInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(institutionRepository.deleteInstitution(any())).thenAnswer(invocation -> {
+            Institution deleted = invocation.getArgument(0);
+            deleted.setInstitutionDeleted(true);
+            return deleted;
+        });
         DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
                 institutionRepository,
                 institutionReferencePort

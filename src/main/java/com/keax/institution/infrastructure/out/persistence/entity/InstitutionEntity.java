@@ -5,9 +5,13 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "institution")
+@SQLDelete(sql = "UPDATE institution SET institution_deleted = true WHERE institution_id = ?")
+@SQLRestriction("institution_deleted = false")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,6 +33,6 @@ public class InstitutionEntity {
     private String institutionUrl;
 
     @Column(name = "institution_deleted", nullable = false)
-    private Boolean institutionDeleted;
+    private Boolean institutionDeleted = false;
 
 }

@@ -140,7 +140,11 @@ class ProjectUseCasesTest {
         Project stored = project(1L, "PORTFOLIO", "PORTAFOLIO", 1, false, 10L);
         when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(projectRepository.deleteProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(projectRepository.deleteProject(any())).thenAnswer(invocation -> {
+            Project deleted = invocation.getArgument(0);
+            deleted.setProjectDeleted(true);
+            return deleted;
+        });
 
         // Act y Assert: se marca como eliminado sin borrado físico.
         assertTrue(new DeleteProjectUseCaseImpl(projectRepository)

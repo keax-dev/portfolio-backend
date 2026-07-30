@@ -109,7 +109,11 @@ class SocialNetworkUseCasesTest {
         SocialNetwork stored = social(1L, "GITHUB", 1, false);
         when(repository.findBySocialNetworkIdAndSocialNetworkDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(repository.deleteSocialNetwork(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.deleteSocialNetwork(any())).thenAnswer(invocation -> {
+            SocialNetwork deleted = invocation.getArgument(0);
+            deleted.setSocialNetworkDeleted(true);
+            return deleted;
+        });
 
         // Act y Assert: el registro queda marcado como eliminado.
         assertTrue(new DeleteSocialNetworkUseCaseImpl(repository)

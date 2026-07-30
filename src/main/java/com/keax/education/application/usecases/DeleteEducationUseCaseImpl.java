@@ -25,8 +25,6 @@ public class DeleteEducationUseCaseImpl implements DeleteEducationUseCase {
                 () -> new ResourceNotFoundException("The institution to delete was not found")
         );
 
-        education.setEducationDeleted(true);
-
         return educationRepositoryPort.deleteEducation(education);
     }
 

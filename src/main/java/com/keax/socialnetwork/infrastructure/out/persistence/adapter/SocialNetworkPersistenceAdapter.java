@@ -33,10 +33,10 @@ public class SocialNetworkPersistenceAdapter implements SocialNetworkRepositoryP
 
     @Override
     public SocialNetwork deleteSocialNetwork(SocialNetwork socialNetwork) {
-        SocialNetworkEntity deleted = jpaSocialNetworkRepository.save(
-                SocialNetworkPersistenceMapper.toEntity(socialNetwork)
-        );
-        return SocialNetworkPersistenceMapper.toDomain(deleted);
+        jpaSocialNetworkRepository.deleteById(socialNetwork.getSocialNetworkId());
+        jpaSocialNetworkRepository.flush();
+        socialNetwork.setSocialNetworkDeleted(true);
+        return socialNetwork;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class SocialNetworkPersistenceAdapter implements SocialNetworkRepositoryP
 
     @Override
     public List<SocialNetwork> getListSocialNetwork() {
-        return jpaSocialNetworkRepository.findBySocialNetworkDeleted(false)
+        return jpaSocialNetworkRepository.findAll()
                 .stream()
                 .map(SocialNetworkPersistenceMapper::toDomain)
                 .toList();

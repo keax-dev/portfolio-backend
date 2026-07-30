@@ -32,8 +32,6 @@ public class DeleteInstitutionUseCaseImpl implements DeleteInstitutionUseCase {
             throw new ResourceConflictException("The institution cannot be deleted because it has associated records");
         }
 
-        institution.setInstitutionDeleted(true);
-
         return institutionRepositoryPort.deleteInstitution(institution);
     }
 

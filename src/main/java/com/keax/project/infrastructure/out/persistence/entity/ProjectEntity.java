@@ -8,9 +8,13 @@ import java.util.Set;
 import lombok.Setter;
 import lombok.Getter;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "project")
+@SQLDelete(sql = "UPDATE project SET project_deleted = true WHERE project_id = ?")
+@SQLRestriction("project_deleted = false")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,20 +42,32 @@ public class ProjectEntity {
     private int projectPosition;
 
     @Column(name = "project_deleted", nullable = false)
-    private Boolean projectDeleted;
+    private Boolean projectDeleted = false;
 
     @Column(name = "project_published", nullable = false)
     private Boolean projectPublished;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "project",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @BatchSize(size = 50)
     private Set<ProjectTechnologyEntity> projectTechnologies = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "project",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @BatchSize(size = 50)
     private Set<ProjectLinkEntity> projectLinks = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "project",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @BatchSize(size = 50)
     private Set<ProjectImageEntity> projectImages = new LinkedHashSet<>();
 

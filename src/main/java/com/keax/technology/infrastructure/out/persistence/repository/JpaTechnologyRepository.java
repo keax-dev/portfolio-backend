@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface JpaTechnologyRepository extends JpaRepository<TechnologyEntity, Long> {
 
+    List<TechnologyEntity> findAllByOrderByTechnologyNameAsc();
     List<TechnologyEntity> findByTechnologyDeletedOrderByTechnologyNameAsc(Boolean deleted);
 
     Optional<TechnologyEntity> findByTechnologyNameAndTechnologyDeleted(String technologyName, Boolean deleted);

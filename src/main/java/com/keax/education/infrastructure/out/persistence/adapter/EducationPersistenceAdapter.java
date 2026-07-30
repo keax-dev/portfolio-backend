@@ -34,10 +34,10 @@ public class EducationPersistenceAdapter implements EducationRepositoryPort {
 
     @Override
     public Education deleteEducation(Education education) {
-        EducationEntity deleted = jpaEducationRepository.save(
-                EducationPersistenceMapper.toEntity(education)
-        );
-        return EducationPersistenceMapper.toDomain(deleted);
+        jpaEducationRepository.deleteById(education.getEducationId());
+        jpaEducationRepository.flush();
+        education.setEducationDeleted(true);
+        return education;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class EducationPersistenceAdapter implements EducationRepositoryPort {
 
     @Override
     public List<Education> getListEducation() {
-        return jpaEducationRepository.findByEducationDeleted(false).stream()
+        return jpaEducationRepository.findAll().stream()
                 .map(EducationPersistenceMapper::toDomain)
                 .toList();
     }

@@ -34,10 +34,10 @@ public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
 
     @Override
     public Technology deleteTechnology(Technology technology) {
-        TechnologyEntity deleted = jpaTechnologyRepository.save(
-                TechnologyPersistenceMapper.toEntity(technology)
-        );
-        return TechnologyPersistenceMapper.toDomain(deleted);
+        jpaTechnologyRepository.deleteById(technology.getTechnologyId());
+        jpaTechnologyRepository.flush();
+        technology.setTechnologyDeleted(true);
+        return technology;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
 
     @Override
     public List<Technology> getListTechnology() {
-        return jpaTechnologyRepository.findByTechnologyDeletedOrderByTechnologyNameAsc(false)
+        return jpaTechnologyRepository.findAllByOrderByTechnologyNameAsc()
                 .stream()
                 .map(TechnologyPersistenceMapper::toDomain)
                 .toList();

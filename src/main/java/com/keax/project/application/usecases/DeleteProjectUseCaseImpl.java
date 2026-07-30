@@ -25,8 +25,6 @@ public class DeleteProjectUseCaseImpl implements DeleteProjectUseCase {
                 () -> new ResourceNotFoundException("The project entered was not found")
         );
 
-        project.setProjectDeleted(true);
-
         return projectRepositoryPort.deleteProject(project);
     }
 

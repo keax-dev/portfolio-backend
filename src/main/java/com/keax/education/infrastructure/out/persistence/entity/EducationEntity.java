@@ -5,9 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "education")
+@SQLDelete(sql = "UPDATE education SET education_deleted = true WHERE education_id = ?")
+@SQLRestriction("education_deleted = false")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,7 +47,7 @@ public class EducationEntity {
     private int educationPosition;
 
     @Column(name = "education_deleted", nullable = false)
-    private Boolean educationDeleted;
+    private Boolean educationDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "institution_id", nullable = false)

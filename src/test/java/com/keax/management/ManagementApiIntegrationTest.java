@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +50,7 @@ class ManagementApiIntegrationTest {
     private final JpaProjectRepository projectRepository;
     private final JpaSkillRepository skillRepository;
     private final JpaSocialNetworkRepository socialNetworkRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     ManagementApiIntegrationTest(
             MockMvc mockMvc,
@@ -61,7 +63,8 @@ class ManagementApiIntegrationTest {
             JpaTechnologyRepository technologyRepository,
             JpaProjectRepository projectRepository,
             JpaSkillRepository skillRepository,
-            JpaSocialNetworkRepository socialNetworkRepository
+            JpaSocialNetworkRepository socialNetworkRepository,
+            JdbcTemplate jdbcTemplate
     ) {
         this.mockMvc = mockMvc;
         this.userRepository = userRepository;
@@ -74,6 +77,7 @@ class ManagementApiIntegrationTest {
         this.projectRepository = projectRepository;
         this.skillRepository = skillRepository;
         this.socialNetworkRepository = socialNetworkRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Test
@@ -150,7 +154,15 @@ class ManagementApiIntegrationTest {
                 .andExpect(jsonPath("$.data").doesNotExist());
 
         // Assert adicional: el endpoint no retorna cuerpo, pero el registro quedó eliminado lógicamente.
-        assertTrue(institutionRepository.findById(institutionId).orElseThrow().getInstitutionDeleted());
+        assertTrue(educationRepository.findById(educationId).isEmpty());
+        assertTrue(institutionRepository.findById(institutionId).isEmpty());
+        assertTrue(rawDeleted("education", "education_deleted", "education_id", educationId));
+        assertTrue(rawDeleted(
+                "institution",
+                "institution_deleted",
+                "institution_id",
+                institutionId
+        ));
     }
 
     @Test
@@ -190,7 +202,15 @@ class ManagementApiIntegrationTest {
                 .andExpect(jsonPath("$.data").doesNotExist());
 
         // Assert adicional: se verifica el efecto persistido del comando DELETE.
-        assertTrue(technologyRepository.findById(technologyId).orElseThrow().getTechnologyDeleted());
+        assertTrue(projectRepository.findById(projectId).isEmpty());
+        assertTrue(technologyRepository.findById(technologyId).isEmpty());
+        assertTrue(rawDeleted("project", "project_deleted", "project_id", projectId));
+        assertTrue(rawDeleted(
+                "technology",
+                "technology_deleted",
+                "technology_id",
+                technologyId
+        ));
     }
 
     @Test
@@ -278,6 +298,23 @@ class ManagementApiIntegrationTest {
         mockMvc.perform(get("/api/socialNetwork").header("Authorization", bearer(token)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].position").value(2));
+
+        mockMvc.perform(delete("/api/skill/{id}", skillId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk());
+        mockMvc.perform(delete("/api/socialNetwork/{id}", socialId)
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isOk());
+
+        assertTrue(skillRepository.findById(skillId).isEmpty());
+        assertTrue(socialNetworkRepository.findById(socialId).isEmpty());
+        assertTrue(rawDeleted("skill", "skill_deleted", "skill_id", skillId));
+        assertTrue(rawDeleted(
+                "social_network",
+                "social_network_deleted",
+                "social_network_id",
+                socialId
+        ));
     }
 
     @Test
@@ -307,6 +344,9 @@ class ManagementApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.data[0].name").value("SPRING"));
+
+        assertTrue(skillRepository.findById(deletedSkillId).isEmpty());
+        assertTrue(rawDeleted("skill", "skill_deleted", "skill_id", deletedSkillId));
     }
 
     @Test
@@ -345,6 +385,15 @@ class ManagementApiIntegrationTest {
                 .header("Authorization", bearer(token))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+    }
+
+    private boolean rawDeleted(String table, String column, String idColumn, Long id) {
+        Boolean deleted = jdbcTemplate.queryForObject(
+                "select " + column + " from " + table + " where " + idColumn + " = ?",
+                Boolean.class,
+                id
+        );
+        return Boolean.TRUE.equals(deleted);
     }
 
     private String token() {

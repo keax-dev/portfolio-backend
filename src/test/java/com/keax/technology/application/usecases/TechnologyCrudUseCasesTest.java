@@ -108,7 +108,11 @@ class TechnologyCrudUseCasesTest {
         when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
         when(projectTechnologyReferencePort.existsActiveProjectForTechnology(1L)).thenReturn(false);
-        when(technologyRepository.deleteTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(technologyRepository.deleteTechnology(any())).thenAnswer(invocation -> {
+            Technology deleted = invocation.getArgument(0);
+            deleted.setTechnologyDeleted(true);
+            return deleted;
+        });
 
         // Act y Assert: se activa el borrado lógico.
         assertTrue(new DeleteTechnologyUseCaseImpl(technologyRepository, projectTechnologyReferencePort)

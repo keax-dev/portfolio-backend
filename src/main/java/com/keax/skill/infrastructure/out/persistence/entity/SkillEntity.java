@@ -5,9 +5,13 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "skill")
+@SQLDelete(sql = "UPDATE skill SET skill_deleted = true WHERE skill_id = ?")
+@SQLRestriction("skill_deleted = false")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,6 +33,6 @@ public class SkillEntity {
     private int skillPosition;
 
     @Column(name = "skill_deleted", nullable = false)
-    private Boolean skillDeleted;
+    private Boolean skillDeleted = false;
 
 }

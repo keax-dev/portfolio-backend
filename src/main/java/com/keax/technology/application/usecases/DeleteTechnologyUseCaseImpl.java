@@ -32,8 +32,6 @@ public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
             throw new ResourceConflictException("Technology cannot be deleted because it has associated records");
         }
 
-        technology.setTechnologyDeleted(true);
-
         return technologyRepositoryPort.deleteTechnology(technology);
     }
 

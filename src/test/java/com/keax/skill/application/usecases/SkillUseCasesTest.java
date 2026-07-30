@@ -104,7 +104,11 @@ class SkillUseCasesTest {
         // Arrange: existe una habilidad activa.
         Skill stored = skill(1L, "JAVA", null, 1, false);
         when(repository.findBySkillIdAndSkillDeleted(1L, false)).thenReturn(Optional.of(stored));
-        when(repository.deleteSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.deleteSkill(any())).thenAnswer(invocation -> {
+            Skill deleted = invocation.getArgument(0);
+            deleted.setSkillDeleted(true);
+            return deleted;
+        });
 
         // Act y Assert: la eliminación activa únicamente el indicador lógico.
         assertTrue(new DeleteSkillUseCaseImpl(repository).deleteSkill(1L).getSkillDeleted());

@@ -34,10 +34,10 @@ public class SkillPersistenceAdapter implements SkillRepositoryPort {
 
     @Override
     public Skill deleteSkill(Skill skill) {
-        SkillEntity deleted = jpaSkillRepository.save(
-                SkillPersistenceMapper.toEntity(skill)
-        );
-        return SkillPersistenceMapper.toDomain(deleted);
+        jpaSkillRepository.deleteById(skill.getSkillId());
+        jpaSkillRepository.flush();
+        skill.setSkillDeleted(true);
+        return skill;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class SkillPersistenceAdapter implements SkillRepositoryPort {
 
     @Override
     public List<Skill> getListSkill() {
-        return jpaSkillRepository.findBySkillDeleted(false).stream()
+        return jpaSkillRepository.findAll().stream()
                 .map(SkillPersistenceMapper::toDomain)
                 .toList();
     }

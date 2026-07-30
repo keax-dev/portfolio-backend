@@ -5,9 +5,13 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "social_network")
+@SQLDelete(sql = "UPDATE social_network SET social_network_deleted = true WHERE social_network_id = ?")
+@SQLRestriction("social_network_deleted = false")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,6 +39,6 @@ public class SocialNetworkEntity {
     private String socialNetworkUrl;
 
     @Column(name = "social_network_deleted", nullable = false)
-    private Boolean socialNetworkDeleted;
+    private Boolean socialNetworkDeleted = false;
 
 }

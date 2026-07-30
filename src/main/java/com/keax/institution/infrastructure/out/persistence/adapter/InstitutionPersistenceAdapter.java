@@ -34,15 +34,15 @@ public class InstitutionPersistenceAdapter implements InstitutionRepositoryPort 
 
     @Override
     public Institution deleteInstitution(Institution institution) {
-        InstitutionEntity deleted = jpaInstitutionRepository.save(
-                InstitutionPersistenceMapper.toEntity(institution)
-        );
-        return InstitutionPersistenceMapper.toDomain(deleted);
+        jpaInstitutionRepository.deleteById(institution.getInstitutionId());
+        jpaInstitutionRepository.flush();
+        institution.setInstitutionDeleted(true);
+        return institution;
     }
 
     @Override
     public List<Institution> getListInstitution() {
-        return jpaInstitutionRepository.findByInstitutionDeleted(false).stream()
+        return jpaInstitutionRepository.findAll().stream()
                 .map(InstitutionPersistenceMapper::toDomain)
                 .toList();
     }

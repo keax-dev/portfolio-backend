@@ -139,7 +139,11 @@ class EducationUseCasesTest {
         Education stored = education(1L, "DEGREE", "TÍTULO", 1, false, 10L);
         when(educationRepository.findByEducationIdAndEducationDeleted(1L, false))
                 .thenReturn(Optional.of(stored));
-        when(educationRepository.deleteEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(educationRepository.deleteEducation(any())).thenAnswer(invocation -> {
+            Education deleted = invocation.getArgument(0);
+            deleted.setEducationDeleted(true);
+            return deleted;
+        });
 
         // Act y Assert: la operación marca el registro sin eliminarlo físicamente.
         assertTrue(new DeleteEducationUseCaseImpl(educationRepository)

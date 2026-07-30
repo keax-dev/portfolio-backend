@@ -25,8 +25,6 @@ public class DeleteSocialNetworkUseCaseImpl implements DeleteSocialNetworkUseCas
                 () -> new ResourceNotFoundException("The social network entered was not found")
         );
 
-        socialNetwork.setSocialNetworkDeleted(true);
-
         return socialNetworkRepositoryPort.deleteSocialNetwork(socialNetwork);
     }
 

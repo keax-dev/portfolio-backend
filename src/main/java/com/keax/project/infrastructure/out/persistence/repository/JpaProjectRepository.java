@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface JpaProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
+    List<ProjectEntity> findAllByOrderByProjectPosition();
     List<ProjectEntity> findByProjectDeletedOrderByProjectPosition(Boolean deleted);
 
     List<ProjectEntity> findByProjectDeletedAndProjectPublishedOrderByProjectPosition(

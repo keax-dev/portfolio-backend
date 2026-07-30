@@ -255,8 +255,11 @@ Migraciones actuales:
 - `src/main/resources/db/migration/V5__drop_technology_position.sql`
 - `src/main/resources/db/migration/V6__profile_bilingual_cv.sql`
 - `src/main/java/db/migration/V7__harden_integrity_and_assets.java`
+- `src/main/resources/db/migration/V8__soft_delete_defaults.sql`
 
 Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías, agregan el CV bilingüe y endurecen restricciones, publicación de proyectos, privacidad de visitantes y limpieza diferida de recursos externos.
+
+Las entidades administrativas usan `@SQLDelete` y `@SQLRestriction`: un `delete()` de JPA actualiza el indicador `deleted`, conserva la fila y excluye automáticamente los registros eliminados de las consultas ordinarias.
 
 Configuración relevante:
 
