@@ -8,6 +8,7 @@ import com.keax.shared.domain.exceptions.ResourceConflictException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
+import com.keax.shared.domain.text.TextNormalizer;
 
 @Service
 @Transactional
@@ -18,20 +19,18 @@ public class CreateSkillUseCaseImpl implements CreateSkillUseCase {
     @Override
     public Skill createSkill(Skill skill) {
 
-        skill.setSkillName(skill.getSkillName().toUpperCase());
+        skill.setSkillName(TextNormalizer.uppercase(skill.getSkillName()));
 
-        skillRepositoryPort.findBySkillNameAndSkillDeleted(
-                skill.getSkillName(),
-                false
+        skillRepositoryPort.findByName(
+                skill.getSkillName()
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("There is already a skill with this name");
                 }
         );
 
-        skillRepositoryPort.findBySkillPositionAndSkillDeleted(
-                skill.getSkillPosition(),
-                false
+        skillRepositoryPort.findByPosition(
+                skill.getSkillPosition()
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("There is already a skill with this position");
@@ -40,8 +39,6 @@ public class CreateSkillUseCaseImpl implements CreateSkillUseCase {
 
         skill.setSkillPicture(null);
         skill.setSkillId(null);
-        skill.setSkillDeleted(false);
-
         return skillRepositoryPort.createSkill(skill);
     }
 

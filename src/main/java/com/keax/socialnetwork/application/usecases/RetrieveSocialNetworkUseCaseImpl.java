@@ -16,15 +16,9 @@ public class RetrieveSocialNetworkUseCaseImpl implements RetrieveSocialNetworkUs
     private final SocialNetworkRepositoryPort socialNetworkRepositoryPort;
 
     @Override
-    public List<SocialNetwork> findBySocialNetworkDeleted(Boolean deleted) {
-
-        return socialNetworkRepositoryPort.findBySocialNetworkDeleted(deleted);
-    }
-
-    @Override
     public List<SocialNetwork> getListSocialNetwork() {
 
-        return socialNetworkRepositoryPort.getListSocialNetwork();
+        return socialNetworkRepositoryPort.findAll();
     }
 
 }

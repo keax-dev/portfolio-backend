@@ -8,6 +8,7 @@ import com.keax.shared.domain.exceptions.ExceptionAlert;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.shared.domain.ports.out.ProjectTechnologyReferencePort;
+import com.keax.shared.domain.text.TextNormalizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +68,7 @@ public class ProjectStructureValidator {
             if (link.getPosition() < 1 || !positions.add(link.getPosition())) {
                 throw new ResourceConflictException("Project link positions must be positive and unique");
             }
-            link.setUrl(link.getUrl().trim());
+            link.setUrl(TextNormalizer.trimToNull(link.getUrl()));
         }
     }
 }

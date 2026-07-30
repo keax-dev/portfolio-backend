@@ -18,11 +18,6 @@ public class RetrieveCourseUseCaseImpl implements RetrieveCourseUseCase {
 
     @Override
     public List<Course> getListCourse() {
-        return courseRepositoryPort.getListCourse();
-    }
-
-    @Override
-    public List<Course> findByCourseDeleted(Boolean deleted) {
-        return courseRepositoryPort.findByCourseDeleted(deleted);
+        return courseRepositoryPort.findAll();
     }
 }

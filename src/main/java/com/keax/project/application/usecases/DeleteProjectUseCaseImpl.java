@@ -18,10 +18,7 @@ public class DeleteProjectUseCaseImpl implements DeleteProjectUseCase {
     @Override
     public Project deleteProject(Long projectId) {
 
-        Project project = projectRepositoryPort.findByProjectIdAndProjectDeleted(
-                projectId,
-                false
-        ).orElseThrow(
+        Project project = projectRepositoryPort.findById(projectId).orElseThrow(
                 () -> new ResourceNotFoundException("The project entered was not found")
         );
 

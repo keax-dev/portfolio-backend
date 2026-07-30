@@ -6,6 +6,7 @@ import com.keax.course.domain.ports.out.CourseRepositoryPort;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.shared.domain.ports.out.InstitutionReferencePort;
+import com.keax.shared.domain.text.TextNormalizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,15 +25,21 @@ public class CreateCourseUseCaseImpl implements CreateCourseUseCase {
             throw new ResourceNotFoundException("The institution entered was not found");
         }
 
-        String normalizedName = course.getCourseName().trim().toUpperCase();
-        String normalizedNameEn = course.getCourseNameEn().trim().toUpperCase();
-        courseRepositoryPort.findByCourseNameAndCourseDeletedAndInstitutionId(
+        String normalizedName = TextNormalizer.uppercase(course.getCourseName());
+        String normalizedNameEn = TextNormalizer.uppercase(course.getCourseNameEn());
+        courseRepositoryPort.findByNameAndInstitutionId(
                 normalizedName,
-                false,
                 course.getInstitutionId()
         ).ifPresent(existing -> {
             throw new ResourceConflictException(
                     "There is already a course with this name and institution"
+            );
+        });
+        courseRepositoryPort.findByPosition(
+                course.getCoursePosition()
+        ).ifPresent(existing -> {
+            throw new ResourceConflictException(
+                    "There is already a course with this position"
             );
         });
 
@@ -40,13 +47,8 @@ public class CreateCourseUseCaseImpl implements CreateCourseUseCase {
         course.setCourseName(normalizedName);
         course.setCourseNameEn(normalizedNameEn);
         course.setCourseCertificateImg(null);
-        course.setCourseCertificateUrl(normalizeOptionalUrl(course.getCourseCertificateUrl()));
-        course.setCourseDeleted(false);
+        course.setCourseCertificateUrl(TextNormalizer.trimToNull(course.getCourseCertificateUrl()));
 
         return courseRepositoryPort.createCourse(course);
-    }
-
-    private String normalizeOptionalUrl(String url) {
-        return url == null || url.isBlank() ? null : url.trim();
     }
 }

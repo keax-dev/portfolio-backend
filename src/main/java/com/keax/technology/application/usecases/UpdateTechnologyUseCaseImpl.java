@@ -7,6 +7,7 @@ import com.keax.technology.domain.ports.in.UpdateTechnologyUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.technology.domain.model.Technology;
+import com.keax.shared.domain.text.TextNormalizer;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -20,17 +21,13 @@ public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
     @Override
     public Technology updateTechnology(Long technologyId, Technology technology) {
 
-        Technology technologyUpdate = technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(
-                technologyId,
-                false
-        ).orElseThrow(
+        Technology technologyUpdate = technologyRepositoryPort.findById(technologyId).orElseThrow(
                 () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
-        technologyUpdate.setTechnologyName(technology.getTechnologyName().toUpperCase());
-        technologyRepositoryPort.findByTechnologyNameAndTechnologyDeleted(
-                technologyUpdate.getTechnologyName(),
-                false
+        technologyUpdate.setTechnologyName(TextNormalizer.uppercase(technology.getTechnologyName()));
+        technologyRepositoryPort.findByName(
+                technologyUpdate.getTechnologyName()
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getTechnologyId(), technologyUpdate.getTechnologyId())){
@@ -38,8 +35,6 @@ public class UpdateTechnologyUseCaseImpl implements UpdateTechnologyUseCase {
                     }
                 }
         );
-
-        technologyUpdate.setTechnologyDeleted(false);
 
         return technologyRepositoryPort.updateTechnology(technologyUpdate);
     }

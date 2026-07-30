@@ -7,6 +7,7 @@ import com.keax.socialnetwork.domain.ports.in.UpdateSocialNetworkUseCase;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
+import com.keax.shared.domain.text.TextNormalizer;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -20,17 +21,13 @@ public class UpdateSocialNetworkUseCaseImpl implements UpdateSocialNetworkUseCas
     @Override
     public SocialNetwork updateSocialNetwork(Long socialNetworkId, SocialNetwork socialNetwork) {
 
-        SocialNetwork socialNetworkUpdate = socialNetworkRepositoryPort.findBySocialNetworkIdAndSocialNetworkDeleted(
-                socialNetworkId,
-                false
-        ).orElseThrow(
+        SocialNetwork socialNetworkUpdate = socialNetworkRepositoryPort.findById(socialNetworkId).orElseThrow(
                 () -> new ResourceNotFoundException("The social network entered was not found")
         );
 
-        socialNetworkUpdate.setSocialNetworkName(socialNetwork.getSocialNetworkName().toUpperCase());
-        socialNetworkRepositoryPort.findBySocialNetworkNameAndSocialNetworkDeleted(
-                socialNetworkUpdate.getSocialNetworkName(),
-                false
+        socialNetworkUpdate.setSocialNetworkName(TextNormalizer.uppercase(socialNetwork.getSocialNetworkName()));
+        socialNetworkRepositoryPort.findByName(
+                socialNetworkUpdate.getSocialNetworkName()
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getSocialNetworkId(), socialNetworkUpdate.getSocialNetworkId())){
@@ -39,9 +36,8 @@ public class UpdateSocialNetworkUseCaseImpl implements UpdateSocialNetworkUseCas
                 }
         );
 
-        socialNetworkRepositoryPort.findBySocialNetworkPositionAndSocialNetworkDeleted(
-                socialNetwork.getSocialNetworkPosition(),
-                false
+        socialNetworkRepositoryPort.findByPosition(
+                socialNetwork.getSocialNetworkPosition()
         ).ifPresent(
                 e -> {
                     if (!Objects.equals(e.getSocialNetworkId(), socialNetworkUpdate.getSocialNetworkId())){
@@ -50,11 +46,10 @@ public class UpdateSocialNetworkUseCaseImpl implements UpdateSocialNetworkUseCas
                 }
         );
 
-        socialNetworkUpdate.setSocialNetworkIcon(socialNetwork.getSocialNetworkIcon());
-        socialNetworkUpdate.setSocialNetworkColor(socialNetwork.getSocialNetworkColor());
+        socialNetworkUpdate.setSocialNetworkIcon(TextNormalizer.trimToNull(socialNetwork.getSocialNetworkIcon()));
+        socialNetworkUpdate.setSocialNetworkColor(TextNormalizer.trimToNull(socialNetwork.getSocialNetworkColor()));
         socialNetworkUpdate.setSocialNetworkPosition(socialNetwork.getSocialNetworkPosition());
-        socialNetworkUpdate.setSocialNetworkUrl(socialNetwork.getSocialNetworkUrl());
-        socialNetworkUpdate.setSocialNetworkDeleted(false);
+        socialNetworkUpdate.setSocialNetworkUrl(TextNormalizer.trimToNull(socialNetwork.getSocialNetworkUrl()));
 
         return socialNetworkRepositoryPort.updateSocialNetwork(socialNetworkUpdate);
     }

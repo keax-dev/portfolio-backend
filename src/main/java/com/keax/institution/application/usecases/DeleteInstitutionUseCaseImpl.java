@@ -21,10 +21,7 @@ public class DeleteInstitutionUseCaseImpl implements DeleteInstitutionUseCase {
     @Override
     public Institution deleteInstitution(Long institutionId) {
 
-        Institution institution = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(
-                institutionId,
-                false
-        ).orElseThrow(
+        Institution institution = institutionRepositoryPort.findById(institutionId).orElseThrow(
                 () -> new ResourceNotFoundException("The institution to be eliminated does not exist")
         );
 

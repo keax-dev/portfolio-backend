@@ -9,6 +9,7 @@ import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
+import com.keax.shared.domain.text.TextNormalizer;
 import java.util.Objects;
 
 @Service
@@ -20,17 +21,13 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
     @Override
     public Skill updateSkill(Long skillId, Skill skill) {
 
-        Skill skillUpdate = skillRepositoryPort.findBySkillIdAndSkillDeleted(
-                skillId,
-                false
-        ).orElseThrow(
+        Skill skillUpdate = skillRepositoryPort.findById(skillId).orElseThrow(
                 () -> new ResourceNotFoundException("The skill entered was not found")
         );
 
-        skillUpdate.setSkillName(skill.getSkillName().toUpperCase());
-        skillRepositoryPort.findBySkillNameAndSkillDeleted(
-                skillUpdate.getSkillName(),
-                false
+        skillUpdate.setSkillName(TextNormalizer.uppercase(skill.getSkillName()));
+        skillRepositoryPort.findByName(
+                skillUpdate.getSkillName()
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getSkillId(), skillUpdate.getSkillId())){
@@ -40,9 +37,8 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
         );
 
         skillUpdate.setSkillPosition(skill.getSkillPosition());
-        skillRepositoryPort.findBySkillPositionAndSkillDeleted(
-                skillUpdate.getSkillPosition(),
-                false
+        skillRepositoryPort.findByPosition(
+                skillUpdate.getSkillPosition()
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getSkillId(), skillUpdate.getSkillId())){
@@ -50,8 +46,6 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
                     }
                 }
         );
-
-        skillUpdate.setSkillDeleted(false);
 
         return skillRepositoryPort.updateSkill(skillUpdate);
     }

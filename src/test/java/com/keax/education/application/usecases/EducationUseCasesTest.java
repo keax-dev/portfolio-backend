@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,12 +41,9 @@ class EducationUseCasesTest {
         Education input = education(null, "Degree", "Título", 1, null, 10L);
         input.setEducationStart(" ");
         input.setEducationStartEs(null);
-        when(educationRepository
-                .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L
-                ))
+        when(educationRepository.findByTitleAndInstitutionId("DEGREE", 10L))
                 .thenReturn(Optional.empty());
-        when(educationRepository.findByEducationPositionAndEducationDeleted(1, false))
+        when(educationRepository.findByPosition(1))
                 .thenReturn(Optional.empty());
         when(institutionReferencePort.existsActiveInstitution(10L)).thenReturn(true);
         when(educationRepository.createEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -61,19 +57,15 @@ class EducationUseCasesTest {
         assertEquals("TÍTULO", result.getEducationTitleEs());
         assertNull(result.getEducationStart());
         assertNull(result.getEducationStartEs());
-        assertFalse(result.getEducationDeleted());
     }
 
     @Test
     void rejectsEducationForMissingInstitution() {
         // Arrange: título y posición están disponibles, pero la relación no existe.
         Education input = education(null, "Degree", "Título", 1, null, 10L);
-        when(educationRepository
-                .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L
-                ))
+        when(educationRepository.findByTitleAndInstitutionId("DEGREE", 10L))
                 .thenReturn(Optional.empty());
-        when(educationRepository.findByEducationPositionAndEducationDeleted(1, false))
+        when(educationRepository.findByPosition(1))
                 .thenReturn(Optional.empty());
         when(institutionReferencePort.existsActiveInstitution(10L)).thenReturn(false);
 
@@ -89,10 +81,7 @@ class EducationUseCasesTest {
     void rejectsDuplicatedEducationTitleInInstitution() {
         // Arrange: existe el mismo título activo dentro de la institución.
         Education input = education(null, "Degree", "Título", 1, null, 10L);
-        when(educationRepository
-                .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L
-                ))
+        when(educationRepository.findByTitleAndInstitutionId("DEGREE", 10L))
                 .thenReturn(Optional.of(education(2L, "DEGREE", "TÍTULO", 2, false, 10L)));
 
         // Act y Assert: se detiene antes de validar el resto de datos.
@@ -110,15 +99,12 @@ class EducationUseCasesTest {
         Education changes = education(null, "Degree", "Título", 2, null, 10L);
         changes.setEducationStart("January");
         changes.setEducationStartEs("Enero");
-        when(educationRepository.findByEducationIdAndEducationDeleted(1L, false))
+        when(educationRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
         when(institutionReferencePort.existsActiveInstitution(10L)).thenReturn(true);
-        when(educationRepository
-                .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, 10L
-                ))
+        when(educationRepository.findByTitleAndInstitutionId("DEGREE", 10L))
                 .thenReturn(Optional.of(education(1L, "DEGREE", "TÍTULO", 2, false, 10L)));
-        when(educationRepository.findByEducationPositionAndEducationDeleted(2, false))
+        when(educationRepository.findByPosition(2))
                 .thenReturn(Optional.of(education(1L, "DEGREE", "TÍTULO", 2, false, 10L)));
         when(educationRepository.updateEducation(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -137,24 +123,19 @@ class EducationUseCasesTest {
     void logicallyDeletesExistingEducation() {
         // Arrange: existe una educación activa.
         Education stored = education(1L, "DEGREE", "TÍTULO", 1, false, 10L);
-        when(educationRepository.findByEducationIdAndEducationDeleted(1L, false))
+        when(educationRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
-        when(educationRepository.deleteEducation(any())).thenAnswer(invocation -> {
-            Education deleted = invocation.getArgument(0);
-            deleted.setEducationDeleted(true);
-            return deleted;
-        });
+        when(educationRepository.deleteEducation(stored)).thenReturn(stored);
 
         // Act y Assert: la operación marca el registro sin eliminarlo físicamente.
-        assertTrue(new DeleteEducationUseCaseImpl(educationRepository)
-                .deleteEducation(1L)
-                .getEducationDeleted());
+        assertEquals(stored, new DeleteEducationUseCaseImpl(educationRepository)
+                .deleteEducation(1L));
     }
 
     @Test
     void reportsMissingEducationOnDelete() {
         // Arrange: el identificador activo no existe.
-        when(educationRepository.findByEducationIdAndEducationDeleted(99L, false))
+        when(educationRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
         // Act y Assert: se informa recurso no encontrado.
@@ -167,11 +148,11 @@ class EducationUseCasesTest {
     @Test
     void returnsEmptyEducationList() {
         // Arrange: la consulta filtrada no devuelve registros.
-        when(educationRepository.findByEducationDeleted(false)).thenReturn(List.of());
+        when(educationRepository.findAll()).thenReturn(List.of());
 
         // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
         assertTrue(new RetrieveEducationUseCaseImpl(educationRepository)
-                .findByEducationDeleted(false)
+                .getListEducation()
                 .isEmpty());
     }
 
@@ -180,13 +161,13 @@ class EducationUseCasesTest {
             String title,
             String titleEs,
             int position,
-            Boolean deleted,
+            Boolean ignoredDeleted,
             Long institutionId
     ) {
         // Construye una educación válida para concentrar la prueba en cada regla.
         return new Education(
                 id, title, titleEs, "Place", null, null, "Present", "Actualidad",
-                position, deleted, institutionId, "University", "Universidad", null
+                position, institutionId, "University", "Universidad", null, null
         );
     }
 

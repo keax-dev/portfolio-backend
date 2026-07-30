@@ -53,9 +53,9 @@ class ProjectUseCasesTest {
                 new ProjectImage(null, "untrusted-picture", 1)
         )));
         when(technologyReferencePort.findActiveTechnologyIds(Set.of(10L))).thenReturn(Set.of(10L));
-        when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
+        when(projectRepository.findByTitle("PORTFOLIO"))
                 .thenReturn(Optional.empty());
-        when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
+        when(projectRepository.findByPosition(1))
                 .thenReturn(Optional.empty());
         when(projectRepository.createProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -67,7 +67,6 @@ class ProjectUseCasesTest {
         assertEquals("PORTFOLIO", result.getProjectTitle());
         assertEquals("PORTAFOLIO", result.getProjectTitleEs());
         assertTrue(result.getProjectImages().isEmpty());
-        assertFalse(result.getProjectDeleted());
         assertFalse(result.getProjectPublished());
     }
 
@@ -90,9 +89,9 @@ class ProjectUseCasesTest {
         // Arrange: la posición ya está ocupada dentro de la misma tecnología.
         Project input = project(null, "Portfolio", "Portafolio", 1, null, 10L);
         when(technologyReferencePort.findActiveTechnologyIds(Set.of(10L))).thenReturn(Set.of(10L));
-        when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
+        when(projectRepository.findByTitle("PORTFOLIO"))
                 .thenReturn(Optional.empty());
-        when(projectRepository.findByProjectPositionAndProjectDeleted(1, false))
+        when(projectRepository.findByPosition(1))
                 .thenReturn(Optional.of(project(2L, "OTHER", "OTRO", 1, false, 10L)));
 
         // Act y Assert: se rechaza la posición duplicada.
@@ -112,12 +111,12 @@ class ProjectUseCasesTest {
         )));
         Project changes = project(null, "Portfolio", "Portafolio", 2, null, 10L);
         changes.setProjectDescription("Updated description");
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
         when(technologyReferencePort.findActiveTechnologyIds(Set.of(10L))).thenReturn(Set.of(10L));
-        when(projectRepository.findByProjectTitleAndProjectDeleted("PORTFOLIO", false))
+        when(projectRepository.findByTitle("PORTFOLIO"))
                 .thenReturn(Optional.of(project(1L, "PORTFOLIO", "PORTAFOLIO", 2, false, 10L)));
-        when(projectRepository.findByProjectPositionAndProjectDeleted(2, false))
+        when(projectRepository.findByPosition(2))
                 .thenReturn(Optional.of(project(1L, "PORTFOLIO", "PORTAFOLIO", 2, false, 10L)));
         when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -138,24 +137,19 @@ class ProjectUseCasesTest {
     void logicallyDeletesProject() {
         // Arrange: existe un proyecto activo.
         Project stored = project(1L, "PORTFOLIO", "PORTAFOLIO", 1, false, 10L);
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
-        when(projectRepository.deleteProject(any())).thenAnswer(invocation -> {
-            Project deleted = invocation.getArgument(0);
-            deleted.setProjectDeleted(true);
-            return deleted;
-        });
+        when(projectRepository.deleteProject(stored)).thenReturn(stored);
 
         // Act y Assert: se marca como eliminado sin borrado físico.
-        assertTrue(new DeleteProjectUseCaseImpl(projectRepository)
-                .deleteProject(1L)
-                .getProjectDeleted());
+        assertEquals(stored, new DeleteProjectUseCaseImpl(projectRepository)
+                .deleteProject(1L));
     }
 
     @Test
     void reportsMissingProjectOnDelete() {
         // Arrange: no existe un proyecto activo con el id.
-        when(projectRepository.findByProjectIdAndProjectDeleted(99L, false))
+        when(projectRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
         // Act y Assert: se informa recurso no encontrado.
@@ -168,11 +162,11 @@ class ProjectUseCasesTest {
     @Test
     void returnsEmptyProjectList() {
         // Arrange: el filtro no devuelve proyectos.
-        when(projectRepository.findByProjectDeleted(false)).thenReturn(List.of());
+        when(projectRepository.findAll()).thenReturn(List.of());
 
         // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
         assertTrue(new RetrieveProjectUseCaseImpl(projectRepository)
-                .findByProjectDeleted(false)
+                .getListProject()
                 .isEmpty());
     }
 
@@ -181,13 +175,13 @@ class ProjectUseCasesTest {
             String title,
             String titleEs,
             int position,
-            Boolean deleted,
+            Boolean published,
             Long technologyId
     ) {
         // Construye un proyecto válido para concentrar cada prueba en una regla.
         Long relationId = id == null ? null : id + 100;
         return new Project(
-                id, title, titleEs, "Description", "Descripción", position, deleted,
+                id, title, titleEs, "Description", "Descripción", position, published,
                 List.of(new ProjectTechnology(relationId, technologyId, "JAVA", 1)),
                 List.of(new ProjectLink(
                         relationId,

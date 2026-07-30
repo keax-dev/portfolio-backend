@@ -17,7 +17,7 @@ public class DeleteCourseUseCaseImpl implements DeleteCourseUseCase {
 
     @Override
     public Course deleteCourse(Long courseId) {
-        Course course = courseRepositoryPort.findByCourseIdAndCourseDeleted(courseId, false)
+        Course course = courseRepositoryPort.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "The course to be deleted was not found"
                 ));

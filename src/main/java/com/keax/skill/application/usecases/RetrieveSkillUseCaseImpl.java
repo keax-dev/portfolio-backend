@@ -16,15 +16,9 @@ public class RetrieveSkillUseCaseImpl implements RetrieveSkillUseCase {
     private final SkillRepositoryPort skillRepositoryPort;
 
     @Override
-    public List<Skill> findBySkillDeleted(Boolean deleted) {
-
-        return skillRepositoryPort.findBySkillDeleted(deleted);
-    }
-
-    @Override
     public List<Skill> getListSkill() {
 
-        return skillRepositoryPort.getListSkill();
+        return skillRepositoryPort.findAll();
     }
 
 }

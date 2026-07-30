@@ -21,10 +21,7 @@ public class DeleteTechnologyUseCaseImpl implements DeleteTechnologyUseCase {
     @Override
     public Technology deleteTechnology(Long technologyId) {
 
-        Technology technology = technologyRepositoryPort.findByTechnologyIdAndTechnologyDeleted(
-                technologyId,
-                false
-        ).orElseThrow(
+        Technology technology = technologyRepositoryPort.findById(technologyId).orElseThrow(
                 () -> new ResourceNotFoundException("The technology entered was not found")
         );
 
