@@ -1,5 +1,7 @@
 package com.keax.portfolio.infrastructure.in.web.controller;
 
+import com.keax.course.domain.model.Course;
+import com.keax.course.domain.ports.in.RetrieveCourseUseCase;
 import com.keax.education.domain.model.Education;
 import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
 import com.keax.email.domain.model.Contact;
@@ -56,6 +58,8 @@ class PortfolioControllerTest {
     @Mock
     private RetrieveEducationUseCase retrieveEducationUseCase;
     @Mock
+    private RetrieveCourseUseCase retrieveCourseUseCase;
+    @Mock
     private RetrieveSkillUseCase retrieveSkillUseCase;
     @Mock
     private RetrieveTechnologyUseCase retrieveTechnologyUseCase;
@@ -80,6 +84,7 @@ class PortfolioControllerTest {
         PortfolioController controller = new PortfolioController(
                 retrieveProfileUseCase,
                 retrieveEducationUseCase,
+                retrieveCourseUseCase,
                 retrieveSkillUseCase,
                 retrieveTechnologyUseCase,
                 retrieveProjectUseCase,
@@ -113,6 +118,17 @@ class PortfolioControllerTest {
                 11L, "DEGREE", "TÍTULO", "UNIVERSITY", "2020", "2020",
                 "2024", "2024", 1, false, 10L, "UNIVERSITY", "UNIVERSIDAD", "url"
         )));
+        when(retrieveCourseUseCase.findByCourseDeleted(false)).thenReturn(List.of(new Course(
+                12L,
+                "SPRING BOOT DESDE CERO",
+                "SPRING BOOT FROM SCRATCH",
+                "certificate.png",
+                "https://udemy.test/certificate/12",
+                false,
+                10L,
+                "UDEMY",
+                "UDEMY"
+        )));
         when(retrieveSkillUseCase.findBySkillDeleted(false))
                 .thenReturn(List.of(new Skill(21L, "SPRING", "skill.png", 1, false)));
         when(retrieveTechnologyUseCase.findByTechnologyDeleted(false))
@@ -129,6 +145,13 @@ class PortfolioControllerTest {
         mockMvc.perform(get("/api/portfolio/education"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].institution_name").value("UNIVERSITY"));
+        mockMvc.perform(get("/api/portfolio/course"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].name").value("SPRING BOOT DESDE CERO"))
+                .andExpect(jsonPath("$.data[0].name_en").value("SPRING BOOT FROM SCRATCH"))
+                .andExpect(jsonPath("$.data[0].certificate_img").value("certificate.png"))
+                .andExpect(jsonPath("$.data[0].certificate_url")
+                        .value("https://udemy.test/certificate/12"));
         mockMvc.perform(get("/api/portfolio/skill"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].picture").value("skill.png"));
@@ -149,6 +172,7 @@ class PortfolioControllerTest {
 
         // Assert adicional: los filtros de borrado lógico siempre se aplican al contenido público.
         verify(retrieveEducationUseCase).findByEducationDeleted(false);
+        verify(retrieveCourseUseCase).findByCourseDeleted(false);
         verify(retrieveSkillUseCase).findBySkillDeleted(false);
         verify(retrieveTechnologyUseCase).findByTechnologyDeleted(false);
         verify(retrieveProjectUseCase).findByProjectDeleted(false);

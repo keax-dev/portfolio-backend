@@ -45,14 +45,14 @@ class JpaProjectRepositoryIntegrationTest {
     }
 
     @Test
-    void reportsProjectsRelatedThroughAnyTechnology() {
+    void reportsOnlyActiveProjectsRelatedThroughAnyTechnology() {
         TechnologyEntity kotlin = saveTechnology("KOTLIN");
         TechnologyEntity angular = saveTechnology("ANGULAR");
         projectRepository.saveAndFlush(project("ACTIVE PROJECT", 1, false, angular, kotlin));
         projectRepository.saveAndFlush(project("DELETED PROJECT", 2, true, kotlin));
 
         assertTrue(projectRepository.existsByTechnologyIdAndProjectDeleted(kotlin.getTechnologyId(), false));
-        assertTrue(projectRepository.existsByTechnologyIdAndProjectDeleted(kotlin.getTechnologyId(), true));
+        assertFalse(projectRepository.existsByTechnologyIdAndProjectDeleted(kotlin.getTechnologyId(), true));
 
         var activeProjects = projectRepository.findByProjectDeletedOrderByProjectPosition(false);
         assertEquals(1, activeProjects.size());

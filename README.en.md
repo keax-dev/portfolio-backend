@@ -22,7 +22,7 @@ Main routes:
 
 - `/api/auth/login`: admin authentication.
 - `/api/portfolio/*`: public portfolio consumption.
-- `/api/profile`, `/api/education`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: admin CRUD.
+- `/api/profile`, `/api/education`, `/api/course`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: admin CRUD.
 - `/api/image/*`: image upload and deletion endpoints.
 - `/api/visitor` and `/api/visitor/dashboard`: visitor registration and reporting.
 
@@ -38,7 +38,7 @@ Main routes:
 ### Public portfolio API
 
 - Main profile retrieval with independent English and Spanish CV URLs.
-- Education, skills, technologies, unified projects, and social links retrieval.
+- Education, courses and certificates, skills, technologies, unified projects, and social links retrieval.
 - Public projects with localized titles and descriptions, technologies, links, and ordered images.
 - Contact form submission.
 - Visitor registration with time-window deduplication.
@@ -48,12 +48,14 @@ Main routes:
 
 - Profile CRUD with bilingual CV fields through `cv` and `cv_es`.
 - Education CRUD.
+- Course and certificate CRUD linked to institutions, with Spanish and English names, an image, and an optional public URL.
 - Institution CRUD.
 - Skill CRUD.
 - Technology CRUD by name, without a global catalog position.
 - Project CRUD with one or more technologies and links ordered per project.
 - Social network CRUD.
 - Multiple project image upload and controlled deletion through Cloudinary.
+- Safe certificate image upload and replacement through Cloudinary.
 - Visitor dashboard.
 
 ### Project model and rules
@@ -256,8 +258,10 @@ Current migrations:
 - `src/main/resources/db/migration/V6__profile_bilingual_cv.sql`
 - `src/main/java/db/migration/V7__harden_integrity_and_assets.java`
 - `src/main/resources/db/migration/V8__soft_delete_defaults.sql`
+- `src/main/resources/db/migration/V9__courses.sql`
+- `src/main/resources/db/migration/V10__course_bilingual_name_and_certificate_links.sql`
 
-These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, remove the global technology catalog position, add bilingual CV support, and harden constraints, project publication, visitor privacy, and deferred external-resource cleanup.
+These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, remove the global technology catalog position, add bilingual CV support, introduce bilingual institution-linked courses, separate certificate images from their optional public URLs, and harden constraints, project publication, visitor privacy, and deferred external-resource cleanup.
 
 Administrative entities use `@SQLDelete` and `@SQLRestriction`: a JPA `delete()` updates the `deleted` flag, preserves the row, and automatically excludes deleted records from ordinary queries.
 

@@ -1,5 +1,6 @@
 package com.keax.uploadimage.infrastructure.in.web.controller;
 
+import com.keax.course.domain.model.Course;
 import com.keax.institution.domain.model.Institution;
 import com.keax.profile.domain.model.Profile;
 import com.keax.project.domain.model.Project;
@@ -7,6 +8,7 @@ import com.keax.project.domain.model.ProjectImage;
 import com.keax.skill.domain.model.Skill;
 import com.keax.uploadimage.domain.model.ImageFile;
 import com.keax.uploadimage.domain.ports.in.UploadImageInstitutionUseCase;
+import com.keax.uploadimage.domain.ports.in.UploadImageCourseUseCase;
 import com.keax.uploadimage.domain.ports.in.UploadImageProfileUseCase;
 import com.keax.uploadimage.domain.ports.in.UploadImageProjectUseCase;
 import com.keax.uploadimage.domain.ports.in.UploadImageSkillUseCase;
@@ -43,6 +45,8 @@ class UploadImageControllerTest {
     @Mock
     private UploadImageInstitutionUseCase uploadImageInstitutionUseCase;
     @Mock
+    private UploadImageCourseUseCase uploadImageCourseUseCase;
+    @Mock
     private UploadImageProfileUseCase uploadImageProfileUseCase;
     @Mock
     private UploadImageSkillUseCase uploadImageSkillUseCase;
@@ -56,6 +60,7 @@ class UploadImageControllerTest {
         // Arrange común: se inyectan los cuatro puertos sin cargar el contexto completo.
         UploadImageController controller = new UploadImageController(
                 uploadImageInstitutionUseCase,
+                uploadImageCourseUseCase,
                 uploadImageProfileUseCase,
                 uploadImageSkillUseCase,
                 uploadImageProjectUseCase
@@ -77,6 +82,35 @@ class UploadImageControllerTest {
 
         // Assert adicional: se valida la conversión del archivo recibida por el dominio.
         verifyImagePassedToInstitution();
+    }
+
+    @Test
+    void uploadsCourseCertificateThroughMultipartContract() throws Exception {
+        when(uploadImageCourseUseCase.uploadImageCourse(
+                org.mockito.ArgumentMatchers.eq(15L),
+                any(ImageFile.class)
+        )).thenReturn(new Course(
+                15L,
+                "SPRING BOOT",
+                "SPRING BOOT",
+                "certificate-url",
+                "https://udemy.test/certificate/15",
+                false,
+                10L,
+                "UDEMY",
+                "UDEMY"
+        ));
+
+        mockMvc.perform(multipart("/api/image/course/{id}", 15L).file(image()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.certificate_img").value("certificate-url"))
+                .andExpect(jsonPath("$.data.certificate_url")
+                        .value("https://udemy.test/certificate/15"));
+
+        verify(uploadImageCourseUseCase).uploadImageCourse(
+                org.mockito.ArgumentMatchers.eq(15L),
+                any(ImageFile.class)
+        );
     }
 
     @Test

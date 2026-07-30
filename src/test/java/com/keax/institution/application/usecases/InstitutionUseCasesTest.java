@@ -3,7 +3,7 @@ package com.keax.institution.application.usecases;
 import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
-import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
+import com.keax.shared.domain.ports.out.InstitutionReferencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 class InstitutionUseCasesTest {
 
     private InstitutionRepositoryPort institutionRepository;
-    private EducationInstitutionReferencePort institutionReferencePort;
+    private InstitutionReferencePort institutionReferencePort;
 
     @BeforeEach
     void setUp() {
         // Los puertos simulados aíslan las reglas de negocio de JPA.
         institutionRepository = mock(InstitutionRepositoryPort.class);
-        institutionReferencePort = mock(EducationInstitutionReferencePort.class);
+        institutionReferencePort = mock(InstitutionReferencePort.class);
     }
 
     @Test
@@ -100,6 +100,21 @@ class InstitutionUseCasesTest {
         );
 
         // Act y Assert: se protege la relación antes del borrado lógico.
+        assertThrows(ResourceConflictException.class, () -> useCase.deleteInstitution(1L));
+    }
+
+    @Test
+    void preventsDeletionWhenActiveCourseExists() {
+        Institution stored = institution(1L, "UDEMY", "UDEMY", null, false);
+        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
+                .thenReturn(Optional.of(stored));
+        when(institutionReferencePort.existsActiveEducationForInstitution(1L)).thenReturn(false);
+        when(institutionReferencePort.existsActiveCourseForInstitution(1L)).thenReturn(true);
+        DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
+                institutionRepository,
+                institutionReferencePort
+        );
+
         assertThrows(ResourceConflictException.class, () -> useCase.deleteInstitution(1L));
     }
 

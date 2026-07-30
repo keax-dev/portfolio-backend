@@ -1,6 +1,6 @@
 package com.keax.shared.infrastructure.out.persistence;
 
-import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
+import com.keax.shared.domain.ports.out.InstitutionReferencePort;
 import com.keax.shared.domain.ports.out.ProjectTechnologyReferencePort;
 import lombok.RequiredArgsConstructor;
 import jakarta.persistence.EntityManager;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SharedReferencePersistenceAdapter implements
         ProjectTechnologyReferencePort,
-        EducationInstitutionReferencePort {
+        InstitutionReferencePort {
 
     private final JdbcTemplate jdbcTemplate;
     private final EntityManager entityManager;
@@ -67,6 +67,17 @@ public class SharedReferencePersistenceAdapter implements
         flushPendingChanges();
         Long count = jdbcTemplate.queryForObject(
                 "select count(*) from education where institution_id = ? and education_deleted = false",
+                Long.class,
+                institutionId
+        );
+        return count != null && count > 0;
+    }
+
+    @Override
+    public boolean existsActiveCourseForInstitution(Long institutionId) {
+        flushPendingChanges();
+        Long count = jdbcTemplate.queryForObject(
+                "select count(*) from course where institution_id = ? and course_deleted = false",
                 Long.class,
                 institutionId
         );

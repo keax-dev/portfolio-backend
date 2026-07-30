@@ -1,5 +1,7 @@
 package com.keax.uploadimage.application.usecases;
 
+import com.keax.course.domain.model.Course;
+import com.keax.course.domain.ports.out.CourseRepositoryPort;
 import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.profile.domain.model.Profile;
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Verifica los cuatro flujos de subida y su compensación: validar recurso,
+ * Verifica los flujos de subida y su compensación: validar recurso,
  * almacenar la nueva imagen, persistir URL, eliminar la anterior y limpiar
  * la nueva cuando la actualización falla.
  */
@@ -44,6 +46,7 @@ class UploadImageUseCasesTest {
     private ProfileRepositoryPort profileRepository;
     private SkillRepositoryPort skillRepository;
     private ProjectRepositoryPort projectRepository;
+    private CourseRepositoryPort courseRepository;
     private InstitutionRepositoryPort institutionRepository;
     private ImageCleanupTaskPort cleanupTaskPort;
     private ImagePersistenceCoordinator persistenceCoordinator;
@@ -57,10 +60,12 @@ class UploadImageUseCasesTest {
         profileRepository = mock(ProfileRepositoryPort.class);
         skillRepository = mock(SkillRepositoryPort.class);
         projectRepository = mock(ProjectRepositoryPort.class);
+        courseRepository = mock(CourseRepositoryPort.class);
         institutionRepository = mock(InstitutionRepositoryPort.class);
         cleanupTaskPort = mock(ImageCleanupTaskPort.class);
         persistenceCoordinator = new ImagePersistenceCoordinator(
                 projectRepository,
+                courseRepository,
                 institutionRepository,
                 profileRepository,
                 skillRepository,
@@ -126,6 +131,38 @@ class UploadImageUseCasesTest {
         // Assert: se actualiza el recurso y se limpia la imagen anterior.
         assertEquals("new-url", result.getSkillPicture());
         verify(storage).delete("old-url");
+    }
+
+    @Test
+    void uploadsCourseCertificate() {
+        Course course = new Course(
+                5L,
+                "SPRING BOOT",
+                "SPRING BOOT",
+                "old-certificate",
+                "https://udemy.test/certificate/5",
+                false,
+                2L,
+                "UDEMY",
+                "UDEMY"
+        );
+        when(courseRepository.findByCourseIdAndCourseDeleted(5L, false))
+                .thenReturn(Optional.of(course));
+        when(storage.upload(image, "Certificates")).thenReturn("new-certificate");
+        when(courseRepository.updateCourse(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        UploadImageCourseUseCaseImpl useCase = new UploadImageCourseUseCaseImpl(
+                courseRepository,
+                storage,
+                persistenceCoordinator,
+                cleanupProcessor
+        );
+
+        Course result = useCase.uploadImageCourse(5L, image);
+
+        assertEquals("new-certificate", result.getCourseCertificateImg());
+        assertEquals("https://udemy.test/certificate/5", result.getCourseCertificateUrl());
+        verify(courseRepository).updateCourse(course);
+        verify(storage).delete("old-certificate");
     }
 
     @Test

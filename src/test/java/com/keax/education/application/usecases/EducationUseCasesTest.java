@@ -4,7 +4,7 @@ import com.keax.education.domain.model.Education;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
-import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
+import com.keax.shared.domain.ports.out.InstitutionReferencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 class EducationUseCasesTest {
 
     private EducationRepositoryPort educationRepository;
-    private EducationInstitutionReferencePort institutionReferencePort;
+    private InstitutionReferencePort institutionReferencePort;
 
     @BeforeEach
     void setUp() {
         // Cada caso se ejecuta contra contratos simulados.
         educationRepository = mock(EducationRepositoryPort.class);
-        institutionReferencePort = mock(EducationInstitutionReferencePort.class);
+        institutionReferencePort = mock(InstitutionReferencePort.class);
     }
 
     @Test

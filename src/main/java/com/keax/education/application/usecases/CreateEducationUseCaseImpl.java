@@ -2,7 +2,7 @@ package com.keax.education.application.usecases;
 
 import lombok.RequiredArgsConstructor;
 
-import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
+import com.keax.shared.domain.ports.out.InstitutionReferencePort;
 import com.keax.education.domain.ports.out.EducationRepositoryPort;
 import com.keax.education.domain.ports.in.CreateEducationUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
     private final EducationRepositoryPort educationRepositoryPort;
-    private final EducationInstitutionReferencePort educationInstitutionReferencePort;
+    private final InstitutionReferencePort institutionReferencePort;
 
     @Override
     public Education createEducation(Education education) {
@@ -42,7 +42,7 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
                 }
         );
 
-        if (!educationInstitutionReferencePort.existsActiveInstitution(education.getInstitutionId())) {
+        if (!institutionReferencePort.existsActiveInstitution(education.getInstitutionId())) {
             throw new ResourceNotFoundException("The institution entered was not found");
         }
 

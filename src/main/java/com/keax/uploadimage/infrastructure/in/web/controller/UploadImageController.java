@@ -2,9 +2,12 @@ package com.keax.uploadimage.infrastructure.in.web.controller;
 
 import lombok.RequiredArgsConstructor;
 
+import com.keax.course.infrastructure.in.web.dto.CourseDTO;
+import com.keax.course.infrastructure.in.web.mapper.CourseWebMapper;
 import com.keax.institution.infrastructure.in.web.mapper.InstitutionWebMapper;
 import com.keax.uploadimage.infrastructure.in.web.mapper.ImageFileWebMapper;
 import com.keax.uploadimage.domain.ports.in.UploadImageInstitutionUseCase;
+import com.keax.uploadimage.domain.ports.in.UploadImageCourseUseCase;
 import com.keax.uploadimage.domain.ports.in.UploadImageProjectUseCase;
 import com.keax.uploadimage.domain.ports.in.UploadImageProfileUseCase;
 import com.keax.profile.infrastructure.in.web.mapper.ProfileWebMapper;
@@ -32,6 +35,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UploadImageController {
     private final UploadImageInstitutionUseCase uploadImageInstitutionUseCase;
+    private final UploadImageCourseUseCase uploadImageCourseUseCase;
     private final UploadImageProfileUseCase uploadImageProfileUseCase;
     private final UploadImageSkillUseCase uploadImageSkillUseCase;
     private final UploadImageProjectUseCase uploadImageProjectUseCase;
@@ -109,6 +113,28 @@ public class UploadImageController {
                                 files == null
                                         ? List.of()
                                         : files.stream().map(ImageFileWebMapper::toDomain).toList()
+                        )
+                )
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(
+            value = "/course/{courseId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ApiResponseDTO<CourseDTO>> uploadImgCourse(
+            @PathVariable Long courseId,
+            @RequestParam("image") MultipartFile file
+    ) {
+        ApiResponseDTO<CourseDTO> response = new ApiResponseDTO<>(
+                true,
+                "The course certificate has been uploaded successfully",
+                CourseWebMapper.fromDomain(
+                        uploadImageCourseUseCase.uploadImageCourse(
+                                courseId,
+                                ImageFileWebMapper.toDomain(file)
                         )
                 )
         );

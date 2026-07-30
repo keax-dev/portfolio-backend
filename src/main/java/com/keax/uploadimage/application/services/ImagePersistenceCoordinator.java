@@ -1,5 +1,7 @@
 package com.keax.uploadimage.application.services;
 
+import com.keax.course.domain.model.Course;
+import com.keax.course.domain.ports.out.CourseRepositoryPort;
 import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.profile.domain.model.Profile;
@@ -20,6 +22,7 @@ import java.util.Collection;
 public class ImagePersistenceCoordinator {
 
     private final ProjectRepositoryPort projectRepositoryPort;
+    private final CourseRepositoryPort courseRepositoryPort;
     private final InstitutionRepositoryPort institutionRepositoryPort;
     private final ProfileRepositoryPort profileRepositoryPort;
     private final SkillRepositoryPort skillRepositoryPort;
@@ -28,6 +31,13 @@ public class ImagePersistenceCoordinator {
     @Transactional
     public Project updateProject(Project project, Collection<String> obsoleteUrls) {
         Project updated = projectRepositoryPort.updateProject(project);
+        cleanupTaskPort.enqueueAll(obsoleteUrls);
+        return updated;
+    }
+
+    @Transactional
+    public Course updateCourse(Course course, Collection<String> obsoleteUrls) {
+        Course updated = courseRepositoryPort.updateCourse(course);
         cleanupTaskPort.enqueueAll(obsoleteUrls);
         return updated;
     }

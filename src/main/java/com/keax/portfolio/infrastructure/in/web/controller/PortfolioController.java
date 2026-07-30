@@ -2,6 +2,9 @@ package com.keax.portfolio.infrastructure.in.web.controller;
 
 import lombok.RequiredArgsConstructor;
 
+import com.keax.course.domain.ports.in.RetrieveCourseUseCase;
+import com.keax.course.infrastructure.in.web.dto.CourseDTO;
+import com.keax.course.infrastructure.in.web.mapper.CourseWebMapper;
 import com.keax.socialnetwork.infrastructure.in.web.mapper.SocialNetworkWebMapper;
 import com.keax.technology.infrastructure.in.web.mapper.TechnologyWebMapper;
 import com.keax.education.infrastructure.in.web.mapper.EducationWebMapper;
@@ -43,6 +46,7 @@ import java.util.List;
 public class PortfolioController {
     private final RetrieveProfileUseCase retrieveProfileUseCase;
     private final RetrieveEducationUseCase retrieveEducationUseCase;
+    private final RetrieveCourseUseCase retrieveCourseUseCase;
     private final RetrieveSkillUseCase retrieveSkillUseCase;
     private final RetrieveTechnologyUseCase retrieveTechnologyUseCase;
     private final RetrieveProjectUseCase retrieveProjectUseCase;
@@ -94,6 +98,20 @@ public class PortfolioController {
                 "Technology information found successfully",
                 retrieveTechnologyUseCase.findByTechnologyDeleted(false)
                         .stream().map(TechnologyWebMapper::fromDomain).toList()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/course")
+    public ResponseEntity<ApiResponseDTO<List<CourseDTO>>> getCourse() {
+        ApiResponseDTO<List<CourseDTO>> response = new ApiResponseDTO<>(
+                true,
+                "Course information found successfully",
+                retrieveCourseUseCase.findByCourseDeleted(false)
+                        .stream()
+                        .map(CourseWebMapper::fromDomain)
+                        .toList()
         );
 
         return ResponseEntity.ok(response);
