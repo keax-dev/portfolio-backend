@@ -1,16 +1,27 @@
 package com.keax.education.infrastructure.out.persistence.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 import com.keax.education.infrastructure.out.persistence.entity.EducationEntity;
 import java.util.Optional;
 import java.util.List;
 
 public interface JpaEducationRepository extends JpaRepository<EducationEntity, Long> {
 
-    List<EducationEntity> findByEducationDeleted(Boolean deleted);
-    Optional<EducationEntity> findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(String educationTitle, Boolean deleted, Long institutionId);
-    Optional<EducationEntity> findByEducationIdAndEducationDeleted(Long education_id, Boolean deleted);
-    Optional<EducationEntity> findByEducationPositionAndEducationDeleted(int position, Boolean deleted);
-    Boolean existsByInstitution_InstitutionIdAndEducationDeleted(Long institutionId, Boolean deleted);
+    @EntityGraph(attributePaths = "institution")
+    List<EducationEntity> findAllByOrderByEducationPositionAsc();
+
+    @EntityGraph(attributePaths = "institution")
+    Optional<EducationEntity> findByEducationTitleAndInstitution_InstitutionId(
+            String educationTitle,
+            Long institutionId
+    );
+
+    @Override
+    @EntityGraph(attributePaths = "institution")
+    Optional<EducationEntity> findById(Long educationId);
+
+    @EntityGraph(attributePaths = "institution")
+    Optional<EducationEntity> findByEducationPosition(int position);
 
 }

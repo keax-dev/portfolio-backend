@@ -101,17 +101,12 @@ class PostgreSqlPersistenceIntegrationTest {
 
         // Act: se ejecutan nombres derivados que navegan la asociación JPA.
         var found = educationRepository
-                .findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(
-                        "DEGREE", false, institution.getInstitutionId()
-                );
-        boolean associated = educationRepository
-                .existsByInstitution_InstitutionIdAndEducationDeleted(
-                        institution.getInstitutionId(), false
+                .findByEducationTitleAndInstitution_InstitutionId(
+                        "DEGREE", institution.getInstitutionId()
                 );
 
         // Assert: PostgreSQL resuelve correctamente relación y predicados.
         assertTrue(found.isPresent());
-        assertTrue(associated);
         assertEquals(institution.getInstitutionId(), found.orElseThrow().getInstitution().getInstitutionId());
     }
 
@@ -136,7 +131,7 @@ class PostgreSqlPersistenceIntegrationTest {
         entityManager.clear();
 
         // Act: se usa la consulta optimizada que alimenta el portafolio.
-        var projects = projectRepository.findByProjectDeletedOrderByProjectPosition(false);
+        var projects = projectRepository.findByProjectPublishedTrueOrderByProjectPosition();
 
         // Assert: el EntityGraph entrega el hijo y respeta el orden.
         assertEquals(1, projects.size());
@@ -165,7 +160,7 @@ class PostgreSqlPersistenceIntegrationTest {
         entityManager.clear();
 
         var project = ProjectPersistenceMapper.toDomain(
-                projectRepository.findByProjectIdAndProjectDeleted(saved.getProjectId(), false).orElseThrow()
+                projectRepository.findById(saved.getProjectId()).orElseThrow()
         );
         Long javaRelationId = project.getProjectTechnologies().stream()
                 .filter(relation -> relation.getTechnologyId().equals(java.getTechnologyId()))
@@ -178,7 +173,10 @@ class PostgreSqlPersistenceIntegrationTest {
                 new ProjectTechnology(javaRelationId, java.getTechnologyId(), "JAVA", 2)
         )));
 
-        var updated = new ProjectPersistenceAdapter(projectRepository).updateProject(project);
+        var updated = new ProjectPersistenceAdapter(
+                projectRepository,
+                entityManager.getEntityManager()
+        ).updateProject(project);
 
         assertEquals(2, updated.getProjectTechnologies().size());
         assertEquals(mysql.getTechnologyId(), updated.getProjectTechnologies().getFirst().getTechnologyId());

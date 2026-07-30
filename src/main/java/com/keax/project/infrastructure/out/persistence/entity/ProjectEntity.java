@@ -10,10 +10,15 @@ import lombok.Getter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.jdbc.Expectation;
 
 @Entity
 @Table(name = "project")
-@SQLDelete(sql = "UPDATE project SET project_deleted = true WHERE project_id = ?")
+@SQLDelete(
+        sql = "UPDATE project SET project_deleted = true, version = version + 1 "
+                + "WHERE project_id = ? AND version = ?",
+        verify = Expectation.RowCount.class
+)
 @SQLRestriction("project_deleted = false")
 @Getter
 @Setter
@@ -71,6 +76,10 @@ public class ProjectEntity {
     @BatchSize(size = 50)
     private Set<ProjectImageEntity> projectImages = new LinkedHashSet<>();
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     public ProjectEntity(
             Long projectId,
             String projectTitle,
@@ -94,7 +103,37 @@ public class ProjectEntity {
                 true,
                 projectTechnologies,
                 projectLinks,
-                projectImages
+                projectImages,
+                null
+        );
+    }
+
+    public ProjectEntity(
+            Long projectId,
+            String projectTitle,
+            String projectTitleEs,
+            String projectDescription,
+            String projectDescriptionEs,
+            int projectPosition,
+            Boolean projectDeleted,
+            Boolean projectPublished,
+            Set<ProjectTechnologyEntity> projectTechnologies,
+            Set<ProjectLinkEntity> projectLinks,
+            Set<ProjectImageEntity> projectImages
+    ) {
+        this(
+                projectId,
+                projectTitle,
+                projectTitleEs,
+                projectDescription,
+                projectDescriptionEs,
+                projectPosition,
+                projectDeleted,
+                projectPublished,
+                projectTechnologies,
+                projectLinks,
+                projectImages,
+                null
         );
     }
 

@@ -11,18 +11,11 @@ import java.util.List;
 public interface JpaProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
     List<ProjectEntity> findAllByOrderByProjectPosition();
-    List<ProjectEntity> findByProjectDeletedOrderByProjectPosition(Boolean deleted);
+    List<ProjectEntity> findByProjectPublishedTrueOrderByProjectPosition();
 
-    List<ProjectEntity> findByProjectDeletedAndProjectPublishedOrderByProjectPosition(
-            Boolean deleted,
-            Boolean published
-    );
+    Optional<ProjectEntity> findByProjectTitle(String projectTitle);
 
-    Optional<ProjectEntity> findByProjectTitleAndProjectDeleted(String projectTitle, Boolean deleted);
-
-    Optional<ProjectEntity> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted);
-
-    Optional<ProjectEntity> findByProjectPositionAndProjectDeleted(int position, Boolean deleted);
+    Optional<ProjectEntity> findByProjectPosition(int position);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
@@ -39,17 +32,5 @@ public interface JpaProjectRepository extends JpaRepository<ProjectEntity, Long>
             where link.project.projectId = :projectId
             """)
     int stageProjectLinkPositions(@Param("projectId") Long projectId);
-
-    @Query("""
-            select case when count(project) > 0 then true else false end
-            from ProjectEntity project
-            join project.projectTechnologies relation
-            where relation.technology.technologyId = :technologyId
-              and project.projectDeleted = :deleted
-            """)
-    Boolean existsByTechnologyIdAndProjectDeleted(
-            @Param("technologyId") Long technologyId,
-            @Param("deleted") Boolean deleted
-    );
 
 }

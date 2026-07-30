@@ -37,8 +37,8 @@ class JpaProjectRepositoryIntegrationTest {
         projectRepository.saveAndFlush(project("PORTFOLIO", 1, false, java));
         projectRepository.saveAndFlush(project("API", 2, false, spring));
 
-        var first = projectRepository.findByProjectPositionAndProjectDeleted(1, false);
-        var second = projectRepository.findByProjectPositionAndProjectDeleted(2, false);
+        var first = projectRepository.findByProjectPosition(1);
+        var second = projectRepository.findByProjectPosition(2);
 
         assertEquals("PORTFOLIO", first.orElseThrow().getProjectTitle());
         assertEquals("API", second.orElseThrow().getProjectTitle());
@@ -51,10 +51,7 @@ class JpaProjectRepositoryIntegrationTest {
         projectRepository.saveAndFlush(project("ACTIVE PROJECT", 1, false, angular, kotlin));
         projectRepository.saveAndFlush(project("DELETED PROJECT", 2, true, kotlin));
 
-        assertTrue(projectRepository.existsByTechnologyIdAndProjectDeleted(kotlin.getTechnologyId(), false));
-        assertFalse(projectRepository.existsByTechnologyIdAndProjectDeleted(kotlin.getTechnologyId(), true));
-
-        var activeProjects = projectRepository.findByProjectDeletedOrderByProjectPosition(false);
+        var activeProjects = projectRepository.findAllByOrderByProjectPosition();
         assertEquals(1, activeProjects.size());
         assertEquals(2, activeProjects.getFirst().getProjectTechnologies().size());
     }
@@ -64,7 +61,7 @@ class JpaProjectRepositoryIntegrationTest {
         TechnologyEntity rust = saveTechnology("RUST");
         projectRepository.saveAndFlush(project("OLD PROJECT", 1, true, rust));
 
-        assertFalse(projectRepository.existsByTechnologyIdAndProjectDeleted(rust.getTechnologyId(), false));
+        assertTrue(projectRepository.findAllByOrderByProjectPosition().isEmpty());
     }
 
     @Test
@@ -73,7 +70,7 @@ class JpaProjectRepositoryIntegrationTest {
         saveTechnology("ANGULAR");
 
         var technologies = technologyRepository
-                .findByTechnologyDeletedOrderByTechnologyNameAsc(false);
+                .findAllByOrderByTechnologyNameAsc();
 
         assertEquals(
                 java.util.List.of("ANGULAR", "JAVA"),
