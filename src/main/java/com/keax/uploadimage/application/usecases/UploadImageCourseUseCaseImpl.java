@@ -27,7 +27,7 @@ public class UploadImageCourseUseCaseImpl implements UploadImageCourseUseCase {
     public Course uploadImageCourse(Long courseId, ImageFile image) {
         ImageFileValidator.validate(image, "The certificate image is required");
 
-        Course course = courseRepositoryPort.findByCourseIdAndCourseDeleted(courseId, false)
+        Course course = courseRepositoryPort.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "The course to be updated does not exist"
                 ));

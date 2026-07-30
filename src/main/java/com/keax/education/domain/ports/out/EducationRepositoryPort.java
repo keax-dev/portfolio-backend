@@ -9,11 +9,9 @@ public interface EducationRepositoryPort {
     Education createEducation(Education education);
     Education updateEducation(Education education);
     Education deleteEducation(Education education);
-    List<Education> findByEducationDeleted(Boolean deleted);
-    List<Education> getListEducation();
-    Optional<Education> findByEducationTitleAndEducationDeletedAndInstitution_InstitutionId(String educationTitle, Boolean deleted, Long institutionId);
-    Optional<Education> findByEducationIdAndEducationDeleted(Long educationId, Boolean deleted);
-    Optional<Education> findByEducationPositionAndEducationDeleted(int position, Boolean deleted);
-    Boolean existsByInstitution_InstitutionIdAndEducationDeleted(Long institutionId, Boolean deleted);
+    List<Education> findAll();
+    Optional<Education> findByTitleAndInstitutionId(String educationTitle, Long institutionId);
+    Optional<Education> findById(Long educationId);
+    Optional<Education> findByPosition(int position);
 
 }

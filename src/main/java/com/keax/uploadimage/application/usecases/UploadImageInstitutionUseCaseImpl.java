@@ -26,10 +26,7 @@ public class UploadImageInstitutionUseCaseImpl implements UploadImageInstitution
 
         ImageFileValidator.validate(img, "The img is required");
 
-        Institution institution = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(
-                institutionId,
-                false
-        ).orElseThrow(
+        Institution institution = institutionRepositoryPort.findById(institutionId).orElseThrow(
                 () -> new ResourceNotFoundException("The institution to be updated does not exist")
         );
 

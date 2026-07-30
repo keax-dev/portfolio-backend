@@ -5,7 +5,6 @@ import java.util.List;
 
 public interface RetrieveSkillUseCase {
 
-    List<Skill> findBySkillDeleted(Boolean deleted);
     List<Skill> getListSkill();
 
 }

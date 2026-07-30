@@ -9,7 +9,7 @@ public final class TechnologyPersistenceMapper {
         return new Technology(
                 entity.getTechnologyId(),
                 entity.getTechnologyName(),
-                entity.getTechnologyDeleted()
+                entity.getVersion()
         );
     }
 
@@ -17,7 +17,8 @@ public final class TechnologyPersistenceMapper {
         return new TechnologyEntity(
                 technology.getTechnologyId(),
                 technology.getTechnologyName(),
-                technology.getTechnologyDeleted()
+                false,
+                technology.getVersion()
         );
     }
 

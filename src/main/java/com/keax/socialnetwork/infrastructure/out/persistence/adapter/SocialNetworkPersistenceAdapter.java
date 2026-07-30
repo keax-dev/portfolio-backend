@@ -35,48 +35,33 @@ public class SocialNetworkPersistenceAdapter implements SocialNetworkRepositoryP
     public SocialNetwork deleteSocialNetwork(SocialNetwork socialNetwork) {
         jpaSocialNetworkRepository.deleteById(socialNetwork.getSocialNetworkId());
         jpaSocialNetworkRepository.flush();
-        socialNetwork.setSocialNetworkDeleted(true);
         return socialNetwork;
     }
 
     @Override
-    public List<SocialNetwork> findBySocialNetworkDeleted(Boolean deleted) {
-        return jpaSocialNetworkRepository.findBySocialNetworkDeleted(deleted)
+    public List<SocialNetwork> findAll() {
+        return jpaSocialNetworkRepository.findAllByOrderBySocialNetworkPositionAsc()
                 .stream()
                 .map(SocialNetworkPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
-    public List<SocialNetwork> getListSocialNetwork() {
-        return jpaSocialNetworkRepository.findAll()
-                .stream()
-                .map(SocialNetworkPersistenceMapper::toDomain)
-                .toList();
+    public Optional<SocialNetwork> findByName(String socialNetworkName) {
+        return jpaSocialNetworkRepository.findBySocialNetworkName(socialNetworkName)
+                .map(SocialNetworkPersistenceMapper::toDomain);
     }
 
     @Override
-    public Optional<SocialNetwork> findBySocialNetworkNameAndSocialNetworkDeleted(String socialNetworkName, Boolean deleted) {
-        return jpaSocialNetworkRepository.findBySocialNetworkNameAndSocialNetworkDeleted(
-                socialNetworkName,
-                deleted
-        ).map(SocialNetworkPersistenceMapper::toDomain);
+    public Optional<SocialNetwork> findById(Long socialNetworkId) {
+        return jpaSocialNetworkRepository.findById(socialNetworkId)
+                .map(SocialNetworkPersistenceMapper::toDomain);
     }
 
     @Override
-    public Optional<SocialNetwork> findBySocialNetworkIdAndSocialNetworkDeleted(Long socialNetworkId, Boolean deleted) {
-        return jpaSocialNetworkRepository.findBySocialNetworkIdAndSocialNetworkDeleted(
-                socialNetworkId,
-                deleted
-        ).map(SocialNetworkPersistenceMapper::toDomain);
-    }
-
-    @Override
-    public Optional<SocialNetwork> findBySocialNetworkPositionAndSocialNetworkDeleted(int position, Boolean deleted) {
-        return jpaSocialNetworkRepository.findBySocialNetworkPositionAndSocialNetworkDeleted(
-                position,
-                deleted
-        ).map(SocialNetworkPersistenceMapper::toDomain);
+    public Optional<SocialNetwork> findByPosition(int position) {
+        return jpaSocialNetworkRepository.findBySocialNetworkPosition(position)
+                .map(SocialNetworkPersistenceMapper::toDomain);
     }
 
 }

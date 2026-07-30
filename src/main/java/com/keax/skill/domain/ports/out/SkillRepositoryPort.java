@@ -9,11 +9,10 @@ public interface SkillRepositoryPort {
     Skill createSkill(Skill skill);
     Skill updateSkill(Skill skill);
     Skill deleteSkill(Skill skill);
-    List<Skill> findBySkillDeleted(Boolean deleted);
-    List<Skill> getListSkill();
-    Optional<Skill> findBySkillNameAndSkillDeleted(String skillName, Boolean deleted);
-    Optional<Skill> findBySkillIdAndSkillDeleted(Long skillId, Boolean deleted);
-    Optional<Skill> findBySkillPositionAndSkillDeleted(int position, Boolean deleted);
+    List<Skill> findAll();
+    Optional<Skill> findByName(String skillName);
+    Optional<Skill> findById(Long skillId);
+    Optional<Skill> findByPosition(int position);
 
 
 }

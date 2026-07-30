@@ -15,10 +15,11 @@ public final class CourseWebMapper {
                 dto.getCourseNameEn(),
                 dto.getCourseCertificateImg(),
                 dto.getCourseCertificateUrl(),
-                dto.getCourseDeleted(),
+                dto.getCoursePosition(),
                 dto.getInstitutionId(),
                 dto.getInstitutionName(),
-                dto.getInstitutionNameEs()
+                dto.getInstitutionNameEs(),
+                null
         );
     }
 
@@ -29,7 +30,8 @@ public final class CourseWebMapper {
                 course.getCourseNameEn(),
                 course.getCourseCertificateImg(),
                 course.getCourseCertificateUrl(),
-                course.getCourseDeleted(),
+                course.getCoursePosition(),
+                false,
                 course.getInstitutionId(),
                 course.getInstitutionName(),
                 course.getInstitutionNameEs()

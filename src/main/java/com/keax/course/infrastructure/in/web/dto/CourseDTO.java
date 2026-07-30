@@ -2,6 +2,7 @@ package com.keax.course.infrastructure.in.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -41,7 +42,12 @@ public class CourseDTO {
     )
     private String courseCertificateUrl;
 
-    @JsonProperty("deleted")
+    @JsonProperty("position")
+    @NotNull(message = "The course position is required")
+    @Min(value = 1, message = "The course position must be greater than 0")
+    private Integer coursePosition;
+
+    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
     private Boolean courseDeleted = false;
 
     @JsonProperty("institution")

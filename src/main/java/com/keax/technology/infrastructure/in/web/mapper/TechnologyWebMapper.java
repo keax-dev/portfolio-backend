@@ -9,7 +9,7 @@ public final class TechnologyWebMapper {
         return new Technology(
                 dto.getTechnologyId(),
                 dto.getTechnologyName(),
-                dto.getTechnologyDeleted()
+                null
         );
     }
 
@@ -17,7 +17,7 @@ public final class TechnologyWebMapper {
         return new TechnologyDTO(
                 technology.getTechnologyId(),
                 technology.getTechnologyName(),
-                technology.getTechnologyDeleted()
+                false
         );
     }
 

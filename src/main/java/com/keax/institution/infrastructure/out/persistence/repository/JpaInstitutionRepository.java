@@ -7,8 +7,7 @@ import java.util.List;
 
 public interface JpaInstitutionRepository extends JpaRepository<InstitutionEntity, Long> {
 
-    List<InstitutionEntity> findByInstitutionDeleted(Boolean deleted);
-    Optional<InstitutionEntity> findByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted);
-    Optional<InstitutionEntity> findByInstitutionIdAndInstitutionDeleted(Long institution_id, Boolean deleted);
+    List<InstitutionEntity> findAllByOrderByInstitutionNameAsc();
+    Optional<InstitutionEntity> findByInstitutionName(String institutionName);
 
 }

@@ -30,7 +30,7 @@ public class SkillDTO {
     @Min(value = 1, message = "The skill position must be greater than 0")
     private int skillPosition;
 
-    @JsonProperty("deleted")
-    private Boolean skillDeleted;
+    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
+    private Boolean skillDeleted = false;
 
 }

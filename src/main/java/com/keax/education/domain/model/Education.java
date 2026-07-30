@@ -20,10 +20,10 @@ public class Education {
     private  String educationEnd;
     private  String educationEndEs;
     private int educationPosition;
-    private Boolean educationDeleted;
     private Long institutionId;
     private String institutionName;
     private String institutionNameEs;
     private String institutionUrl;
+    private Long version;
 
 }

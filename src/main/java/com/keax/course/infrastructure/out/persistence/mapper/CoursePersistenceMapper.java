@@ -16,10 +16,11 @@ public final class CoursePersistenceMapper {
                 entity.getCourseNameEn(),
                 entity.getCourseCertificateImg(),
                 entity.getCourseCertificateUrl(),
-                entity.getCourseDeleted(),
+                entity.getCoursePosition(),
                 entity.getInstitution().getInstitutionId(),
                 entity.getInstitution().getInstitutionName(),
-                entity.getInstitution().getInstitutionNameEs()
+                entity.getInstitution().getInstitutionNameEs(),
+                entity.getVersion()
         );
     }
 
@@ -30,8 +31,10 @@ public final class CoursePersistenceMapper {
                 course.getCourseNameEn(),
                 course.getCourseCertificateImg(),
                 course.getCourseCertificateUrl(),
-                course.getCourseDeleted(),
-                InstitutionPersistenceMapper.toReference(course.getInstitutionId())
+                course.getCoursePosition(),
+                false,
+                InstitutionPersistenceMapper.toReference(course.getInstitutionId()),
+                course.getVersion()
         );
     }
 }

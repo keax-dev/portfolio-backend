@@ -44,7 +44,7 @@ public class SocialNetworkDTO {
     @Size(max = 2048, message = "The social network url must not exceed 2048 characters")
     private String socialNetworkUrl;
 
-    @JsonProperty("deleted")
-    private Boolean socialNetworkDeleted;
+    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
+    private Boolean socialNetworkDeleted = false;
 
 }

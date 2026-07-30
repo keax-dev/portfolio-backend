@@ -13,6 +13,6 @@ public class Technology {
 
     private Long technologyId;
     private String technologyName;
-    private Boolean technologyDeleted;
+    private Long version;
 
 }

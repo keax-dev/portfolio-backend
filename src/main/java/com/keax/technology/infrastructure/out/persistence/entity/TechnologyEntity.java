@@ -7,10 +7,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.jdbc.Expectation;
 
 @Entity
 @Table(name = "technology")
-@SQLDelete(sql = "UPDATE technology SET technology_deleted = true WHERE technology_id = ?")
+@SQLDelete(
+        sql = "UPDATE technology SET technology_deleted = true, version = version + 1 "
+                + "WHERE technology_id = ? AND version = ?",
+        verify = Expectation.RowCount.class
+)
 @SQLRestriction("technology_deleted = false")
 @Getter
 @Setter
@@ -28,5 +33,13 @@ public class TechnologyEntity {
 
     @Column(name = "technology_deleted", nullable = false)
     private Boolean technologyDeleted = false;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    public TechnologyEntity(Long technologyId, String technologyName, Boolean technologyDeleted) {
+        this(technologyId, technologyName, technologyDeleted, null);
+    }
 
 }

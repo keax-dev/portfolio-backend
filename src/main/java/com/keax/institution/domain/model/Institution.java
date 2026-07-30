@@ -15,6 +15,6 @@ public class Institution {
     private String institutionName;
     private String institutionNameEs;
     private String institutionUrl;
-    private Boolean institutionDeleted;
+    private Long version;
 
 }

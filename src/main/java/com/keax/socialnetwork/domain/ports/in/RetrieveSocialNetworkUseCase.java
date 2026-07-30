@@ -5,7 +5,6 @@ import java.util.List;
 
 public interface RetrieveSocialNetworkUseCase {
 
-    List<SocialNetwork> findBySocialNetworkDeleted(Boolean deleted);
     List<SocialNetwork> getListSocialNetwork();
 
 }

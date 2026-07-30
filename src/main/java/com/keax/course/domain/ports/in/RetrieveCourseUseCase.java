@@ -7,6 +7,4 @@ import java.util.List;
 public interface RetrieveCourseUseCase {
 
     List<Course> getListCourse();
-
-    List<Course> findByCourseDeleted(Boolean deleted);
 }

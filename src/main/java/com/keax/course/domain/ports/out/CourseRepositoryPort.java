@@ -13,15 +13,14 @@ public interface CourseRepositoryPort {
 
     Course deleteCourse(Course course);
 
-    List<Course> findByCourseDeleted(Boolean deleted);
+    List<Course> findAll();
 
-    List<Course> getListCourse();
+    Optional<Course> findById(Long courseId);
 
-    Optional<Course> findByCourseIdAndCourseDeleted(Long courseId, Boolean deleted);
-
-    Optional<Course> findByCourseNameAndCourseDeletedAndInstitutionId(
+    Optional<Course> findByNameAndInstitutionId(
             String courseName,
-            Boolean deleted,
             Long institutionId
     );
+
+    Optional<Course> findByPosition(int position);
 }

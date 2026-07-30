@@ -36,38 +36,26 @@ public class InstitutionPersistenceAdapter implements InstitutionRepositoryPort 
     public Institution deleteInstitution(Institution institution) {
         jpaInstitutionRepository.deleteById(institution.getInstitutionId());
         jpaInstitutionRepository.flush();
-        institution.setInstitutionDeleted(true);
         return institution;
     }
 
     @Override
-    public List<Institution> getListInstitution() {
-        return jpaInstitutionRepository.findAll().stream()
+    public List<Institution> findAll() {
+        return jpaInstitutionRepository.findAllByOrderByInstitutionNameAsc().stream()
                 .map(InstitutionPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
-    public List<Institution> findByInstitutionDeleted(Boolean deleted) {
-        return jpaInstitutionRepository.findByInstitutionDeleted(deleted).stream()
-                .map(InstitutionPersistenceMapper::toDomain)
-                .toList();
+    public Optional<Institution> findByName(String institutionName) {
+        return jpaInstitutionRepository.findByInstitutionName(institutionName)
+                .map(InstitutionPersistenceMapper::toDomain);
     }
 
     @Override
-    public Optional<Institution> findByInstitutionNameAndInstitutionDeleted(String institutionName, Boolean deleted) {
-        return jpaInstitutionRepository.findByInstitutionNameAndInstitutionDeleted(
-                institutionName,
-                deleted
-        ).map(InstitutionPersistenceMapper::toDomain);
-    }
-
-    @Override
-    public Optional<Institution> findByInstitutionIdAndInstitutionDeleted(Long institutionId, Boolean deleted) {
-        return jpaInstitutionRepository.findByInstitutionIdAndInstitutionDeleted(
-                institutionId,
-                deleted
-        ).map(InstitutionPersistenceMapper::toDomain);
+    public Optional<Institution> findById(Long institutionId) {
+        return jpaInstitutionRepository.findById(institutionId)
+                .map(InstitutionPersistenceMapper::toDomain);
     }
 
 }

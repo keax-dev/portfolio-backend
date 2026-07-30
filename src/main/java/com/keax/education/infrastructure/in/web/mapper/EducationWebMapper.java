@@ -16,11 +16,11 @@ public final class EducationWebMapper {
                 dto.getEducationEnd(),
                 dto.getEducationEndEs(),
                 dto.getEducationPosition(),
-                dto.getEducationDeleted(),
                 dto.getInstitutionId(),
                 dto.getInstitutionName(),
                 dto.getInstitutionNameEs(),
-                dto.getInstitutionUrl()
+                dto.getInstitutionUrl(),
+                null
         );
     }
 
@@ -35,7 +35,7 @@ public final class EducationWebMapper {
                 education.getEducationEnd(),
                 education.getEducationEndEs(),
                 education.getEducationPosition(),
-                education.getEducationDeleted(),
+                false,
                 education.getInstitutionId(),
                 education.getInstitutionName(),
                 education.getInstitutionNameEs(),

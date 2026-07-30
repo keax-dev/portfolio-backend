@@ -16,8 +16,9 @@ public class Course {
     private String courseNameEn;
     private String courseCertificateImg;
     private String courseCertificateUrl;
-    private Boolean courseDeleted;
+    private int coursePosition;
     private Long institutionId;
     private String institutionName;
     private String institutionNameEs;
+    private Long version;
 }

@@ -36,46 +36,32 @@ public class SkillPersistenceAdapter implements SkillRepositoryPort {
     public Skill deleteSkill(Skill skill) {
         jpaSkillRepository.deleteById(skill.getSkillId());
         jpaSkillRepository.flush();
-        skill.setSkillDeleted(true);
         return skill;
     }
 
     @Override
-    public List<Skill> findBySkillDeleted(Boolean deleted) {
-        return jpaSkillRepository.findBySkillDeleted(deleted).stream()
+    public List<Skill> findAll() {
+        return jpaSkillRepository.findAllByOrderBySkillPositionAsc().stream()
                 .map(SkillPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
-    public List<Skill> getListSkill() {
-        return jpaSkillRepository.findAll().stream()
-                .map(SkillPersistenceMapper::toDomain)
-                .toList();
+    public Optional<Skill> findByName(String skillName) {
+        return jpaSkillRepository.findBySkillName(skillName)
+                .map(SkillPersistenceMapper::toDomain);
     }
 
     @Override
-    public Optional<Skill> findBySkillNameAndSkillDeleted(String skillName, Boolean deleted) {
-        return jpaSkillRepository.findBySkillNameAndSkillDeleted(
-                skillName,
-                deleted
-        ).map(SkillPersistenceMapper::toDomain);
+    public Optional<Skill> findById(Long skillId) {
+        return jpaSkillRepository.findById(skillId)
+                .map(SkillPersistenceMapper::toDomain);
     }
 
     @Override
-    public Optional<Skill> findBySkillIdAndSkillDeleted(Long skillId, Boolean deleted) {
-        return jpaSkillRepository.findBySkillIdAndSkillDeleted(
-                skillId,
-                deleted
-        ).map(SkillPersistenceMapper::toDomain);
-    }
-
-    @Override
-    public Optional<Skill> findBySkillPositionAndSkillDeleted(int position, Boolean deleted) {
-        return jpaSkillRepository.findBySkillPositionAndSkillDeleted(
-                position,
-                deleted
-        ).map(SkillPersistenceMapper::toDomain);
+    public Optional<Skill> findByPosition(int position) {
+        return jpaSkillRepository.findBySkillPosition(position)
+                .map(SkillPersistenceMapper::toDomain);
     }
 
 }

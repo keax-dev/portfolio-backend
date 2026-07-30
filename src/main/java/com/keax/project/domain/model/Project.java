@@ -19,11 +19,11 @@ public class Project {
     private String projectDescription;
     private String projectDescriptionEs;
     private int projectPosition;
-    private Boolean projectDeleted;
     private Boolean projectPublished;
     private List<ProjectTechnology> projectTechnologies = new ArrayList<>();
     private List<ProjectLink> projectLinks = new ArrayList<>();
     private List<ProjectImage> projectImages = new ArrayList<>();
+    private Long version;
 
     public Project(
             Long projectId,
@@ -32,7 +32,6 @@ public class Project {
             String projectDescription,
             String projectDescriptionEs,
             int projectPosition,
-            Boolean projectDeleted,
             List<ProjectTechnology> projectTechnologies,
             List<ProjectLink> projectLinks,
             List<ProjectImage> projectImages
@@ -44,11 +43,38 @@ public class Project {
                 projectDescription,
                 projectDescriptionEs,
                 projectPosition,
-                projectDeleted,
                 true,
                 projectTechnologies,
                 projectLinks,
-                projectImages
+                projectImages,
+                null
+        );
+    }
+
+    public Project(
+            Long projectId,
+            String projectTitle,
+            String projectTitleEs,
+            String projectDescription,
+            String projectDescriptionEs,
+            int projectPosition,
+            Boolean projectPublished,
+            List<ProjectTechnology> projectTechnologies,
+            List<ProjectLink> projectLinks,
+            List<ProjectImage> projectImages
+    ) {
+        this(
+                projectId,
+                projectTitle,
+                projectTitleEs,
+                projectDescription,
+                projectDescriptionEs,
+                projectPosition,
+                projectPublished,
+                projectTechnologies,
+                projectLinks,
+                projectImages,
+                null
         );
     }
 

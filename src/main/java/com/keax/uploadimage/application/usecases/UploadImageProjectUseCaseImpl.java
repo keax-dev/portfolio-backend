@@ -35,10 +35,7 @@ public class UploadImageProjectUseCaseImpl implements UploadImageProjectUseCase 
         }
         images.forEach(image -> ImageFileValidator.validate(image, "The project image is required"));
 
-        Project project = projectRepositoryPort.findByProjectIdAndProjectDeleted(
-                projectId,
-                false
-        ).orElseThrow(
+        Project project = projectRepositoryPort.findById(projectId).orElseThrow(
                 () -> new ResourceNotFoundException("The project entered was not found")
         );
 
@@ -79,7 +76,7 @@ public class UploadImageProjectUseCaseImpl implements UploadImageProjectUseCase 
 
     @Override
     public Project deleteProjectImage(Long projectId, Long projectImageId) {
-        Project project = projectRepositoryPort.findByProjectIdAndProjectDeleted(projectId, false)
+        Project project = projectRepositoryPort.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("The project entered was not found"));
 
         if (project.getProjectImages() == null || project.getProjectImages().size() <= 1) {

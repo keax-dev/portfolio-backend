@@ -13,7 +13,7 @@ public final class SocialNetworkPersistenceMapper {
                 entity.getSocialNetworkColor(),
                 entity.getSocialNetworkPosition(),
                 entity.getSocialNetworkUrl(),
-                entity.getSocialNetworkDeleted()
+                entity.getVersion()
         );
     }
 
@@ -25,7 +25,8 @@ public final class SocialNetworkPersistenceMapper {
                 socialNetwork.getSocialNetworkColor(),
                 socialNetwork.getSocialNetworkPosition(),
                 socialNetwork.getSocialNetworkUrl(),
-                socialNetwork.getSocialNetworkDeleted()
+                false,
+                socialNetwork.getVersion()
         );
     }
 
