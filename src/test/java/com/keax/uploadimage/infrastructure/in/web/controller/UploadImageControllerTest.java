@@ -73,7 +73,7 @@ class UploadImageControllerTest {
         // Arrange: el puerto devuelve la institución con su nueva URL.
         when(uploadImageInstitutionUseCase.uploadImageInstitution(
                 org.mockito.ArgumentMatchers.eq(10L), any(ImageFile.class)
-        )).thenReturn(new Institution(10L, "UNIVERSITY", "UNIVERSIDAD", "image-url", false));
+        )).thenReturn(new Institution(10L, "UNIVERSITY", "UNIVERSIDAD", "image-url", null));
 
         // Act y Assert: se conserva el id de ruta y la respuesta pública.
         mockMvc.perform(multipart("/api/image/institution/{id}", 10L).file(image()))
@@ -95,10 +95,11 @@ class UploadImageControllerTest {
                 "SPRING BOOT",
                 "certificate-url",
                 "https://udemy.test/certificate/15",
-                false,
+                1,
                 10L,
                 "UDEMY",
-                "UDEMY"
+                "UDEMY",
+                null
         ));
 
         mockMvc.perform(multipart("/api/image/course/{id}", 15L).file(image()))
@@ -134,7 +135,7 @@ class UploadImageControllerTest {
         // Arrange: la habilidad contiene la URL resultante.
         when(uploadImageSkillUseCase.uploadImageSkill(
                 org.mockito.ArgumentMatchers.eq(20L), any(ImageFile.class)
-        )).thenReturn(new Skill(20L, "JAVA", "image-url", 1, false));
+        )).thenReturn(new Skill(20L, "JAVA", "image-url", 1, null));
 
         // Act y Assert: el path variable y la imagen llegan al endpoint correcto.
         mockMvc.perform(multipart("/api/image/skill/{id}", 20L).file(image()))

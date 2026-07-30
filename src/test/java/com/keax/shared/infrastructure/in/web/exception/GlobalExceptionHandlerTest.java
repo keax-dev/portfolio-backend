@@ -8,6 +8,7 @@ import com.keax.shared.infrastructure.in.web.filter.RequestCorrelationFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -65,6 +66,17 @@ class GlobalExceptionHandlerTest {
 
         // Assert: la dependencia externa fallida corresponde a HTTP 502.
         assertEquals(HttpStatus.BAD_GATEWAY, response.getStatusCode());
+    }
+
+    @Test
+    void mapsConcurrentModificationToConflict() {
+        var response = handler.handleOptimisticLockingFailure(
+                new ObjectOptimisticLockingFailureException("Technology", 1L),
+                request()
+        );
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("Concurrent modification", response.getBody().getAlert());
     }
 
     private MockHttpServletRequest request() {

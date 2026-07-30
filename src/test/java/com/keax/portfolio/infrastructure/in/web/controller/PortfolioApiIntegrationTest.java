@@ -156,6 +156,17 @@ class PortfolioApiIntegrationTest {
                 "SPRING BOOT FROM SCRATCH",
                 "certificate.png",
                 "https://udemy.test/certificate/active",
+                2,
+                false,
+                activeInstitution
+        ));
+        courseRepository.saveAndFlush(new CourseEntity(
+                null,
+                "ANGULAR AVANZADO",
+                "ADVANCED ANGULAR",
+                "angular-certificate.png",
+                null,
+                1,
                 false,
                 activeInstitution
         ));
@@ -165,6 +176,7 @@ class PortfolioApiIntegrationTest {
                 "DELETED COURSE",
                 "deleted-certificate.png",
                 null,
+                3,
                 true,
                 activeInstitution
         ));
@@ -211,12 +223,15 @@ class PortfolioApiIntegrationTest {
 
         mockMvc.perform(get("/api/portfolio/course"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].name").value("SPRING BOOT DESDE CERO"))
-                .andExpect(jsonPath("$.data[0].name_en").value("SPRING BOOT FROM SCRATCH"))
-                .andExpect(jsonPath("$.data[0].certificate_img").value("certificate.png"))
-                .andExpect(jsonPath("$.data[0].certificate_url")
-                        .value("https://udemy.test/certificate/active"));
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].name").value("ANGULAR AVANZADO"))
+                .andExpect(jsonPath("$.data[0].position").value(1))
+                .andExpect(jsonPath("$.data[1].name").value("SPRING BOOT DESDE CERO"))
+                .andExpect(jsonPath("$.data[1].name_en").value("SPRING BOOT FROM SCRATCH"))
+                .andExpect(jsonPath("$.data[1].certificate_img").value("certificate.png"))
+                .andExpect(jsonPath("$.data[1].certificate_url")
+                        .value("https://udemy.test/certificate/active"))
+                .andExpect(jsonPath("$.data[1].position").value(2));
 
         mockMvc.perform(get("/api/portfolio/skill"))
                 .andExpect(status().isOk())

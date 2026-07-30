@@ -223,11 +223,11 @@ class ManagementApiIntegrationTest {
         performPost("/api/technology", "{\"name\":\"MySQL\"}", token)
                 .andExpect(status().isOk());
         Long javaId = technologyRepository
-                .findByTechnologyNameAndTechnologyDeleted("JAVA", false).orElseThrow().getTechnologyId();
+                .findByTechnologyName("JAVA").orElseThrow().getTechnologyId();
         Long angularId = technologyRepository
-                .findByTechnologyNameAndTechnologyDeleted("ANGULAR", false).orElseThrow().getTechnologyId();
+                .findByTechnologyName("ANGULAR").orElseThrow().getTechnologyId();
         Long mysqlId = technologyRepository
-                .findByTechnologyNameAndTechnologyDeleted("MYSQL", false).orElseThrow().getTechnologyId();
+                .findByTechnologyName("MYSQL").orElseThrow().getTechnologyId();
 
         performPost("/api/project", """
                 {"title":"Portfolio","title_es":"Portafolio",
@@ -252,7 +252,7 @@ class ManagementApiIntegrationTest {
                 .andExpect(jsonPath("$.data.technologies[1].id").value(javaId))
                 .andExpect(jsonPath("$.data.technologies[1].position").value(2));
 
-        var relations = projectRepository.findByProjectIdAndProjectDeleted(projectId, false)
+        var relations = projectRepository.findById(projectId)
                 .orElseThrow()
                 .getProjectTechnologies();
         assertEquals(2, relations.size());

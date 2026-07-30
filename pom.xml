@@ -239,6 +239,21 @@
 										</limit>
 									</limits>
 								</rule>
+								<rule>
+									<element>CLASS</element>
+									<includes>
+										<include>com.keax.shared.domain.text.TextNormalizer</include>
+										<include>com.keax.portfolio.application.PortfolioQueryService</include>
+										<include>com.keax.uploadimage.infrastructure.out.persistence.adapter.ImageCleanupTaskPersistenceAdapter</include>
+									</includes>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+									</limits>
+								</rule>
 							</rules>
 						</configuration>
 					</execution>

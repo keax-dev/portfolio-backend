@@ -75,6 +75,7 @@ class CourseApiIntegrationTest {
                                   "name":"Spring Boot desde cero",
                                   "name_en":"Spring Boot Masterclass",
                                   "certificate_url":"https://udemy.test/certificate/123",
+                                  "position":1,
                                   "institution":%d
                                 }
                                 """.formatted(institution.getInstitutionId())))
@@ -84,6 +85,7 @@ class CourseApiIntegrationTest {
                 .andExpect(jsonPath("$.data.certificate_img").doesNotExist())
                 .andExpect(jsonPath("$.data.certificate_url")
                         .value("https://udemy.test/certificate/123"))
+                .andExpect(jsonPath("$.data.position").value(1))
                 .andExpect(jsonPath("$.data.institution_name").value("UDEMY"));
 
         Long courseId = courseRepository.findAll().getFirst().getCourseId();
@@ -96,12 +98,14 @@ class CourseApiIntegrationTest {
                                   "name":"Spring Boot moderno",
                                   "name_en":"Modern Spring Boot",
                                   "certificate_url":"",
+                                  "position":1,
                                   "institution":%d
                                 }
                                 """.formatted(institution.getInstitutionId())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.name").value("SPRING BOOT MODERNO"))
                 .andExpect(jsonPath("$.data.name_en").value("MODERN SPRING BOOT"))
+                .andExpect(jsonPath("$.data.position").value(1))
                 .andExpect(jsonPath("$.data.certificate_url").doesNotExist());
 
         mockMvc.perform(get("/api/course").header("Authorization", bearer(token)))

@@ -117,8 +117,8 @@ class UploadImageUseCasesTest {
     @Test
     void uploadsSkillImage() {
         // Arrange: existe la habilidad y Cloudinary devuelve una URL segura.
-        Skill skill = new Skill(1L, "JAVA", "old-url", 1, false);
-        when(skillRepository.findBySkillIdAndSkillDeleted(1L, false)).thenReturn(Optional.of(skill));
+        Skill skill = new Skill(1L, "JAVA", "old-url", 1, null);
+        when(skillRepository.findById(1L)).thenReturn(Optional.of(skill));
         when(storage.upload(image, "Skills")).thenReturn("new-url");
         when(skillRepository.updateSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
         UploadImageSkillUseCaseImpl useCase = new UploadImageSkillUseCaseImpl(
@@ -141,12 +141,13 @@ class UploadImageUseCasesTest {
                 "SPRING BOOT",
                 "old-certificate",
                 "https://udemy.test/certificate/5",
-                false,
+                1,
                 2L,
                 "UDEMY",
-                "UDEMY"
+                "UDEMY",
+                null
         );
-        when(courseRepository.findByCourseIdAndCourseDeleted(5L, false))
+        when(courseRepository.findById(5L))
                 .thenReturn(Optional.of(course));
         when(storage.upload(image, "Certificates")).thenReturn("new-certificate");
         when(courseRepository.updateCourse(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -174,7 +175,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(1L, "old-url", 1)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         when(storage.upload(image, "Projects")).thenReturn("new-url");
         when(projectRepository.updateProject(any())).thenThrow(new IllegalStateException("database down"));
@@ -201,7 +202,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(1L, "first-url", 1)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         when(storage.upload(image, "Projects")).thenReturn("second-url");
         when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -224,7 +225,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(1L, "first-url", 1)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         UploadImageProjectUseCaseImpl useCase = new UploadImageProjectUseCaseImpl(
                 projectRepository, storage, persistenceCoordinator, cleanupProcessor
@@ -266,7 +267,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(11L, "second-url", 2)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -283,8 +284,8 @@ class UploadImageUseCasesTest {
     @Test
     void uploadsInstitutionImage() {
         // Arrange: existe la institución y su imagen previa.
-        Institution institution = new Institution(1L, "UNI", "UNI", "old-url", false);
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
+        Institution institution = new Institution(1L, "UNI", "UNI", "old-url", null);
+        when(institutionRepository.findById(1L))
                 .thenReturn(Optional.of(institution));
         when(storage.upload(image, "Institutions")).thenReturn("new-url");
         when(institutionRepository.updateInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
