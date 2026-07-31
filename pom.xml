@@ -33,7 +33,7 @@
 		<jjwt.version>0.13.0</jjwt.version>
 		<jacoco.version>0.8.13</jacoco.version>
 		<maven-enforcer.version>3.6.2</maven-enforcer.version>
-		<spotbugs-maven-plugin.version>4.10.2.0</spotbugs-maven-plugin.version>
+		<spotbugs-maven-plugin.version>4.10.3.0</spotbugs-maven-plugin.version>
 	</properties>
 
 	<dependencies>
