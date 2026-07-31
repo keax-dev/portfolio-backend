@@ -40,7 +40,7 @@ jobs:
     steps:
       # Descarga el codigo exacto que aprobo el CI.
       - name: Descargar el codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
@@ -94,7 +94,7 @@ jobs:
     steps:
       # Descarga el codigo del commit aprobado para reutilizar el compose exacto.
       - name: Descargar el codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 

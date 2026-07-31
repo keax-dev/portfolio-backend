@@ -33,7 +33,7 @@ jobs:
     steps:
       # Descarga el contenido del repositorio en el runner.
       - name: Descargar el codigo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # En algunos entornos el wrapper puede perder el bit ejecutable.
       # Este ajuste evita fallas por permisos al invocar ./mvnw.
