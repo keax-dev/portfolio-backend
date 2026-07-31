@@ -356,11 +356,12 @@ Además, Maven Enforcer valida:
 El backend incluye un `Dockerfile` multi-stage:
 
 - Etapa 1: compila con Maven + Temurin 21
-- Etapa 2: ejecuta con JRE liviano
+- Etapa 2: ejecuta con JRE liviano basado en Alpine
 
 Características de la imagen:
 
-- Instala `curl` para healthchecks internos,
+- Actualiza los paquetes de Alpine durante el build,
+- Usa el `wget` incluido en BusyBox para healthchecks internos,
 - Expone `8080`,
 - Permite inyectar opciones mediante `JAVA_TOOL_OPTIONS`,
 - Ejecuta con el usuario no privilegiado `app`,

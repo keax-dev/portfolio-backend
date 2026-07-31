@@ -22,15 +22,14 @@ COPY src src
 # Los tests ya deben haber pasado previamente en el workflow de CI.
 RUN --mount=type=cache,target=/root/.m2 ./mvnw -B clean package -DskipTests
 
-# Etapa 2: imagen ligera de ejecucion solamente con JRE.
-FROM eclipse-temurin:21-jre-jammy
+# Etapa 2: imagen minima de ejecucion basada en Alpine y solamente con JRE.
+FROM eclipse-temurin:21-jre-alpine
 
-# Instala curl para el healthcheck del contenedor.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd --system app \
-    && useradd --system --gid app --home-dir /app --shell /usr/sbin/nologin app
+# Actualiza los paquetes base y crea un usuario sin privilegios.
+# BusyBox ya incluye wget, por lo que el healthcheck no agrega dependencias.
+RUN apk upgrade --no-cache \
+    && addgroup --system app \
+    && adduser --system --ingroup app --home /app --shell /sbin/nologin app
 
 # Carpeta donde vivira el jar dentro del contenedor.
 WORKDIR /app
@@ -45,7 +44,7 @@ EXPOSE 8080
 # Healthcheck local del contenedor.
 # Si Actuator deja de responder, Docker podra marcar la instancia como unhealthy.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=5 \
-  CMD sh -c 'curl --fail --silent http://127.0.0.1:${PORT:-8080}/actuator/health || exit 1'
+  CMD sh -c 'wget --quiet --output-document=/dev/null http://127.0.0.1:${PORT:-8080}/actuator/health || exit 1'
 
 # Java reconoce JAVA_TOOL_OPTIONS sin requerir un shell intermedio.
 USER app
