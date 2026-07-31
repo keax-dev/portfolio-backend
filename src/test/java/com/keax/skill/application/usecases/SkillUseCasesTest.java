@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,8 +36,8 @@ class SkillUseCasesTest {
     void createsSkillWithControlledDefaults() {
         // Arrange: nombre y posición están disponibles.
         Skill input = skill(null, "Java", "untrusted-picture", 1, null);
-        when(repository.findBySkillNameAndSkillDeleted("JAVA", false)).thenReturn(Optional.empty());
-        when(repository.findBySkillPositionAndSkillDeleted(1, false)).thenReturn(Optional.empty());
+        when(repository.findByName("JAVA")).thenReturn(Optional.empty());
+        when(repository.findByPosition(1)).thenReturn(Optional.empty());
         when(repository.createSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act: se ejecuta la creación.
@@ -48,15 +47,14 @@ class SkillUseCasesTest {
         assertEquals("JAVA", result.getSkillName());
         assertNull(result.getSkillId());
         assertNull(result.getSkillPicture());
-        assertFalse(result.getSkillDeleted());
     }
 
     @Test
     void rejectsDuplicatedSkillPosition() {
         // Arrange: otro registro activo ocupa la posición solicitada.
         Skill input = skill(null, "Java", null, 1, null);
-        when(repository.findBySkillNameAndSkillDeleted("JAVA", false)).thenReturn(Optional.empty());
-        when(repository.findBySkillPositionAndSkillDeleted(1, false))
+        when(repository.findByName("JAVA")).thenReturn(Optional.empty());
+        when(repository.findByPosition(1))
                 .thenReturn(Optional.of(skill(2L, "SPRING", null, 1, false)));
 
         // Act y Assert: la posición duplicada se rechaza.
@@ -71,10 +69,10 @@ class SkillUseCasesTest {
         // Arrange: nombre y posición encontrados pertenecen al mismo id.
         Skill stored = skill(1L, "OLD", "picture", 1, false);
         Skill changes = skill(null, "Java", null, 2, null);
-        when(repository.findBySkillIdAndSkillDeleted(1L, false)).thenReturn(Optional.of(stored));
-        when(repository.findBySkillNameAndSkillDeleted("JAVA", false))
+        when(repository.findById(1L)).thenReturn(Optional.of(stored));
+        when(repository.findByName("JAVA"))
                 .thenReturn(Optional.of(skill(1L, "JAVA", null, 2, false)));
-        when(repository.findBySkillPositionAndSkillDeleted(2, false))
+        when(repository.findByPosition(2))
                 .thenReturn(Optional.of(skill(1L, "JAVA", null, 2, false)));
         when(repository.updateSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -90,7 +88,7 @@ class SkillUseCasesTest {
     @Test
     void reportsMissingSkillOnDelete() {
         // Arrange: el id solicitado no existe como registro activo.
-        when(repository.findBySkillIdAndSkillDeleted(99L, false)).thenReturn(Optional.empty());
+        when(repository.findById(99L)).thenReturn(Optional.empty());
 
         // Act y Assert: no se inventa un borrado sobre un recurso ausente.
         assertThrows(
@@ -103,27 +101,27 @@ class SkillUseCasesTest {
     void logicallyDeletesExistingSkill() {
         // Arrange: existe una habilidad activa.
         Skill stored = skill(1L, "JAVA", null, 1, false);
-        when(repository.findBySkillIdAndSkillDeleted(1L, false)).thenReturn(Optional.of(stored));
-        when(repository.deleteSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findById(1L)).thenReturn(Optional.of(stored));
+        when(repository.deleteSkill(stored)).thenReturn(stored);
 
         // Act y Assert: la eliminación activa únicamente el indicador lógico.
-        assertTrue(new DeleteSkillUseCaseImpl(repository).deleteSkill(1L).getSkillDeleted());
+        assertEquals(stored, new DeleteSkillUseCaseImpl(repository).deleteSkill(1L));
     }
 
     @Test
     void returnsEmptySkillList() {
         // Arrange: la consulta no encuentra habilidades.
-        when(repository.findBySkillDeleted(false)).thenReturn(List.of());
+        when(repository.findAll()).thenReturn(List.of());
 
         // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
         assertTrue(new RetrieveSkillUseCaseImpl(repository)
-                .findBySkillDeleted(false)
+                .getListSkill()
                 .isEmpty());
     }
 
-    private Skill skill(Long id, String name, String picture, int position, Boolean deleted) {
+    private Skill skill(Long id, String name, String picture, int position, Boolean ignoredDeleted) {
         // Crea una habilidad de dominio reutilizable.
-        return new Skill(id, name, picture, position, deleted);
+        return new Skill(id, name, picture, position, null);
     }
 
 }

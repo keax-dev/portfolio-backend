@@ -6,6 +6,7 @@ import com.keax.socialnetwork.domain.ports.out.SocialNetworkRepositoryPort;
 import com.keax.socialnetwork.domain.ports.in.CreateSocialNetworkUseCase;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
+import com.keax.shared.domain.text.TextNormalizer;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -18,27 +19,27 @@ public class CreateSocialNetworkUseCaseImpl implements CreateSocialNetworkUseCas
     @Override
     public SocialNetwork createSocialNetwork(SocialNetwork socialNetwork) {
 
-        socialNetwork.setSocialNetworkName(socialNetwork.getSocialNetworkName().toUpperCase());
-        socialNetworkRepositoryPort.findBySocialNetworkNameAndSocialNetworkDeleted(
-                socialNetwork.getSocialNetworkName(),
-                false
+        socialNetwork.setSocialNetworkName(TextNormalizer.uppercase(socialNetwork.getSocialNetworkName()));
+        socialNetworkRepositoryPort.findByName(
+                socialNetwork.getSocialNetworkName()
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("There is already a social network with this name");
                 }
         );
 
-        socialNetworkRepositoryPort.findBySocialNetworkPositionAndSocialNetworkDeleted(
-                socialNetwork.getSocialNetworkPosition(),
-                false
+        socialNetworkRepositoryPort.findByPosition(
+                socialNetwork.getSocialNetworkPosition()
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("The social network position is already filled");
                 }
         );
 
+        socialNetwork.setSocialNetworkIcon(TextNormalizer.trimToNull(socialNetwork.getSocialNetworkIcon()));
+        socialNetwork.setSocialNetworkColor(TextNormalizer.trimToNull(socialNetwork.getSocialNetworkColor()));
+        socialNetwork.setSocialNetworkUrl(TextNormalizer.trimToNull(socialNetwork.getSocialNetworkUrl()));
         socialNetwork.setSocialNetworkId(null);
-        socialNetwork.setSocialNetworkDeleted(false);
 
         return socialNetworkRepositoryPort.createSocialNetwork(socialNetwork);
     }

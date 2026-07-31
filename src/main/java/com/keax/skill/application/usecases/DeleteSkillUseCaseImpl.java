@@ -18,14 +18,9 @@ public class DeleteSkillUseCaseImpl implements DeleteSkillUseCase {
     @Override
     public Skill deleteSkill(Long skillId) {
 
-        Skill skill =  skillRepositoryPort.findBySkillIdAndSkillDeleted(
-                skillId,
-                false
-        ).orElseThrow(
+        Skill skill = skillRepositoryPort.findById(skillId).orElseThrow(
                 () -> new ResourceNotFoundException("The skill entered was not found")
         );
-
-        skill.setSkillDeleted(true);
 
         return skillRepositoryPort.deleteSkill(skill);
     }

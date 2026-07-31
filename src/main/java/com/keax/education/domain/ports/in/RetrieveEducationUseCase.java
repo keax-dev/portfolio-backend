@@ -5,7 +5,6 @@ import java.util.List;
 
 public interface RetrieveEducationUseCase {
 
-    List<Education> findByEducationDeleted(Boolean deleted);
     List<Education> getListEducation();
 
 }

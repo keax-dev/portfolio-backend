@@ -11,7 +11,7 @@ public final class InstitutionPersistenceMapper {
                 entity.getInstitutionName(),
                 entity.getInstitutionNameEs(),
                 entity.getInstitutionUrl(),
-                entity.getInstitutionDeleted()
+                entity.getVersion()
         );
     }
 
@@ -21,7 +21,8 @@ public final class InstitutionPersistenceMapper {
                 institution.getInstitutionName(),
                 institution.getInstitutionNameEs(),
                 institution.getInstitutionUrl(),
-                institution.getInstitutionDeleted()
+                false,
+                institution.getVersion()
         );
     }
 

@@ -18,14 +18,9 @@ public class DeleteSocialNetworkUseCaseImpl implements DeleteSocialNetworkUseCas
     @Override
     public SocialNetwork deleteSocialNetwork(Long socialNetworkId) {
 
-        SocialNetwork socialNetwork = socialNetworkRepositoryPort.findBySocialNetworkIdAndSocialNetworkDeleted(
-                socialNetworkId,
-                false
-        ).orElseThrow(
+        SocialNetwork socialNetwork = socialNetworkRepositoryPort.findById(socialNetworkId).orElseThrow(
                 () -> new ResourceNotFoundException("The social network entered was not found")
         );
-
-        socialNetwork.setSocialNetworkDeleted(true);
 
         return socialNetworkRepositoryPort.deleteSocialNetwork(socialNetwork);
     }

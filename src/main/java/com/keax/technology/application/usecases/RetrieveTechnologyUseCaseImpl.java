@@ -18,15 +18,9 @@ public class RetrieveTechnologyUseCaseImpl implements RetrieveTechnologyUseCase 
     }
 
     @Override
-    public List<Technology> findByTechnologyDeleted(Boolean deleted) {
-
-        return technologyRepositoryPort.findByTechnologyDeleted(deleted);
-    }
-
-    @Override
     public List<Technology> getListTechnology() {
 
-        return technologyRepositoryPort.getListTechnology();
+        return technologyRepositoryPort.findAll();
     }
 
 }

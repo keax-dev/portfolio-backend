@@ -34,42 +34,29 @@ public class TechnologyPersistenceAdapter implements TechnologyRepositoryPort {
 
     @Override
     public Technology deleteTechnology(Technology technology) {
-        TechnologyEntity deleted = jpaTechnologyRepository.save(
-                TechnologyPersistenceMapper.toEntity(technology)
-        );
-        return TechnologyPersistenceMapper.toDomain(deleted);
+        jpaTechnologyRepository.deleteById(technology.getTechnologyId());
+        jpaTechnologyRepository.flush();
+        return technology;
     }
 
     @Override
-    public List<Technology> findByTechnologyDeleted(Boolean deleted) {
-        return jpaTechnologyRepository.findByTechnologyDeletedOrderByTechnologyNameAsc(deleted)
+    public List<Technology> findAll() {
+        return jpaTechnologyRepository.findAllByOrderByTechnologyNameAsc()
                 .stream()
                 .map(TechnologyPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
-    public List<Technology> getListTechnology() {
-        return jpaTechnologyRepository.findByTechnologyDeletedOrderByTechnologyNameAsc(false)
-                .stream()
-                .map(TechnologyPersistenceMapper::toDomain)
-                .toList();
+    public Optional<Technology> findByName(String technologyName) {
+        return jpaTechnologyRepository.findByTechnologyName(technologyName)
+                .map(TechnologyPersistenceMapper::toDomain);
     }
 
     @Override
-    public Optional<Technology> findByTechnologyNameAndTechnologyDeleted(String technologyName, Boolean deleted) {
-        return jpaTechnologyRepository.findByTechnologyNameAndTechnologyDeleted(
-                technologyName,
-                deleted
-        ).map(TechnologyPersistenceMapper::toDomain);
-    }
-
-    @Override
-    public Optional<Technology> findByTechnologyIdAndTechnologyDeleted(Long technologyId, Boolean deleted) {
-        return jpaTechnologyRepository.findByTechnologyIdAndTechnologyDeleted(
-                technologyId,
-                deleted
-        ).map(TechnologyPersistenceMapper::toDomain);
+    public Optional<Technology> findById(Long technologyId) {
+        return jpaTechnologyRepository.findById(technologyId)
+                .map(TechnologyPersistenceMapper::toDomain);
     }
 
 }

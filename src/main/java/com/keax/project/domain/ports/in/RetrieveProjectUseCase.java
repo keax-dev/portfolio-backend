@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface RetrieveProjectUseCase {
 
-    List<Project> findByProjectDeleted(Boolean deleted);
+    List<Project> getPublishedProjects();
     List<Project> getListProject();
 
 }

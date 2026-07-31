@@ -32,8 +32,8 @@ public class ProjectDTO {
     @JsonProperty("position")
     private int projectPosition;
 
-    @JsonProperty("deleted")
-    private Boolean projectDeleted;
+    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
+    private Boolean projectDeleted = false;
 
     @JsonProperty("published")
     private Boolean projectPublished;

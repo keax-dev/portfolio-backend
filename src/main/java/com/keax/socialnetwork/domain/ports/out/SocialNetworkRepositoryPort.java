@@ -9,10 +9,9 @@ public interface SocialNetworkRepositoryPort {
     SocialNetwork createSocialNetwork(SocialNetwork socialNetwork);
     SocialNetwork updateSocialNetwork(SocialNetwork socialNetwork);
     SocialNetwork deleteSocialNetwork(SocialNetwork socialNetwork);
-    List<SocialNetwork> findBySocialNetworkDeleted(Boolean deleted);
-    List<SocialNetwork> getListSocialNetwork();
-    Optional<SocialNetwork> findBySocialNetworkNameAndSocialNetworkDeleted(String socialNetworkName, Boolean deleted);
-    Optional<SocialNetwork> findBySocialNetworkIdAndSocialNetworkDeleted(Long socialNetworkId, Boolean deleted);
-    Optional<SocialNetwork> findBySocialNetworkPositionAndSocialNetworkDeleted(int position, Boolean deleted);
+    List<SocialNetwork> findAll();
+    Optional<SocialNetwork> findByName(String socialNetworkName);
+    Optional<SocialNetwork> findById(Long socialNetworkId);
+    Optional<SocialNetwork> findByPosition(int position);
 
 }

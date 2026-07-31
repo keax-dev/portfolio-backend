@@ -17,11 +17,11 @@ public final class EducationPersistenceMapper {
                 entity.getEducationEnd(),
                 entity.getEducationEndEs(),
                 entity.getEducationPosition(),
-                entity.getEducationDeleted(),
                 entity.getInstitution().getInstitutionId(),
                 entity.getInstitution().getInstitutionName(),
                 entity.getInstitution().getInstitutionNameEs(),
-                entity.getInstitution().getInstitutionUrl()
+                entity.getInstitution().getInstitutionUrl(),
+                entity.getVersion()
         );
     }
 
@@ -36,8 +36,9 @@ public final class EducationPersistenceMapper {
                 education.getEducationEnd(),
                 education.getEducationEndEs(),
                 education.getEducationPosition(),
-                education.getEducationDeleted(),
-                InstitutionPersistenceMapper.toReference(education.getInstitutionId())
+                false,
+                InstitutionPersistenceMapper.toReference(education.getInstitutionId()),
+                education.getVersion()
         );
     }
 

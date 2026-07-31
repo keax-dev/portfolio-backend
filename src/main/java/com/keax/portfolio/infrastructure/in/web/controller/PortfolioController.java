@@ -2,23 +2,21 @@ package com.keax.portfolio.infrastructure.in.web.controller;
 
 import lombok.RequiredArgsConstructor;
 
+import com.keax.course.infrastructure.in.web.dto.CourseDTO;
+import com.keax.course.infrastructure.in.web.mapper.CourseWebMapper;
 import com.keax.socialnetwork.infrastructure.in.web.mapper.SocialNetworkWebMapper;
 import com.keax.technology.infrastructure.in.web.mapper.TechnologyWebMapper;
 import com.keax.education.infrastructure.in.web.mapper.EducationWebMapper;
-import com.keax.socialnetwork.domain.ports.in.RetrieveSocialNetworkUseCase;
 import com.keax.socialnetwork.infrastructure.in.web.dto.SocialNetworkDTO;
 import com.keax.profile.infrastructure.in.web.mapper.ProfileWebMapper;
-import com.keax.technology.domain.ports.in.RetrieveTechnologyUseCase;
 import com.keax.email.infrastructure.in.web.mapper.ContactWebMapper;
 import com.keax.technology.infrastructure.in.web.dto.TechnologyDTO;
-import com.keax.project.domain.ports.in.RetrieveProjectUseCase;
 import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
 import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
-import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
 import com.keax.skill.infrastructure.in.web.mapper.SkillWebMapper;
 import com.keax.education.infrastructure.in.web.dto.EducationDTO;
 import com.keax.email.infrastructure.in.web.ratelimit.ContactRateLimiter;
-import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
+import com.keax.portfolio.domain.ports.in.PortfolioQueryUseCase;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.keax.profile.infrastructure.in.web.dto.ProfileDTO;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.keax.email.domain.ports.in.ContactEmailUseCase;
-import com.keax.skill.domain.ports.in.RetrieveSkillUseCase;
 import com.keax.skill.infrastructure.in.web.dto.SkillDTO;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
@@ -41,12 +38,7 @@ import java.util.List;
 @RequestMapping("/api/portfolio")
 @RequiredArgsConstructor
 public class PortfolioController {
-    private final RetrieveProfileUseCase retrieveProfileUseCase;
-    private final RetrieveEducationUseCase retrieveEducationUseCase;
-    private final RetrieveSkillUseCase retrieveSkillUseCase;
-    private final RetrieveTechnologyUseCase retrieveTechnologyUseCase;
-    private final RetrieveProjectUseCase retrieveProjectUseCase;
-    private final RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
+    private final PortfolioQueryUseCase portfolioQuery;
     private final ContactEmailUseCase contactEmailUseCase;
     private final ContactRateLimiter contactRateLimiter;
     private final ClientIpResolver clientIpResolver;
@@ -58,7 +50,7 @@ public class PortfolioController {
                 true,
                 "Profile information found successfully",
                 ProfileWebMapper.fromDomain(
-                        retrieveProfileUseCase.getProfile()
+                        portfolioQuery.getProfile()
                 )
         );
 
@@ -70,7 +62,7 @@ public class PortfolioController {
         ApiResponseDTO<List<EducationDTO>> response = new ApiResponseDTO<>(
                 true,
                 "Educational information found successfully",
-                retrieveEducationUseCase.findByEducationDeleted(false).stream().map(EducationWebMapper::fromDomain).toList()
+                portfolioQuery.getEducation().stream().map(EducationWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);
@@ -81,7 +73,7 @@ public class PortfolioController {
         ApiResponseDTO<List<SkillDTO>> response = new ApiResponseDTO<>(
                 true,
                 "Skill information found successfully",
-                retrieveSkillUseCase.findBySkillDeleted(false).stream().map(SkillWebMapper::fromDomain).toList()
+                portfolioQuery.getSkills().stream().map(SkillWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);
@@ -92,8 +84,22 @@ public class PortfolioController {
         ApiResponseDTO<List<TechnologyDTO>> response = new ApiResponseDTO<>(
                 true,
                 "Technology information found successfully",
-                retrieveTechnologyUseCase.findByTechnologyDeleted(false)
+                portfolioQuery.getTechnologies()
                         .stream().map(TechnologyWebMapper::fromDomain).toList()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/course")
+    public ResponseEntity<ApiResponseDTO<List<CourseDTO>>> getCourse() {
+        ApiResponseDTO<List<CourseDTO>> response = new ApiResponseDTO<>(
+                true,
+                "Course information found successfully",
+                portfolioQuery.getCourses()
+                        .stream()
+                        .map(CourseWebMapper::fromDomain)
+                        .toList()
         );
 
         return ResponseEntity.ok(response);
@@ -104,7 +110,7 @@ public class PortfolioController {
         ApiResponseDTO<List<ProjectDTO>> response = new ApiResponseDTO<>(
                 true,
                 "Project information found successfully",
-                retrieveProjectUseCase.findByProjectDeleted(false)
+                portfolioQuery.getPublishedProjects()
                         .stream().map(ProjectWebMapper::fromDomain).toList()
         );
 
@@ -116,7 +122,7 @@ public class PortfolioController {
         ApiResponseDTO<List<SocialNetworkDTO>> response = new ApiResponseDTO<>(
                 true,
                 "Social Network information found successfully",
-                retrieveSocialNetworkUseCase.findBySocialNetworkDeleted(false).stream().map(SocialNetworkWebMapper::fromDomain).toList()
+                portfolioQuery.getSocialNetworks().stream().map(SocialNetworkWebMapper::fromDomain).toList()
         );
 
         return ResponseEntity.ok(response);

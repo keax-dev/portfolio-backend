@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.keax.auth.infrastructure.out.security.JwtUtil;
+import com.keax.auth.domain.ports.out.TokenVerifierPort;
 import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,11 +19,14 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final TokenVerifierPort tokenVerifierPort;
 
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(
+            UserDetailsService userDetailsService,
+            TokenVerifierPort tokenVerifierPort
+    ) {
         this.userDetailsService = userDetailsService;
-        this.jwtUtil = jwtUtil;
+        this.tokenVerifierPort = tokenVerifierPort;
     }
 
     @Override
@@ -35,9 +38,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-                if (jwtUtil.validateToken(token)) {
-
-                    String username = jwtUtil.extractUsername(token);
+                var subject = tokenVerifierPort.extractSubject(token);
+                if (subject.isPresent()) {
+                    String username = subject.get();
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             userDetails,

@@ -34,6 +34,11 @@ class HexagonalArchitectureTest {
             .should().dependOnClassesThat().resideInAPackage("..infrastructure..");
 
     @ArchTest
+    static final ArchRule INBOUND_ADAPTERS_MUST_NOT_DEPEND_ON_OUTBOUND_ADAPTERS = noClasses()
+            .that().resideInAPackage("..infrastructure.in..")
+            .should().dependOnClassesThat().resideInAPackage("..infrastructure.out..");
+
+    @ArchTest
     static final ArchRule FEATURES_MUST_NOT_FORM_DEPENDENCY_CYCLES = slices()
             .matching("com.keax.(*)..")
             .should().beFreeOfCycles();

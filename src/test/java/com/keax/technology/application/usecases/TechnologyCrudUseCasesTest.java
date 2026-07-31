@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +39,7 @@ class TechnologyCrudUseCasesTest {
     void createsNormalizedTechnology() {
         // Arrange: el nombre está disponible.
         Technology input = technology(null, "Java", null);
-        when(technologyRepository.findByTechnologyNameAndTechnologyDeleted("JAVA", false))
+        when(technologyRepository.findByName("JAVA"))
                 .thenReturn(Optional.empty());
         when(technologyRepository.createTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -49,14 +48,13 @@ class TechnologyCrudUseCasesTest {
 
         // Assert: se normaliza y queda activa.
         assertEquals("JAVA", result.getTechnologyName());
-        assertFalse(result.getTechnologyDeleted());
     }
 
     @Test
     void rejectsDuplicatedTechnologyName() {
         // Arrange: el nombre ya pertenece a una tecnología activa.
         Technology input = technology(null, "Java", null);
-        when(technologyRepository.findByTechnologyNameAndTechnologyDeleted("JAVA", false))
+        when(technologyRepository.findByName("JAVA"))
                 .thenReturn(Optional.of(technology(2L, "JAVA", false)));
 
         // Act y Assert: se rechaza el nombre duplicado.
@@ -71,9 +69,9 @@ class TechnologyCrudUseCasesTest {
         // Arrange: los resultados de unicidad apuntan al mismo registro.
         Technology stored = technology(1L, "OLD", false);
         Technology changes = technology(null, "Java", null);
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
+        when(technologyRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
-        when(technologyRepository.findByTechnologyNameAndTechnologyDeleted("JAVA", false))
+        when(technologyRepository.findByName("JAVA"))
                 .thenReturn(Optional.of(technology(1L, "JAVA", false)));
         when(technologyRepository.updateTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -89,7 +87,7 @@ class TechnologyCrudUseCasesTest {
     @Test
     void preventsTechnologyDeletionWithActiveProjects() {
         // Arrange: la tecnología existe y un proyecto activo la referencia.
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
+        when(technologyRepository.findById(1L))
                 .thenReturn(Optional.of(technology(1L, "JAVA", false)));
         when(projectTechnologyReferencePort.existsActiveProjectForTechnology(1L)).thenReturn(true);
 
@@ -105,21 +103,22 @@ class TechnologyCrudUseCasesTest {
     void logicallyDeletesTechnologyWithoutProjects() {
         // Arrange: no existen proyectos activos asociados.
         Technology stored = technology(1L, "JAVA", false);
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(1L, false))
+        when(technologyRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
         when(projectTechnologyReferencePort.existsActiveProjectForTechnology(1L)).thenReturn(false);
-        when(technologyRepository.deleteTechnology(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(technologyRepository.deleteTechnology(stored)).thenReturn(stored);
 
         // Act y Assert: se activa el borrado lógico.
-        assertTrue(new DeleteTechnologyUseCaseImpl(technologyRepository, projectTechnologyReferencePort)
-                .deleteTechnology(1L)
-                .getTechnologyDeleted());
+        assertEquals(stored, new DeleteTechnologyUseCaseImpl(
+                technologyRepository,
+                projectTechnologyReferencePort
+        ).deleteTechnology(1L));
     }
 
     @Test
     void returnsEmptyTechnologyList() {
         // Arrange: el repositorio no devuelve tecnologías.
-        when(technologyRepository.getListTechnology()).thenReturn(List.of());
+        when(technologyRepository.findAll()).thenReturn(List.of());
         RetrieveTechnologyUseCaseImpl useCase = new RetrieveTechnologyUseCaseImpl(technologyRepository);
 
         // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
@@ -129,7 +128,7 @@ class TechnologyCrudUseCasesTest {
     @Test
     void reportsMissingTechnologyOnUpdate() {
         // Arrange: el id editado no existe.
-        when(technologyRepository.findByTechnologyIdAndTechnologyDeleted(99L, false))
+        when(technologyRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
         // Act y Assert: se detiene el flujo antes de validar duplicados.
@@ -140,9 +139,9 @@ class TechnologyCrudUseCasesTest {
         );
     }
 
-    private Technology technology(Long id, String name, Boolean deleted) {
+    private Technology technology(Long id, String name, Boolean ignoredDeleted) {
         // Crea un modelo sin proyectos para probar únicamente reglas CRUD.
-        return new Technology(id, name, deleted);
+        return new Technology(id, name, null);
     }
 
 }

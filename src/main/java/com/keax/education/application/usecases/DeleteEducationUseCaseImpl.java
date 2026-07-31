@@ -18,14 +18,9 @@ public class DeleteEducationUseCaseImpl implements DeleteEducationUseCase {
     @Override
     public Education deleteEducation(Long educationId) {
 
-        Education education = educationRepositoryPort.findByEducationIdAndEducationDeleted(
-                educationId,
-                false
-        ).orElseThrow(
+        Education education = educationRepositoryPort.findById(educationId).orElseThrow(
                 () -> new ResourceNotFoundException("The institution to delete was not found")
         );
-
-        education.setEducationDeleted(true);
 
         return educationRepositoryPort.deleteEducation(education);
     }

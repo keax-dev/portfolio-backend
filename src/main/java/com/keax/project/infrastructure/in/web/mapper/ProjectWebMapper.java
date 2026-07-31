@@ -23,10 +23,10 @@ public final class ProjectWebMapper {
                 dto.getProjectDescriptionEs(),
                 dto.getProjectPosition(),
                 false,
-                false,
                 dto.getTechnologies().stream().map(ProjectWebMapper::technologyToDomain).toList(),
                 dto.getLinks().stream().map(ProjectWebMapper::linkToDomain).toList(),
-                new java.util.ArrayList<>()
+                new java.util.ArrayList<>(),
+                null
         );
     }
 
@@ -38,7 +38,7 @@ public final class ProjectWebMapper {
                 project.getProjectDescription(),
                 project.getProjectDescriptionEs(),
                 project.getProjectPosition(),
-                project.getProjectDeleted(),
+                false,
                 project.getProjectPublished(),
                 project.getProjectTechnologies().stream().map(ProjectWebMapper::technologyFromDomain).toList(),
                 project.getProjectLinks().stream().map(ProjectWebMapper::linkFromDomain).toList(),

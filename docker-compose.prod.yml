@@ -36,6 +36,9 @@ services:
       SERVER_ADDRESS: 127.0.0.1
       # Puerto real que consumira Nginx localmente en el host.
       PORT: 8080
+      # Defensa adicional: la documentacion de la API no se expone en produccion.
+      OPENAPI_ENABLED: 'false'
+      SWAGGER_UI_ENABLED: 'false'
 
     # Healthcheck adicional visible desde Docker Compose.
     healthcheck:

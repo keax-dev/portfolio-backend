@@ -3,7 +3,7 @@ package com.keax.institution.application.usecases;
 import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
-import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
+import com.keax.shared.domain.ports.out.InstitutionReferencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,20 +26,20 @@ import static org.mockito.Mockito.when;
 class InstitutionUseCasesTest {
 
     private InstitutionRepositoryPort institutionRepository;
-    private EducationInstitutionReferencePort institutionReferencePort;
+    private InstitutionReferencePort institutionReferencePort;
 
     @BeforeEach
     void setUp() {
         // Los puertos simulados aíslan las reglas de negocio de JPA.
         institutionRepository = mock(InstitutionRepositoryPort.class);
-        institutionReferencePort = mock(EducationInstitutionReferencePort.class);
+        institutionReferencePort = mock(InstitutionReferencePort.class);
     }
 
     @Test
     void createsNormalizedInstitution() {
         // Arrange: nombre disponible y repositorio preparado para devolver el argumento.
         Institution input = institution(null, "University", "Universidad", null, null);
-        when(institutionRepository.findByInstitutionNameAndInstitutionDeleted("UNIVERSITY", false))
+        when(institutionRepository.findByName("UNIVERSITY"))
                 .thenReturn(Optional.empty());
         when(institutionRepository.saveInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
         CreateInstitutionUseCaseImpl useCase = new CreateInstitutionUseCaseImpl(institutionRepository);
@@ -51,7 +50,6 @@ class InstitutionUseCasesTest {
         // Assert: se normaliza y se inicializa el borrado lógico.
         assertEquals("UNIVERSITY", result.getInstitutionName());
         assertEquals("UNIVERSIDAD", result.getInstitutionNameEs());
-        assertFalse(result.getInstitutionDeleted());
         assertNull(result.getInstitutionId());
     }
 
@@ -59,7 +57,7 @@ class InstitutionUseCasesTest {
     void rejectsDuplicatedInstitutionName() {
         // Arrange: existe otra institución activa con el nombre normalizado.
         Institution input = institution(null, "University", "Universidad", null, null);
-        when(institutionRepository.findByInstitutionNameAndInstitutionDeleted("UNIVERSITY", false))
+        when(institutionRepository.findByName("UNIVERSITY"))
                 .thenReturn(Optional.of(institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false)));
         CreateInstitutionUseCaseImpl useCase = new CreateInstitutionUseCaseImpl(institutionRepository);
 
@@ -72,9 +70,9 @@ class InstitutionUseCasesTest {
         // Arrange: la búsqueda de duplicado retorna el mismo id del registro editado.
         Institution stored = institution(1L, "OLD", "ANTIGUA", null, false);
         Institution changes = institution(null, "University", "Universidad", null, null);
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
+        when(institutionRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
-        when(institutionRepository.findByInstitutionNameAndInstitutionDeleted("UNIVERSITY", false))
+        when(institutionRepository.findByName("UNIVERSITY"))
                 .thenReturn(Optional.of(institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false)));
         when(institutionRepository.updateInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
         UpdateInstitutionUseCaseImpl useCase = new UpdateInstitutionUseCaseImpl(institutionRepository);
@@ -91,7 +89,7 @@ class InstitutionUseCasesTest {
     void preventsDeletionWhenActiveEducationExists() {
         // Arrange: la institución existe y tiene educación activa asociada.
         Institution stored = institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false);
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
+        when(institutionRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
         when(institutionReferencePort.existsActiveEducationForInstitution(1L)).thenReturn(true);
         DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
@@ -104,13 +102,28 @@ class InstitutionUseCasesTest {
     }
 
     @Test
+    void preventsDeletionWhenActiveCourseExists() {
+        Institution stored = institution(1L, "UDEMY", "UDEMY", null, false);
+        when(institutionRepository.findById(1L))
+                .thenReturn(Optional.of(stored));
+        when(institutionReferencePort.existsActiveEducationForInstitution(1L)).thenReturn(false);
+        when(institutionReferencePort.existsActiveCourseForInstitution(1L)).thenReturn(true);
+        DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
+                institutionRepository,
+                institutionReferencePort
+        );
+
+        assertThrows(ResourceConflictException.class, () -> useCase.deleteInstitution(1L));
+    }
+
+    @Test
     void logicallyDeletesInstitutionWithoutAssociations() {
         // Arrange: existe una institución sin educación activa.
         Institution stored = institution(1L, "UNIVERSITY", "UNIVERSIDAD", null, false);
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
+        when(institutionRepository.findById(1L))
                 .thenReturn(Optional.of(stored));
         when(institutionReferencePort.existsActiveEducationForInstitution(1L)).thenReturn(false);
-        when(institutionRepository.deleteInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(institutionRepository.deleteInstitution(stored)).thenReturn(stored);
         DeleteInstitutionUseCaseImpl useCase = new DeleteInstitutionUseCaseImpl(
                 institutionRepository,
                 institutionReferencePort
@@ -120,23 +133,23 @@ class InstitutionUseCasesTest {
         Institution result = useCase.deleteInstitution(1L);
 
         // Assert: el registro persiste con el indicador activado.
-        assertTrue(result.getInstitutionDeleted());
+        assertEquals(stored, result);
         verify(institutionRepository).deleteInstitution(stored);
     }
 
     @Test
     void returnsEmptyInstitutionList() {
         // Arrange: una consulta administrativa no devuelve instituciones.
-        when(institutionRepository.getListInstitution()).thenReturn(List.of());
+        when(institutionRepository.findAll()).thenReturn(List.of());
         RetrieveInstitutionUseCaseImpl useCase = new RetrieveInstitutionUseCaseImpl(institutionRepository);
 
         // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
         assertTrue(useCase.getListInstitution().isEmpty());
     }
 
-    private Institution institution(Long id, String name, String nameEs, String url, Boolean deleted) {
+    private Institution institution(Long id, String name, String nameEs, String url, Boolean ignoredDeleted) {
         // Construye una institución de dominio sin involucrar entidades JPA.
-        return new Institution(id, name, nameEs, url, deleted);
+        return new Institution(id, name, nameEs, url, null);
     }
 
 }

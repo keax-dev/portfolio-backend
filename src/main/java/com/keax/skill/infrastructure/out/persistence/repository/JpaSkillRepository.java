@@ -7,9 +7,8 @@ import java.util.List;
 
 public interface JpaSkillRepository extends JpaRepository<SkillEntity, Long> {
 
-    List<SkillEntity> findBySkillDeleted(Boolean skillDeleted);
-    Optional<SkillEntity> findBySkillNameAndSkillDeleted(String skillName, Boolean deleted);
-    Optional<SkillEntity> findBySkillIdAndSkillDeleted(Long skillId, Boolean deleted);
-    Optional<SkillEntity> findBySkillPositionAndSkillDeleted(int position, Boolean deleted);
+    List<SkillEntity> findAllByOrderBySkillPositionAsc();
+    Optional<SkillEntity> findBySkillName(String skillName);
+    Optional<SkillEntity> findBySkillPosition(int position);
 
 }

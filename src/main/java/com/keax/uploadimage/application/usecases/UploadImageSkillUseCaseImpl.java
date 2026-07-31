@@ -26,10 +26,7 @@ public class UploadImageSkillUseCaseImpl implements UploadImageSkillUseCase {
 
         ImageFileValidator.validate(img, "The img is required");
 
-        Skill skill = skillRepositoryPort.findBySkillIdAndSkillDeleted(
-                skillId,
-                false
-        ).orElseThrow(
+        Skill skill = skillRepositoryPort.findById(skillId).orElseThrow(
                 () -> new ResourceNotFoundException("The skill to be updated does not exist")
         );
 

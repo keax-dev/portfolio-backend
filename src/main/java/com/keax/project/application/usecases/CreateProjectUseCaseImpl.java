@@ -9,6 +9,7 @@ import com.keax.shared.domain.exceptions.ResourceConflictException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.project.domain.model.Project;
+import com.keax.shared.domain.text.TextNormalizer;
 
 @Service
 @Transactional
@@ -22,30 +23,29 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
 
         projectStructureValidator.validate(project);
 
-        project.setProjectTitle(project.getProjectTitle().toUpperCase());
-        projectRepositoryPort.findByProjectTitleAndProjectDeleted(
-                project.getProjectTitle(),
-                false
+        project.setProjectTitle(TextNormalizer.uppercase(project.getProjectTitle()));
+        projectRepositoryPort.findByTitle(
+                project.getProjectTitle()
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("There is already a project with this title");
                 }
         );
 
-        projectRepositoryPort.findByProjectPositionAndProjectDeleted(
-                project.getProjectPosition(),
-                false
+        projectRepositoryPort.findByPosition(
+                project.getProjectPosition()
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("The project position is already filled");
                 }
         );
 
-        project.setProjectTitleEs(project.getProjectTitleEs().toUpperCase());
+        project.setProjectTitleEs(TextNormalizer.uppercase(project.getProjectTitleEs()));
+        project.setProjectDescription(TextNormalizer.trimToNull(project.getProjectDescription()));
+        project.setProjectDescriptionEs(TextNormalizer.trimToNull(project.getProjectDescriptionEs()));
 
         project.setProjectId(null);
         project.setProjectImages(new java.util.ArrayList<>());
-        project.setProjectDeleted(false);
         project.setProjectPublished(false);
         project.getProjectTechnologies().forEach(technology -> technology.setProjectTechnologyId(null));
         project.getProjectLinks().forEach(link -> link.setProjectLinkId(null));

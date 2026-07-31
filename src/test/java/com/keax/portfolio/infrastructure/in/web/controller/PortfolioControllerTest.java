@@ -1,25 +1,21 @@
 package com.keax.portfolio.infrastructure.in.web.controller;
 
+import com.keax.course.domain.model.Course;
 import com.keax.education.domain.model.Education;
-import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
 import com.keax.email.domain.model.Contact;
 import com.keax.email.domain.ports.in.ContactEmailUseCase;
 import com.keax.email.infrastructure.in.web.ratelimit.ContactRateLimiter;
 import com.keax.profile.domain.model.Profile;
-import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
+import com.keax.portfolio.domain.ports.in.PortfolioQueryUseCase;
 import com.keax.project.domain.model.Project;
 import com.keax.project.domain.model.ProjectLink;
 import com.keax.project.domain.model.ProjectImage;
 import com.keax.project.domain.model.ProjectLinkType;
 import com.keax.project.domain.model.ProjectTechnology;
-import com.keax.project.domain.ports.in.RetrieveProjectUseCase;
 import com.keax.shared.infrastructure.in.web.exception.GlobalExceptionHandler;
 import com.keax.skill.domain.model.Skill;
-import com.keax.skill.domain.ports.in.RetrieveSkillUseCase;
 import com.keax.socialnetwork.domain.model.SocialNetwork;
-import com.keax.socialnetwork.domain.ports.in.RetrieveSocialNetworkUseCase;
 import com.keax.technology.domain.model.Technology;
-import com.keax.technology.domain.ports.in.RetrieveTechnologyUseCase;
 import com.keax.shared.infrastructure.in.web.client.ClientIdentityHasher;
 import com.keax.shared.infrastructure.in.web.client.ClientIpResolver;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,17 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PortfolioControllerTest {
 
     @Mock
-    private RetrieveProfileUseCase retrieveProfileUseCase;
-    @Mock
-    private RetrieveEducationUseCase retrieveEducationUseCase;
-    @Mock
-    private RetrieveSkillUseCase retrieveSkillUseCase;
-    @Mock
-    private RetrieveTechnologyUseCase retrieveTechnologyUseCase;
-    @Mock
-    private RetrieveProjectUseCase retrieveProjectUseCase;
-    @Mock
-    private RetrieveSocialNetworkUseCase retrieveSocialNetworkUseCase;
+    private PortfolioQueryUseCase portfolioQuery;
     @Mock
     private ContactEmailUseCase contactEmailUseCase;
     @Mock
@@ -78,12 +64,7 @@ class PortfolioControllerTest {
     void setUp() {
         // Arrange común: se conectan los puertos simulados al controlador.
         PortfolioController controller = new PortfolioController(
-                retrieveProfileUseCase,
-                retrieveEducationUseCase,
-                retrieveSkillUseCase,
-                retrieveTechnologyUseCase,
-                retrieveProjectUseCase,
-                retrieveSocialNetworkUseCase,
+                portfolioQuery,
                 contactEmailUseCase,
                 contactRateLimiter,
                 clientIpResolver,
@@ -106,20 +87,32 @@ class PortfolioControllerTest {
                 List.of(new ProjectLink(71L, ProjectLinkType.DEPLOY, "https://deploy.test", 1)),
                 List.of(new ProjectImage(81L, "project.png", 1))
         );
-        when(retrieveProfileUseCase.getProfile()).thenReturn(new Profile(
+        when(portfolioQuery.getProfile()).thenReturn(new Profile(
                 1L, "KEAX", "JIMENEZ", "DEVELOPER", "DESARROLLADOR", "cv", "cv-es", "profile.png"
         ));
-        when(retrieveEducationUseCase.findByEducationDeleted(false)).thenReturn(List.of(new Education(
+        when(portfolioQuery.getEducation()).thenReturn(List.of(new Education(
                 11L, "DEGREE", "TÍTULO", "UNIVERSITY", "2020", "2020",
-                "2024", "2024", 1, false, 10L, "UNIVERSITY", "UNIVERSIDAD", "url"
+                "2024", "2024", 1, 10L, "UNIVERSITY", "UNIVERSIDAD", "url", null
         )));
-        when(retrieveSkillUseCase.findBySkillDeleted(false))
-                .thenReturn(List.of(new Skill(21L, "SPRING", "skill.png", 1, false)));
-        when(retrieveTechnologyUseCase.findByTechnologyDeleted(false))
-                .thenReturn(List.of(new Technology(31L, "JAVA", false)));
-        when(retrieveProjectUseCase.findByProjectDeleted(false)).thenReturn(List.of(project));
-        when(retrieveSocialNetworkUseCase.findBySocialNetworkDeleted(false)).thenReturn(List.of(
-                new SocialNetwork(51L, "GITHUB", "github", "#fff", 1, "https://github.test", false)
+        when(portfolioQuery.getCourses()).thenReturn(List.of(new Course(
+                12L,
+                "SPRING BOOT DESDE CERO",
+                "SPRING BOOT FROM SCRATCH",
+                "certificate.png",
+                "https://udemy.test/certificate/12",
+                2,
+                10L,
+                "UDEMY",
+                "UDEMY",
+                null
+        )));
+        when(portfolioQuery.getSkills())
+                .thenReturn(List.of(new Skill(21L, "SPRING", "skill.png", 1, null)));
+        when(portfolioQuery.getTechnologies())
+                .thenReturn(List.of(new Technology(31L, "JAVA", null)));
+        when(portfolioQuery.getPublishedProjects()).thenReturn(List.of(project));
+        when(portfolioQuery.getSocialNetworks()).thenReturn(List.of(
+                new SocialNetwork(51L, "GITHUB", "github", "#fff", 1, "https://github.test", null)
         ));
 
         // Act y Assert: cada ruta conserva el envelope y los nombres JSON públicos.
@@ -129,6 +122,14 @@ class PortfolioControllerTest {
         mockMvc.perform(get("/api/portfolio/education"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].institution_name").value("UNIVERSITY"));
+        mockMvc.perform(get("/api/portfolio/course"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].name").value("SPRING BOOT DESDE CERO"))
+                .andExpect(jsonPath("$.data[0].name_en").value("SPRING BOOT FROM SCRATCH"))
+                .andExpect(jsonPath("$.data[0].certificate_img").value("certificate.png"))
+                .andExpect(jsonPath("$.data[0].certificate_url")
+                        .value("https://udemy.test/certificate/12"))
+                .andExpect(jsonPath("$.data[0].position").value(2));
         mockMvc.perform(get("/api/portfolio/skill"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].picture").value("skill.png"));
@@ -148,11 +149,12 @@ class PortfolioControllerTest {
                 .andExpect(jsonPath("$.data[0].url").value("https://github.test"));
 
         // Assert adicional: los filtros de borrado lógico siempre se aplican al contenido público.
-        verify(retrieveEducationUseCase).findByEducationDeleted(false);
-        verify(retrieveSkillUseCase).findBySkillDeleted(false);
-        verify(retrieveTechnologyUseCase).findByTechnologyDeleted(false);
-        verify(retrieveProjectUseCase).findByProjectDeleted(false);
-        verify(retrieveSocialNetworkUseCase).findBySocialNetworkDeleted(false);
+        verify(portfolioQuery).getEducation();
+        verify(portfolioQuery).getCourses();
+        verify(portfolioQuery).getSkills();
+        verify(portfolioQuery).getTechnologies();
+        verify(portfolioQuery).getPublishedProjects();
+        verify(portfolioQuery).getSocialNetworks();
     }
 
     @Test

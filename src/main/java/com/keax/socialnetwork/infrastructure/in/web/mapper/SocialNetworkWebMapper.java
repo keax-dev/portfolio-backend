@@ -13,7 +13,7 @@ public final class SocialNetworkWebMapper {
                 dto.getSocialNetworkColor(),
                 dto.getSocialNetworkPosition(),
                 dto.getSocialNetworkUrl(),
-                dto.getSocialNetworkDeleted()
+                null
         );
     }
 
@@ -25,7 +25,7 @@ public final class SocialNetworkWebMapper {
                 socialNetwork.getSocialNetworkColor(),
                 socialNetwork.getSocialNetworkPosition(),
                 socialNetwork.getSocialNetworkUrl(),
-                socialNetwork.getSocialNetworkDeleted()
+                false
         );
     }
 

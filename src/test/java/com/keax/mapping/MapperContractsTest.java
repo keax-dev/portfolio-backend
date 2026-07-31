@@ -2,6 +2,9 @@ package com.keax.mapping;
 
 import com.keax.auth.domain.model.Auth;
 import com.keax.auth.infrastructure.in.web.mapper.AuthWebMapper;
+import com.keax.course.domain.model.Course;
+import com.keax.course.infrastructure.in.web.mapper.CourseWebMapper;
+import com.keax.course.infrastructure.out.persistence.mapper.CoursePersistenceMapper;
 import com.keax.education.domain.model.Education;
 import com.keax.education.infrastructure.in.web.mapper.EducationWebMapper;
 import com.keax.education.infrastructure.out.persistence.mapper.EducationPersistenceMapper;
@@ -75,12 +78,24 @@ class MapperContractsTest {
     void simpleWebMappersPreserveBusinessFields() {
         // Arrange: se preparan modelos de módulos sin relaciones complejas.
         Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "cv-es", "picture");
-        Institution institution = new Institution(2L, "UNI", "UNI", "url", false);
-        Skill skill = new Skill(3L, "JAVA", "picture", 1, false);
+        Institution institution = new Institution(2L, "UNI", "UNI", "url", null);
+        Skill skill = new Skill(3L, "JAVA", "picture", 1, null);
         SocialNetwork social = new SocialNetwork(
-                4L, "GITHUB", "icon", "#fff", 2, "https://github.com", false
+                4L, "GITHUB", "icon", "#fff", 2, "https://github.com", null
         );
         Contact contact = new Contact("Keax", "keax@example.com", "Hello");
+        Course course = new Course(
+                5L,
+                "SPRING BOOT DESDE CERO",
+                "SPRING BOOT FROM SCRATCH",
+                "certificate.png",
+                "https://udemy.test/certificate/5",
+                3,
+                2L,
+                "UDEMY",
+                "UDEMY",
+                null
+        );
 
         // Act: cada modelo cruza dominio → DTO → dominio.
         Profile profileResult = ProfileWebMapper.toDomain(ProfileWebMapper.fromDomain(profile));
@@ -92,6 +107,7 @@ class MapperContractsTest {
                 SocialNetworkWebMapper.fromDomain(social)
         );
         Contact contactResult = ContactWebMapper.toDomain(ContactWebMapper.fromDomain(contact));
+        Course courseResult = CourseWebMapper.toDomain(CourseWebMapper.fromDomain(course));
 
         // Assert: se verifican campos distintivos para detectar cruces de posición.
         assertEquals("cv-es", profileResult.getProfileCvEs());
@@ -100,6 +116,10 @@ class MapperContractsTest {
         assertEquals(1, skillResult.getSkillPosition());
         assertEquals("https://github.com", socialResult.getSocialNetworkUrl());
         assertEquals("keax@example.com", contactResult.getEmail());
+        assertEquals("SPRING BOOT FROM SCRATCH", courseResult.getCourseNameEn());
+        assertEquals("certificate.png", courseResult.getCourseCertificateImg());
+        assertEquals("https://udemy.test/certificate/5", courseResult.getCourseCertificateUrl());
+        assertEquals(3, courseResult.getCoursePosition());
     }
 
     @Test
@@ -107,7 +127,7 @@ class MapperContractsTest {
         // Arrange: educación y proyecto contienen ids de sus módulos relacionados.
         Education education = education();
         Project project = project();
-        Technology technology = new Technology(10L, "JAVA", false);
+        Technology technology = new Technology(10L, "JAVA", null);
 
         // Act: se ejecutan los mappers que incluyen relaciones.
         Education educationResult = EducationWebMapper.toDomain(
@@ -145,7 +165,7 @@ class MapperContractsTest {
     void technologyWebMapperTreatsNullProjectListAsEmpty() {
         // Arrange: un DTO administrativo llega sin la propiedad de proyectos.
         var dto = TechnologyWebMapper.fromDomain(
-                new Technology(10L, "JAVA", false)
+                new Technology(10L, "JAVA", null)
         );
 
         // Act: se convierte al modelo de dominio.
@@ -189,10 +209,10 @@ class MapperContractsTest {
     void simplePersistenceMappersRoundTripDomainFields() {
         // Arrange: se preparan modelos persistibles independientes.
         Profile profile = new Profile(1L, "KEAX", "JIMENEZ", "DEV", "DEV", "cv", "cv-es", "picture");
-        Institution institution = new Institution(2L, "UNI", "UNI", "url", false);
-        Skill skill = new Skill(3L, "JAVA", "picture", 1, false);
+        Institution institution = new Institution(2L, "UNI", "UNI", "url", null);
+        Skill skill = new Skill(3L, "JAVA", "picture", 1, null);
         SocialNetwork social = new SocialNetwork(
-                4L, "GITHUB", "icon", "#fff", 2, "https://github.com", false
+                4L, "GITHUB", "icon", "#fff", 2, "https://github.com", null
         );
 
         // Act: cada modelo cruza dominio → entidad JPA → dominio.
@@ -213,7 +233,7 @@ class MapperContractsTest {
         assertEquals("cv-es", profileResult.getProfileCvEs());
         assertEquals("picture", profileResult.getProfilePicture());
         assertEquals("url", institutionResult.getInstitutionUrl());
-        assertFalse(skillResult.getSkillDeleted());
+        assertNull(skillResult.getVersion());
         assertEquals("#fff", socialResult.getSocialNetworkColor());
     }
 
@@ -228,14 +248,35 @@ class MapperContractsTest {
         var educationEntity = EducationPersistenceMapper.toEntity(education);
         educationEntity.getInstitution().setInstitutionName("UNI");
         educationEntity.getInstitution().setInstitutionNameEs("UNI");
+        Course course = new Course(
+                50L,
+                "SPRING BOOT DESDE CERO",
+                "SPRING BOOT FROM SCRATCH",
+                "certificate.png",
+                "https://udemy.test/certificate/50",
+                4,
+                20L,
+                "UNI",
+                "UNI",
+                null
+        );
+        var courseEntity = CoursePersistenceMapper.toEntity(course);
+        courseEntity.getInstitution().setInstitutionName("UNI");
+        courseEntity.getInstitution().setInstitutionNameEs("UNI");
         var projectEntity = ProjectPersistenceMapper.toEntity(project);
         projectEntity.getProjectTechnologies().iterator().next().getTechnology().setTechnologyName("JAVA");
         Education educationResult = EducationPersistenceMapper.toDomain(educationEntity);
+        Course courseResult = CoursePersistenceMapper.toDomain(courseEntity);
         Project projectResult = ProjectPersistenceMapper.toDomain(projectEntity);
 
         // Assert: ids relacionales y campos propios se conservan.
         assertEquals(20L, educationResult.getInstitutionId());
         assertEquals("DEGREE", educationResult.getEducationTitle());
+        assertEquals("SPRING BOOT FROM SCRATCH", courseResult.getCourseNameEn());
+        assertEquals("certificate.png", courseResult.getCourseCertificateImg());
+        assertEquals("https://udemy.test/certificate/50", courseResult.getCourseCertificateUrl());
+        assertEquals(4, courseResult.getCoursePosition());
+        assertEquals(20L, courseResult.getInstitutionId());
         assertEquals(10L, projectResult.getProjectTechnologies().getFirst().getTechnologyId());
         assertEquals("JAVA", projectResult.getProjectTechnologies().getFirst().getTechnologyName());
         assertEquals("https://deploy.example", projectResult.getProjectLinks().getFirst().getUrl());
@@ -245,7 +286,7 @@ class MapperContractsTest {
     @Test
     void technologyPersistenceMapperKeepsProjectsOutOfWriteModel() {
         // Arrange: el dominio contiene proyectos, pero la relación la gobierna Project.
-        Technology technology = new Technology(10L, "JAVA", false);
+        Technology technology = new Technology(10L, "JAVA", null);
 
         // Act: se transforma al modelo de escritura y luego al dominio simple.
         var entity = TechnologyPersistenceMapper.toEntity(technology);
@@ -261,7 +302,7 @@ class MapperContractsTest {
         // Construye educación completa para mapeos web y JPA.
         return new Education(
                 40L, "DEGREE", "TÍTULO", "UNIVERSITY", "2020", "2020",
-                "2024", "2024", 1, false, 20L, "UNI", "UNI", "url"
+                "2024", "2024", 1, 20L, "UNI", "UNI", "url", null
         );
     }
 

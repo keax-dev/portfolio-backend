@@ -12,6 +12,7 @@ import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.project.domain.model.Project;
+import com.keax.shared.domain.text.TextNormalizer;
 import java.util.Objects;
 
 @Service
@@ -24,19 +25,15 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
     @Override
     public Project updateProject(Long projectId, Project project) {
 
-        Project projectUpdate = projectRepositoryPort.findByProjectIdAndProjectDeleted(
-                projectId,
-                false
-        ).orElseThrow(
+        Project projectUpdate = projectRepositoryPort.findById(projectId).orElseThrow(
                 () -> new ResourceNotFoundException("The project entered was not found")
         );
 
         projectStructureValidator.validate(project);
 
-        projectUpdate.setProjectTitle(project.getProjectTitle().toUpperCase());
-        projectRepositoryPort.findByProjectTitleAndProjectDeleted(
-                projectUpdate.getProjectTitle(),
-                false
+        projectUpdate.setProjectTitle(TextNormalizer.uppercase(project.getProjectTitle()));
+        projectRepositoryPort.findByTitle(
+                projectUpdate.getProjectTitle()
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getProjectId(), projectUpdate.getProjectId())){
@@ -46,9 +43,8 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
         );
 
         projectUpdate.setProjectPosition(project.getProjectPosition());
-        projectRepositoryPort.findByProjectPositionAndProjectDeleted(
-                projectUpdate.getProjectPosition(),
-                false
+        projectRepositoryPort.findByPosition(
+                projectUpdate.getProjectPosition()
         ).ifPresent(
                 e -> {
                     if (!Objects.equals(e.getProjectId(), projectUpdate.getProjectId())){
@@ -57,14 +53,12 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
                 }
         );
 
-        projectUpdate.setProjectTitleEs(project.getProjectTitleEs().toUpperCase());
-        projectUpdate.setProjectDescription(project.getProjectDescription());
-        projectUpdate.setProjectDescriptionEs(project.getProjectDescriptionEs());
+        projectUpdate.setProjectTitleEs(TextNormalizer.uppercase(project.getProjectTitleEs()));
+        projectUpdate.setProjectDescription(TextNormalizer.trimToNull(project.getProjectDescription()));
+        projectUpdate.setProjectDescriptionEs(TextNormalizer.trimToNull(project.getProjectDescriptionEs()));
         preserveAssociationIds(projectUpdate, project);
         projectUpdate.setProjectTechnologies(project.getProjectTechnologies());
         projectUpdate.setProjectLinks(project.getProjectLinks());
-        projectUpdate.setProjectDeleted(false);
-
         return projectRepositoryPort.updateProject(projectUpdate);
     }
 

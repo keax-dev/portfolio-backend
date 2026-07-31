@@ -5,9 +5,18 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.jdbc.Expectation;
 
 @Entity
 @Table(name = "social_network")
+@SQLDelete(
+        sql = "UPDATE social_network SET social_network_deleted = true, version = version + 1 "
+                + "WHERE social_network_id = ? AND version = ?",
+        verify = Expectation.RowCount.class
+)
+@SQLRestriction("social_network_deleted = false")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,6 +44,31 @@ public class SocialNetworkEntity {
     private String socialNetworkUrl;
 
     @Column(name = "social_network_deleted", nullable = false)
-    private Boolean socialNetworkDeleted;
+    private Boolean socialNetworkDeleted = false;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    public SocialNetworkEntity(
+            Long socialNetworkId,
+            String socialNetworkName,
+            String socialNetworkIcon,
+            String socialNetworkColor,
+            int socialNetworkPosition,
+            String socialNetworkUrl,
+            Boolean socialNetworkDeleted
+    ) {
+        this(
+                socialNetworkId,
+                socialNetworkName,
+                socialNetworkIcon,
+                socialNetworkColor,
+                socialNetworkPosition,
+                socialNetworkUrl,
+                socialNetworkDeleted,
+                null
+        );
+    }
 
 }

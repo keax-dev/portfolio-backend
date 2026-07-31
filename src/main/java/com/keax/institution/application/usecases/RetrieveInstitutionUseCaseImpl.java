@@ -18,13 +18,7 @@ public class RetrieveInstitutionUseCaseImpl implements RetrieveInstitutionUseCas
     @Override
     public List<Institution> getListInstitution() {
 
-        return institutionRepositoryPort.getListInstitution();
-    }
-
-    @Override
-    public List<Institution> findByInstitutionDeleted(Boolean deleted) {
-
-        return institutionRepositoryPort.findByInstitutionDeleted(deleted);
+        return institutionRepositoryPort.findAll();
     }
 
 }

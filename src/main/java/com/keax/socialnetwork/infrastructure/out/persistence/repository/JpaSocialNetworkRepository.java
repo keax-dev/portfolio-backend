@@ -7,9 +7,8 @@ import java.util.List;
 
 public interface JpaSocialNetworkRepository extends JpaRepository<SocialNetworkEntity, Long> {
 
-    List<SocialNetworkEntity> findBySocialNetworkDeleted(Boolean deleted);
-    Optional<SocialNetworkEntity> findBySocialNetworkNameAndSocialNetworkDeleted(String socialNetworkName, Boolean deleted);
-    Optional<SocialNetworkEntity> findBySocialNetworkIdAndSocialNetworkDeleted(Long socialNetworkId, Boolean deleted);
-    Optional<SocialNetworkEntity> findBySocialNetworkPositionAndSocialNetworkDeleted(int position, Boolean deleted);
+    List<SocialNetworkEntity> findAllByOrderBySocialNetworkPositionAsc();
+    Optional<SocialNetworkEntity> findBySocialNetworkName(String socialNetworkName);
+    Optional<SocialNetworkEntity> findBySocialNetworkPosition(int position);
 
 }

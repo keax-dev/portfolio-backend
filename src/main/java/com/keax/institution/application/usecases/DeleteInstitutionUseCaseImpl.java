@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.institution.domain.ports.in.DeleteInstitutionUseCase;
-import com.keax.shared.domain.ports.out.EducationInstitutionReferencePort;
+import com.keax.shared.domain.ports.out.InstitutionReferencePort;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.institution.domain.model.Institution;
@@ -16,23 +16,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DeleteInstitutionUseCaseImpl implements DeleteInstitutionUseCase {
     private final InstitutionRepositoryPort institutionRepositoryPort;
-    private final EducationInstitutionReferencePort educationInstitutionReferencePort;
+    private final InstitutionReferencePort institutionReferencePort;
 
     @Override
     public Institution deleteInstitution(Long institutionId) {
 
-        Institution institution = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(
-                institutionId,
-                false
-        ).orElseThrow(
+        Institution institution = institutionRepositoryPort.findById(institutionId).orElseThrow(
                 () -> new ResourceNotFoundException("The institution to be eliminated does not exist")
         );
 
-        if (educationInstitutionReferencePort.existsActiveEducationForInstitution(institutionId)){
+        if (institutionReferencePort.existsActiveEducationForInstitution(institutionId)
+                || institutionReferencePort.existsActiveCourseForInstitution(institutionId)) {
             throw new ResourceConflictException("The institution cannot be deleted because it has associated records");
         }
-
-        institution.setInstitutionDeleted(true);
 
         return institutionRepositoryPort.deleteInstitution(institution);
     }

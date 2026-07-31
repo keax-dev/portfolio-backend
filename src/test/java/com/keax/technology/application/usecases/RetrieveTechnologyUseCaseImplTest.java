@@ -17,11 +17,11 @@ class RetrieveTechnologyUseCaseImplTest {
     @Test
     void retrievesActiveTechnologiesWithoutNestedProjects() {
         TechnologyRepositoryPort repository = mock(TechnologyRepositoryPort.class);
-        Technology technology = new Technology(1L, "JAVA", false);
-        when(repository.findByTechnologyDeleted(false)).thenReturn(List.of(technology));
+        Technology technology = new Technology(1L, "JAVA", null);
+        when(repository.findAll()).thenReturn(List.of(technology));
 
         List<Technology> result = new RetrieveTechnologyUseCaseImpl(repository)
-                .findByTechnologyDeleted(false);
+                .getListTechnology();
 
         assertEquals(List.of(technology), result);
         assertEquals("JAVA", result.getFirst().getTechnologyName());
@@ -30,10 +30,10 @@ class RetrieveTechnologyUseCaseImplTest {
     @Test
     void returnsAnEmptyActiveTechnologyCatalogue() {
         TechnologyRepositoryPort repository = mock(TechnologyRepositoryPort.class);
-        when(repository.findByTechnologyDeleted(false)).thenReturn(List.of());
+        when(repository.findAll()).thenReturn(List.of());
 
         assertTrue(new RetrieveTechnologyUseCaseImpl(repository)
-                .findByTechnologyDeleted(false)
+                .getListTechnology()
                 .isEmpty());
     }
 }

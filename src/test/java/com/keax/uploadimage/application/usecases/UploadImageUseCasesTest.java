@@ -1,5 +1,7 @@
 package com.keax.uploadimage.application.usecases;
 
+import com.keax.course.domain.model.Course;
+import com.keax.course.domain.ports.out.CourseRepositoryPort;
 import com.keax.institution.domain.model.Institution;
 import com.keax.institution.domain.ports.out.InstitutionRepositoryPort;
 import com.keax.profile.domain.model.Profile;
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Verifica los cuatro flujos de subida y su compensación: validar recurso,
+ * Verifica los flujos de subida y su compensación: validar recurso,
  * almacenar la nueva imagen, persistir URL, eliminar la anterior y limpiar
  * la nueva cuando la actualización falla.
  */
@@ -44,6 +46,7 @@ class UploadImageUseCasesTest {
     private ProfileRepositoryPort profileRepository;
     private SkillRepositoryPort skillRepository;
     private ProjectRepositoryPort projectRepository;
+    private CourseRepositoryPort courseRepository;
     private InstitutionRepositoryPort institutionRepository;
     private ImageCleanupTaskPort cleanupTaskPort;
     private ImagePersistenceCoordinator persistenceCoordinator;
@@ -57,10 +60,12 @@ class UploadImageUseCasesTest {
         profileRepository = mock(ProfileRepositoryPort.class);
         skillRepository = mock(SkillRepositoryPort.class);
         projectRepository = mock(ProjectRepositoryPort.class);
+        courseRepository = mock(CourseRepositoryPort.class);
         institutionRepository = mock(InstitutionRepositoryPort.class);
         cleanupTaskPort = mock(ImageCleanupTaskPort.class);
         persistenceCoordinator = new ImagePersistenceCoordinator(
                 projectRepository,
+                courseRepository,
                 institutionRepository,
                 profileRepository,
                 skillRepository,
@@ -112,8 +117,8 @@ class UploadImageUseCasesTest {
     @Test
     void uploadsSkillImage() {
         // Arrange: existe la habilidad y Cloudinary devuelve una URL segura.
-        Skill skill = new Skill(1L, "JAVA", "old-url", 1, false);
-        when(skillRepository.findBySkillIdAndSkillDeleted(1L, false)).thenReturn(Optional.of(skill));
+        Skill skill = new Skill(1L, "JAVA", "old-url", 1, null);
+        when(skillRepository.findById(1L)).thenReturn(Optional.of(skill));
         when(storage.upload(image, "Skills")).thenReturn("new-url");
         when(skillRepository.updateSkill(any())).thenAnswer(invocation -> invocation.getArgument(0));
         UploadImageSkillUseCaseImpl useCase = new UploadImageSkillUseCaseImpl(
@@ -129,6 +134,39 @@ class UploadImageUseCasesTest {
     }
 
     @Test
+    void uploadsCourseCertificate() {
+        Course course = new Course(
+                5L,
+                "SPRING BOOT",
+                "SPRING BOOT",
+                "old-certificate",
+                "https://udemy.test/certificate/5",
+                1,
+                2L,
+                "UDEMY",
+                "UDEMY",
+                null
+        );
+        when(courseRepository.findById(5L))
+                .thenReturn(Optional.of(course));
+        when(storage.upload(image, "Certificates")).thenReturn("new-certificate");
+        when(courseRepository.updateCourse(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        UploadImageCourseUseCaseImpl useCase = new UploadImageCourseUseCaseImpl(
+                courseRepository,
+                storage,
+                persistenceCoordinator,
+                cleanupProcessor
+        );
+
+        Course result = useCase.uploadImageCourse(5L, image);
+
+        assertEquals("new-certificate", result.getCourseCertificateImg());
+        assertEquals("https://udemy.test/certificate/5", result.getCourseCertificateUrl());
+        verify(courseRepository).updateCourse(course);
+        verify(storage).delete("old-certificate");
+    }
+
+    @Test
     void deletesNewProjectImageWhenDatabaseUpdateFails() {
         // Arrange: la carga remota funciona, pero persistir el proyecto falla.
         Project project = new Project(
@@ -137,7 +175,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(1L, "old-url", 1)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         when(storage.upload(image, "Projects")).thenReturn("new-url");
         when(projectRepository.updateProject(any())).thenThrow(new IllegalStateException("database down"));
@@ -164,7 +202,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(1L, "first-url", 1)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         when(storage.upload(image, "Projects")).thenReturn("second-url");
         when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -187,7 +225,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(1L, "first-url", 1)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         UploadImageProjectUseCaseImpl useCase = new UploadImageProjectUseCaseImpl(
                 projectRepository, storage, persistenceCoordinator, cleanupProcessor
@@ -229,7 +267,7 @@ class UploadImageUseCasesTest {
                         new ProjectImage(11L, "second-url", 2)
                 ))
         );
-        when(projectRepository.findByProjectIdAndProjectDeleted(1L, false))
+        when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
         when(projectRepository.updateProject(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -246,8 +284,8 @@ class UploadImageUseCasesTest {
     @Test
     void uploadsInstitutionImage() {
         // Arrange: existe la institución y su imagen previa.
-        Institution institution = new Institution(1L, "UNI", "UNI", "old-url", false);
-        when(institutionRepository.findByInstitutionIdAndInstitutionDeleted(1L, false))
+        Institution institution = new Institution(1L, "UNI", "UNI", "old-url", null);
+        when(institutionRepository.findById(1L))
                 .thenReturn(Optional.of(institution));
         when(storage.upload(image, "Institutions")).thenReturn("new-url");
         when(institutionRepository.updateInstitution(any())).thenAnswer(invocation -> invocation.getArgument(0));

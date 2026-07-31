@@ -16,15 +16,14 @@ public class RetrieveProjectUseCaseImpl implements RetrieveProjectUseCase {
     private final ProjectRepositoryPort projectRepositoryPort;
 
     @Override
-    public List<Project> findByProjectDeleted(Boolean deleted) {
-
-        return projectRepositoryPort.findByProjectDeleted(deleted);
+    public List<Project> getPublishedProjects() {
+        return projectRepositoryPort.findPublished();
     }
 
     @Override
     public List<Project> getListProject() {
 
-        return projectRepositoryPort.getListProject();
+        return projectRepositoryPort.findAll();
     }
 
 }

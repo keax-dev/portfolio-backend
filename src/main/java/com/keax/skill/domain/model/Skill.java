@@ -15,6 +15,6 @@ public class Skill {
     private String skillName;
     private String skillPicture;
     private int skillPosition;
-    private Boolean skillDeleted;
+    private Long version;
 
 }

@@ -18,13 +18,7 @@ public class RetrieveEducationUseCaseImpl implements RetrieveEducationUseCase {
     @Override
     public List<Education> getListEducation() {
 
-        return educationRepositoryPort.getListEducation();
-    }
-
-    @Override
-    public List<Education> findByEducationDeleted(Boolean deleted) {
-
-        return educationRepositoryPort.findByEducationDeleted(deleted);
+        return educationRepositoryPort.findAll();
     }
 
 }

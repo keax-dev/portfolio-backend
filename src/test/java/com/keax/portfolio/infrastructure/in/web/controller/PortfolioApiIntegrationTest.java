@@ -1,5 +1,7 @@
 package com.keax.portfolio.infrastructure.in.web.controller;
 
+import com.keax.course.infrastructure.out.persistence.entity.CourseEntity;
+import com.keax.course.infrastructure.out.persistence.repository.JpaCourseRepository;
 import com.keax.education.infrastructure.out.persistence.entity.EducationEntity;
 import com.keax.education.infrastructure.out.persistence.repository.JpaEducationRepository;
 import com.keax.institution.infrastructure.out.persistence.entity.InstitutionEntity;
@@ -48,6 +50,7 @@ class PortfolioApiIntegrationTest {
     private final JpaProfileRepository profileRepository;
     private final JpaInstitutionRepository institutionRepository;
     private final JpaEducationRepository educationRepository;
+    private final JpaCourseRepository courseRepository;
     private final JpaSkillRepository skillRepository;
     private final JpaTechnologyRepository technologyRepository;
     private final JpaProjectRepository projectRepository;
@@ -59,6 +62,7 @@ class PortfolioApiIntegrationTest {
             JpaProfileRepository profileRepository,
             JpaInstitutionRepository institutionRepository,
             JpaEducationRepository educationRepository,
+            JpaCourseRepository courseRepository,
             JpaSkillRepository skillRepository,
             JpaTechnologyRepository technologyRepository,
             JpaProjectRepository projectRepository,
@@ -69,6 +73,7 @@ class PortfolioApiIntegrationTest {
         this.profileRepository = profileRepository;
         this.institutionRepository = institutionRepository;
         this.educationRepository = educationRepository;
+        this.courseRepository = courseRepository;
         this.skillRepository = skillRepository;
         this.technologyRepository = technologyRepository;
         this.projectRepository = projectRepository;
@@ -144,6 +149,37 @@ class PortfolioApiIntegrationTest {
                 "PORTFOLIO", "PORTAFOLIO", "Backend portfolio", "Portafolio backend",
                 "project.png", 1, false, activeTechnology
         ));
+
+        courseRepository.saveAndFlush(new CourseEntity(
+                null,
+                "SPRING BOOT DESDE CERO",
+                "SPRING BOOT FROM SCRATCH",
+                "certificate.png",
+                "https://udemy.test/certificate/active",
+                2,
+                false,
+                activeInstitution
+        ));
+        courseRepository.saveAndFlush(new CourseEntity(
+                null,
+                "ANGULAR AVANZADO",
+                "ADVANCED ANGULAR",
+                "angular-certificate.png",
+                null,
+                1,
+                false,
+                activeInstitution
+        ));
+        courseRepository.saveAndFlush(new CourseEntity(
+                null,
+                "DELETED COURSE",
+                "DELETED COURSE",
+                "deleted-certificate.png",
+                null,
+                3,
+                true,
+                activeInstitution
+        ));
         projectRepository.saveAndFlush(project(
                 "DELETED PROJECT", "PROYECTO ELIMINADO", "Deleted backend portfolio",
                 "Portafolio eliminado", "deleted-project.png", 2, true, activeTechnology
@@ -184,6 +220,18 @@ class PortfolioApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.data[0].title").value("DEGREE"));
+
+        mockMvc.perform(get("/api/portfolio/course"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].name").value("ANGULAR AVANZADO"))
+                .andExpect(jsonPath("$.data[0].position").value(1))
+                .andExpect(jsonPath("$.data[1].name").value("SPRING BOOT DESDE CERO"))
+                .andExpect(jsonPath("$.data[1].name_en").value("SPRING BOOT FROM SCRATCH"))
+                .andExpect(jsonPath("$.data[1].certificate_img").value("certificate.png"))
+                .andExpect(jsonPath("$.data[1].certificate_url")
+                        .value("https://udemy.test/certificate/active"))
+                .andExpect(jsonPath("$.data[1].position").value(2));
 
         mockMvc.perform(get("/api/portfolio/skill"))
                 .andExpect(status().isOk())

@@ -7,6 +7,7 @@ import com.keax.institution.domain.ports.in.UpdateInstitutionUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.shared.domain.exceptions.ResourceNotFoundException;
 import com.keax.institution.domain.model.Institution;
+import com.keax.shared.domain.text.TextNormalizer;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -20,17 +21,13 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
     @Override
     public Institution updateInstitution(Long institutionId, Institution institution) {
 
-        Institution institutionUpdate = institutionRepositoryPort.findByInstitutionIdAndInstitutionDeleted(
-                institutionId,
-                false
-        ).orElseThrow(
+        Institution institutionUpdate = institutionRepositoryPort.findById(institutionId).orElseThrow(
                 () -> new ResourceNotFoundException("The institution to be updated does not exist")
         );
 
-        institutionUpdate.setInstitutionName(institution.getInstitutionName().toUpperCase());
-        institutionRepositoryPort.findByInstitutionNameAndInstitutionDeleted(
-                institutionUpdate.getInstitutionName(),
-                false
+        institutionUpdate.setInstitutionName(TextNormalizer.uppercase(institution.getInstitutionName()));
+        institutionRepositoryPort.findByName(
+                institutionUpdate.getInstitutionName()
         ).ifPresent(
                 e ->{
                     if (!Objects.equals(e.getInstitutionId(), institutionUpdate.getInstitutionId())){
@@ -40,8 +37,8 @@ public class UpdateInstitutionUseCaseImpl implements UpdateInstitutionUseCase {
         );
 
         institutionUpdate.setInstitutionId(institutionId);
-        institutionUpdate.setInstitutionNameEs(institution.getInstitutionNameEs().toUpperCase());
-        institutionUpdate.setInstitutionDeleted(false);
+        institutionUpdate.setInstitutionNameEs(TextNormalizer.uppercase(institution.getInstitutionNameEs()));
+        institutionUpdate.setInstitutionUrl(TextNormalizer.trimToNull(institution.getInstitutionUrl()));
 
         return institutionRepositoryPort.updateInstitution(institutionUpdate);
     }

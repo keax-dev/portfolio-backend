@@ -20,4 +20,3 @@ Thumbs.db
 
 # Archivos ajenos al backend
 node_modules
-package-lock.json

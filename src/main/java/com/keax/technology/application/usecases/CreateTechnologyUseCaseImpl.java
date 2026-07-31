@@ -6,6 +6,7 @@ import com.keax.technology.domain.ports.out.TechnologyRepositoryPort;
 import com.keax.technology.domain.ports.in.CreateTechnologyUseCase;
 import com.keax.shared.domain.exceptions.ResourceConflictException;
 import com.keax.technology.domain.model.Technology;
+import com.keax.shared.domain.text.TextNormalizer;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +19,9 @@ public class CreateTechnologyUseCaseImpl implements CreateTechnologyUseCase {
     @Override
     public Technology createTechnology(Technology technology) {
 
-        technology.setTechnologyName(technology.getTechnologyName().toUpperCase());
-        technologyRepositoryPort.findByTechnologyNameAndTechnologyDeleted(
-                technology.getTechnologyName(),
-                false
+        technology.setTechnologyName(TextNormalizer.uppercase(technology.getTechnologyName()));
+        technologyRepositoryPort.findByName(
+                technology.getTechnologyName()
         ).ifPresent(
                 e -> {
                     throw new ResourceConflictException("There is already a technology with this name");
@@ -29,8 +29,6 @@ public class CreateTechnologyUseCaseImpl implements CreateTechnologyUseCase {
         );
 
         technology.setTechnologyId(null);
-        technology.setTechnologyDeleted(false);
-
         return technologyRepositoryPort.createTechnology(technology);
     }
 

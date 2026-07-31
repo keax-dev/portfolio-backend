@@ -14,7 +14,8 @@ public final class ProfilePersistenceMapper {
                 entity.getProfileTitleEs(),
                 entity.getProfileCv(),
                 entity.getProfileCvEs(),
-                entity.getProfilePicture()
+                entity.getProfilePicture(),
+                entity.getVersion()
         );
     }
 
@@ -27,7 +28,8 @@ public final class ProfilePersistenceMapper {
                 profile.getProfileTitleEs(),
                 profile.getProfileCv(),
                 profile.getProfileCvEs(),
-                profile.getProfilePicture()
+                profile.getProfilePicture(),
+                profile.getVersion()
         );
     }
 

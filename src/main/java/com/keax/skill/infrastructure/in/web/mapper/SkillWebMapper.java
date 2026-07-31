@@ -11,7 +11,7 @@ public final class SkillWebMapper {
                 dto.getSkillName(),
                 dto.getSkillPicture(),
                 dto.getSkillPosition(),
-                dto.getSkillDeleted()
+                null
         );
     }
 
@@ -21,7 +21,7 @@ public final class SkillWebMapper {
                 skill.getSkillName(),
                 skill.getSkillPicture(),
                 skill.getSkillPosition(),
-                skill.getSkillDeleted()
+                false
         );
     }
 

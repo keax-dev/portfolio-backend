@@ -22,7 +22,7 @@ Rutas principales:
 
 - `/api/auth/login`: autenticación administrativa.
 - `/api/portfolio/*`: consumo público del portafolio.
-- `/api/profile`, `/api/education`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: CRUD administrativo.
+- `/api/profile`, `/api/education`, `/api/course`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: CRUD administrativo.
 - `/api/image/*`: carga y eliminación de imágenes.
 - `/api/visitor` y `/api/visitor/dashboard`: registro y consulta de visitantes.
 
@@ -38,7 +38,7 @@ Rutas principales:
 ### API pública del portafolio
 
 - Consulta del perfil principal con URLs independientes de CV en inglés y español.
-- Consulta de educación, habilidades, tecnologías, proyectos unificados y redes sociales.
+- Consulta de educación, cursos y certificados, habilidades, tecnologías, proyectos unificados y redes sociales.
 - Proyectos públicos con títulos y descripciones localizadas, tecnologías, links e imágenes ordenadas.
 - Envío de formulario de contacto.
 - Registro de visitantes con deduplicación por ventana de tiempo.
@@ -48,12 +48,14 @@ Rutas principales:
 
 - CRUD de perfil con CV bilingüe mediante los campos `cv` y `cv_es`.
 - CRUD de educación.
+- CRUD de cursos y certificados asociados a instituciones, con nombre en español e inglés, posición de visualización, imagen y URL pública opcional.
 - CRUD de instituciones.
 - CRUD de habilidades.
 - CRUD de tecnologías por nombre, sin una posición global en el catálogo.
 - CRUD de proyectos con una o varias tecnologías y links ordenados por proyecto.
 - CRUD de redes sociales.
 - Carga múltiple y eliminación controlada de imágenes de proyectos en Cloudinary.
+- Carga y reemplazo seguro de imágenes de certificados en Cloudinary.
 - Dashboard de visitantes.
 
 ### Modelo y reglas de proyectos
@@ -179,7 +181,7 @@ Archivos relevantes:
 
 - `src/main/resources/application.properties`: Configuración base expresada con variables de entorno.
 - `src/main/resources/application-dev.properties`: Importa `.env.dev`.
-- `src/main/resources/application-prod.properties`: Importa `.env`.
+- `src/main/resources/application-prod.properties`: Importa `.env` y desactiva OpenAPI/Swagger.
 - `.env.example`: Plantilla de referencia para construir archivos reales.
 - `.env.dev`: Valores locales de desarrollo.
 - `.env`: Valores de producción cuando el backend corre con perfil `prod`.
@@ -255,8 +257,14 @@ Migraciones actuales:
 - `src/main/resources/db/migration/V5__drop_technology_position.sql`
 - `src/main/resources/db/migration/V6__profile_bilingual_cv.sql`
 - `src/main/java/db/migration/V7__harden_integrity_and_assets.java`
+- `src/main/resources/db/migration/V8__soft_delete_defaults.sql`
+- `src/main/resources/db/migration/V9__courses.sql`
+- `src/main/resources/db/migration/V10__course_bilingual_name_and_certificate_links.sql`
+- `src/main/resources/db/migration/V11__course_position.sql`
 
-Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías, agregan el CV bilingüe y endurecen restricciones, publicación de proyectos, privacidad de visitantes y limpieza diferida de recursos externos.
+Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías, agregan el CV bilingüe, incorporan cursos bilingües y ordenables vinculados a instituciones, separan la imagen del certificado de su URL pública opcional y endurecen restricciones, publicación de proyectos, privacidad de visitantes y limpieza diferida de recursos externos.
+
+Las entidades administrativas usan `@SQLDelete` y `@SQLRestriction`: un `delete()` de JPA actualiza el indicador `deleted`, conserva la fila y excluye automáticamente los registros eliminados de las consultas ordinarias.
 
 Configuración relevante:
 
@@ -273,13 +281,15 @@ Esto permite:
 
 ### Swagger UI
 
-Con la aplicación levantada:
+Con la aplicación levantada con el perfil `dev`:
 
 - `http://localhost:8080/swagger-ui.html`
 
 ### OpenAPI JSON
 
 - `http://localhost:8080/v3/api-docs`
+
+OpenAPI y Swagger UI permanecen desactivados con el perfil `prod`; `docker-compose.prod.yml` también fuerza esta política.
 
 ### Actuator
 

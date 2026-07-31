@@ -4,11 +4,22 @@ import com.keax.institution.infrastructure.out.persistence.entity.InstitutionEnt
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.jdbc.Expectation;
 
 @Entity
 @Table(name = "education")
-@Data
+@SQLDelete(
+        sql = "UPDATE education SET education_deleted = true, version = version + 1 "
+                + "WHERE education_id = ? AND version = ?",
+        verify = Expectation.RowCount.class
+)
+@SQLRestriction("education_deleted = false")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class EducationEntity {
@@ -43,10 +54,43 @@ public class EducationEntity {
     private int educationPosition;
 
     @Column(name = "education_deleted", nullable = false)
-    private Boolean educationDeleted;
+    private Boolean educationDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "institution_id", nullable = false)
     private InstitutionEntity institution;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    public EducationEntity(
+            Long educationId,
+            String educationTitle,
+            String educationTitleEs,
+            String educationPlace,
+            String educationStart,
+            String educationStartEs,
+            String educationEnd,
+            String educationEndEs,
+            int educationPosition,
+            Boolean educationDeleted,
+            InstitutionEntity institution
+    ) {
+        this(
+                educationId,
+                educationTitle,
+                educationTitleEs,
+                educationPlace,
+                educationStart,
+                educationStartEs,
+                educationEnd,
+                educationEndEs,
+                educationPosition,
+                educationDeleted,
+                institution,
+                null
+        );
+    }
 
 }

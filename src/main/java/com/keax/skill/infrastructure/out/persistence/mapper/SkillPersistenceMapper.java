@@ -11,7 +11,7 @@ public final class SkillPersistenceMapper {
                 entity.getSkillName(),
                 entity.getSkillPicture(),
                 entity.getSkillPosition(),
-                entity.getSkillDeleted()
+                entity.getVersion()
         );
     }
 
@@ -21,7 +21,8 @@ public final class SkillPersistenceMapper {
                 skill.getSkillName(),
                 skill.getSkillPicture(),
                 skill.getSkillPosition(),
-                skill.getSkillDeleted()
+                false,
+                skill.getVersion()
         );
     }
 

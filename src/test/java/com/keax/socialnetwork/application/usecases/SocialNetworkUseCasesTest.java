@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,9 +35,9 @@ class SocialNetworkUseCasesTest {
     void createsNormalizedSocialNetwork() {
         // Arrange: nombre y posición están libres.
         SocialNetwork input = social(null, "Github", 1, null);
-        when(repository.findBySocialNetworkNameAndSocialNetworkDeleted("GITHUB", false))
+        when(repository.findByName("GITHUB"))
                 .thenReturn(Optional.empty());
-        when(repository.findBySocialNetworkPositionAndSocialNetworkDeleted(1, false))
+        when(repository.findByPosition(1))
                 .thenReturn(Optional.empty());
         when(repository.createSocialNetwork(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -47,14 +46,13 @@ class SocialNetworkUseCasesTest {
 
         // Assert: el nombre y el estado quedan controlados por aplicación.
         assertEquals("GITHUB", result.getSocialNetworkName());
-        assertFalse(result.getSocialNetworkDeleted());
     }
 
     @Test
     void rejectsDuplicatedSocialNetworkName() {
         // Arrange: ya existe el mismo nombre activo.
         SocialNetwork input = social(null, "Github", 1, null);
-        when(repository.findBySocialNetworkNameAndSocialNetworkDeleted("GITHUB", false))
+        when(repository.findByName("GITHUB"))
                 .thenReturn(Optional.of(social(2L, "GITHUB", 2, false)));
 
         // Act y Assert: se evita crear el duplicado.
@@ -71,11 +69,11 @@ class SocialNetworkUseCasesTest {
         SocialNetwork changes = new SocialNetwork(
                 null, "Github", "github-icon", "#000000", 2, "https://github.com/keax", null
         );
-        when(repository.findBySocialNetworkIdAndSocialNetworkDeleted(1L, false))
+        when(repository.findById(1L))
                 .thenReturn(Optional.of(stored));
-        when(repository.findBySocialNetworkNameAndSocialNetworkDeleted("GITHUB", false))
+        when(repository.findByName("GITHUB"))
                 .thenReturn(Optional.empty());
-        when(repository.findBySocialNetworkPositionAndSocialNetworkDeleted(2, false))
+        when(repository.findByPosition(2))
                 .thenReturn(Optional.empty());
         when(repository.updateSocialNetwork(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -93,7 +91,7 @@ class SocialNetworkUseCasesTest {
     @Test
     void reportsMissingSocialNetworkOnDelete() {
         // Arrange: no existe el identificador activo.
-        when(repository.findBySocialNetworkIdAndSocialNetworkDeleted(99L, false))
+        when(repository.findById(99L))
                 .thenReturn(Optional.empty());
 
         // Act y Assert: se comunica recurso no encontrado.
@@ -107,30 +105,29 @@ class SocialNetworkUseCasesTest {
     void logicallyDeletesSocialNetwork() {
         // Arrange: existe una red activa.
         SocialNetwork stored = social(1L, "GITHUB", 1, false);
-        when(repository.findBySocialNetworkIdAndSocialNetworkDeleted(1L, false))
+        when(repository.findById(1L))
                 .thenReturn(Optional.of(stored));
-        when(repository.deleteSocialNetwork(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.deleteSocialNetwork(stored)).thenReturn(stored);
 
         // Act y Assert: el registro queda marcado como eliminado.
-        assertTrue(new DeleteSocialNetworkUseCaseImpl(repository)
-                .deleteSocialNetwork(1L)
-                .getSocialNetworkDeleted());
+        assertEquals(stored, new DeleteSocialNetworkUseCaseImpl(repository)
+                .deleteSocialNetwork(1L));
     }
 
     @Test
     void returnsEmptySocialNetworkList() {
         // Arrange: no existen redes para el filtro solicitado.
-        when(repository.findBySocialNetworkDeleted(false)).thenReturn(List.of());
+        when(repository.findAll()).thenReturn(List.of());
 
         // Act y Assert: una colección vacía sigue siendo una respuesta exitosa.
         assertTrue(new RetrieveSocialNetworkUseCaseImpl(repository)
-                .findBySocialNetworkDeleted(false)
+                .getListSocialNetwork()
                 .isEmpty());
     }
 
-    private SocialNetwork social(Long id, String name, int position, Boolean deleted) {
+    private SocialNetwork social(Long id, String name, int position, Boolean ignoredDeleted) {
         // Construye un modelo válido con valores técnicos mínimos.
-        return new SocialNetwork(id, name, "icon", "#ffffff", position, "https://example.com", deleted);
+        return new SocialNetwork(id, name, "icon", "#ffffff", position, "https://example.com", null);
     }
 
 }

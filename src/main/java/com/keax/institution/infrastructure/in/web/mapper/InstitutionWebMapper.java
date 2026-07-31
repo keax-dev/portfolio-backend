@@ -11,7 +11,7 @@ public final class InstitutionWebMapper {
                 dto.getInstitutionName(),
                 dto.getInstitutionNameEs(),
                 dto.getInstitutionUrl(),
-                dto.getInstitutionDeleted()
+                null
         );
     }
 
@@ -21,7 +21,7 @@ public final class InstitutionWebMapper {
                 institution.getInstitutionName(),
                 institution.getInstitutionNameEs(),
                 institution.getInstitutionUrl(),
-                institution.getInstitutionDeleted()
+                false
         );
     }
 

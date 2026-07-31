@@ -6,6 +6,8 @@ import com.keax.project.infrastructure.out.persistence.mapper.ProjectPersistence
 import com.keax.project.infrastructure.out.persistence.repository.JpaProjectRepository;
 import com.keax.project.infrastructure.out.persistence.entity.ProjectEntity;
 import com.keax.project.domain.ports.out.ProjectRepositoryPort;
+import com.keax.technology.infrastructure.out.persistence.entity.TechnologyEntity;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 import com.keax.project.domain.model.Project;
 import java.util.Optional;
@@ -16,12 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     private final JpaProjectRepository jpaProjectRepository;
+    private final EntityManager entityManager;
 
     @Override
     public Project createProject(Project project) {
-        ProjectEntity saved = jpaProjectRepository.save(
-                ProjectPersistenceMapper.toEntity(project)
-        );
+        ProjectEntity saved = jpaProjectRepository.save(toEntity(project));
         return ProjectPersistenceMapper.toDomain(saved);
     }
 
@@ -30,72 +31,62 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
     public Project updateProject(Project project) {
         jpaProjectRepository.stageProjectTechnologyPositions(project.getProjectId());
         jpaProjectRepository.stageProjectLinkPositions(project.getProjectId());
-        ProjectEntity updated = jpaProjectRepository.saveAndFlush(
-                ProjectPersistenceMapper.toEntity(project)
-        );
+        ProjectEntity updated = jpaProjectRepository.saveAndFlush(toEntity(project));
         return ProjectPersistenceMapper.toDomain(updated);
     }
 
     @Override
     public Project deleteProject(Project project) {
-        ProjectEntity deleted = jpaProjectRepository.save(
-                ProjectPersistenceMapper.toEntity(project)
-        );
-        return ProjectPersistenceMapper.toDomain(deleted);
+        jpaProjectRepository.deleteById(project.getProjectId());
+        jpaProjectRepository.flush();
+        return project;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Project> findByProjectDeleted(Boolean deleted) {
-        List<ProjectEntity> projects = Boolean.FALSE.equals(deleted)
-                ? jpaProjectRepository.findByProjectDeletedAndProjectPublishedOrderByProjectPosition(false, true)
-                : jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(deleted);
-
-        return projects.stream()
+    public List<Project> findPublished() {
+        return jpaProjectRepository.findByProjectPublishedTrueOrderByProjectPosition().stream()
                 .map(ProjectPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Project> getListProject() {
-        return jpaProjectRepository.findByProjectDeletedOrderByProjectPosition(false).stream()
+    public List<Project> findAll() {
+        return jpaProjectRepository.findAllByOrderByProjectPosition().stream()
                 .map(ProjectPersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Project> findByProjectTitleAndProjectDeleted(String projectTitle, Boolean deleted) {
-        return jpaProjectRepository.findByProjectTitleAndProjectDeleted(
-                projectTitle,
-                deleted
-        ).map(ProjectPersistenceMapper::toDomain);
+    public Optional<Project> findByTitle(String projectTitle) {
+        return jpaProjectRepository.findByProjectTitle(projectTitle)
+                .map(ProjectPersistenceMapper::toDomain);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Project> findByProjectIdAndProjectDeleted(Long projectId, Boolean deleted) {
-        return jpaProjectRepository.findByProjectIdAndProjectDeleted(
-                projectId,
-                deleted
-        ).map(ProjectPersistenceMapper::toDomain);
+    public Optional<Project> findById(Long projectId) {
+        return jpaProjectRepository.findById(projectId)
+                .map(ProjectPersistenceMapper::toDomain);
     }
 
     @Override
-    public Optional<Project> findByProjectPositionAndProjectDeleted(int position, Boolean deleted) {
-        return jpaProjectRepository.findByProjectPositionAndProjectDeleted(
-                position,
-                deleted
-        ).map(ProjectPersistenceMapper::toDomain);
+    public Optional<Project> findByPosition(int position) {
+        return jpaProjectRepository.findByProjectPosition(position)
+                .map(ProjectPersistenceMapper::toDomain);
     }
 
-    @Override
-    public Boolean existsByTechnologyIdAndProjectDeleted(Long technologyId, Boolean deleted) {
-        return jpaProjectRepository.existsByTechnologyIdAndProjectDeleted(
-                technologyId,
-                deleted
+    private ProjectEntity toEntity(Project project) {
+        ProjectEntity entity = ProjectPersistenceMapper.toEntity(project);
+        entity.getProjectTechnologies().forEach(relation ->
+                relation.setTechnology(entityManager.getReference(
+                        TechnologyEntity.class,
+                        relation.getTechnology().getTechnologyId()
+                ))
         );
+        return entity;
     }
 
 }

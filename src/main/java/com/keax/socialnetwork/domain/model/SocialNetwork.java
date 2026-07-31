@@ -17,6 +17,6 @@ public class SocialNetwork {
     private String socialNetworkColor;
     private int socialNetworkPosition;
     private String socialNetworkUrl;
-    private Boolean socialNetworkDeleted;
+    private Long version;
 
 }

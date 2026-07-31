@@ -6,6 +6,5 @@ import java.util.List;
 public interface RetrieveInstitutionUseCase {
 
     List<Institution> getListInstitution();
-    List<Institution> findByInstitutionDeleted(Boolean deleted);
 
 }
