@@ -17,6 +17,7 @@ public final class EducationPersistenceMapper {
                 entity.getEducationEnd(),
                 entity.getEducationEndEs(),
                 entity.getEducationPosition(),
+                entity.getEducationVisible(),
                 entity.getInstitution().getInstitutionId(),
                 entity.getInstitution().getInstitutionName(),
                 entity.getInstitution().getInstitutionNameEs(),
@@ -37,6 +38,7 @@ public final class EducationPersistenceMapper {
                 education.getEducationEndEs(),
                 education.getEducationPosition(),
                 false,
+                education.getEducationVisible(),
                 InstitutionPersistenceMapper.toReference(education.getInstitutionId()),
                 education.getVersion()
         );

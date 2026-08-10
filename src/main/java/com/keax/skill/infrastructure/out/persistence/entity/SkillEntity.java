@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.jdbc.Expectation;
+import com.keax.skill.domain.model.SkillCategory;
 
 @Entity
 @Table(name = "skill")
@@ -37,6 +38,13 @@ public class SkillEntity {
     @Column(name = "skill_position", nullable = false)
     private int skillPosition;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "skill_category", nullable = false, length = 40)
+    private SkillCategory skillCategory = SkillCategory.OTHER;
+
+    @Column(name = "skill_visible", nullable = false)
+    private Boolean skillVisible = true;
+
     @Column(name = "skill_deleted", nullable = false)
     private Boolean skillDeleted = false;
 
@@ -51,7 +59,16 @@ public class SkillEntity {
             int skillPosition,
             Boolean skillDeleted
     ) {
-        this(skillId, skillName, skillPicture, skillPosition, skillDeleted, null);
+        this(
+                skillId,
+                skillName,
+                skillPicture,
+                skillPosition,
+                SkillCategory.OTHER,
+                true,
+                skillDeleted,
+                null
+        );
     }
 
 }

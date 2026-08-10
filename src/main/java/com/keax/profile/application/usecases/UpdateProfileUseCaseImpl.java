@@ -34,6 +34,21 @@ public class UpdateProfileUseCaseImpl implements UpdateProfileUseCase {
         update.setProfileTitle(TextNormalizer.uppercase(profile.getProfileTitle()));
         update.setProfileCv(TextNormalizer.trimToNull(profile.getProfileCv()));
         update.setProfileCvEs(TextNormalizer.trimToNull(profile.getProfileCvEs()));
+        if (profile.getProfileSpecialties() != null) {
+            update.setProfileSpecialties(TextNormalizer.trimToEmpty(profile.getProfileSpecialties()));
+        }
+        if (profile.getProfileSummary() != null) {
+            update.setProfileSummary(TextNormalizer.trimToEmpty(profile.getProfileSummary()));
+        }
+        if (profile.getProfileSummaryEs() != null) {
+            update.setProfileSummaryEs(TextNormalizer.trimToEmpty(profile.getProfileSummaryEs()));
+        }
+        if (profile.getProfileAbout() != null) {
+            update.setProfileAbout(TextNormalizer.trimToEmpty(profile.getProfileAbout()));
+        }
+        if (profile.getProfileAboutEs() != null) {
+            update.setProfileAboutEs(TextNormalizer.trimToEmpty(profile.getProfileAboutEs()));
+        }
 
         return profileRepositoryPort.saveProfile(update);
     }

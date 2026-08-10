@@ -12,6 +12,9 @@ public interface JpaCourseRepository extends JpaRepository<CourseEntity, Long> {
     @EntityGraph(attributePaths = "institution")
     List<CourseEntity> findAllByOrderByCoursePositionAsc();
 
+    @EntityGraph(attributePaths = "institution")
+    List<CourseEntity> findAllByCourseVisibleTrueOrderByCoursePositionAsc();
+
     @Override
     @EntityGraph(attributePaths = "institution")
     Optional<CourseEntity> findById(Long courseId);

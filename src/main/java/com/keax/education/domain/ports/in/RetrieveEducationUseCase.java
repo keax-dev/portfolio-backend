@@ -7,4 +7,6 @@ public interface RetrieveEducationUseCase {
 
     List<Education> getListEducation();
 
+    List<Education> getVisibleEducation();
+
 }

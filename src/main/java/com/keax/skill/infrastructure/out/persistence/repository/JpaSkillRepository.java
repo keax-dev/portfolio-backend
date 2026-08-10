@@ -8,6 +8,7 @@ import java.util.List;
 public interface JpaSkillRepository extends JpaRepository<SkillEntity, Long> {
 
     List<SkillEntity> findAllByOrderBySkillPositionAsc();
+    List<SkillEntity> findAllBySkillVisibleTrueOrderBySkillPositionAsc();
     Optional<SkillEntity> findBySkillName(String skillName);
     Optional<SkillEntity> findBySkillPosition(int position);
 

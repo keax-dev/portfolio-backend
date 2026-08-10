@@ -32,6 +32,11 @@ public class CreateProfileUseCaseImpl implements CreateProfileUseCase {
         profile.setProfileTitle(TextNormalizer.uppercase(profile.getProfileTitle()));
         profile.setProfileCv(TextNormalizer.trimToNull(profile.getProfileCv()));
         profile.setProfileCvEs(TextNormalizer.trimToNull(profile.getProfileCvEs()));
+        profile.setProfileSpecialties(TextNormalizer.trimToEmpty(profile.getProfileSpecialties()));
+        profile.setProfileSummary(TextNormalizer.trimToEmpty(profile.getProfileSummary()));
+        profile.setProfileSummaryEs(TextNormalizer.trimToEmpty(profile.getProfileSummaryEs()));
+        profile.setProfileAbout(TextNormalizer.trimToEmpty(profile.getProfileAbout()));
+        profile.setProfileAboutEs(TextNormalizer.trimToEmpty(profile.getProfileAboutEs()));
         profile.setProfileId(null);
 
         return profileRepositoryPort.saveProfile(profile);

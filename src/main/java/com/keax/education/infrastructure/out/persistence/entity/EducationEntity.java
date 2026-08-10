@@ -56,6 +56,9 @@ public class EducationEntity {
     @Column(name = "education_deleted", nullable = false)
     private Boolean educationDeleted = false;
 
+    @Column(name = "education_visible", nullable = false)
+    private Boolean educationVisible = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "institution_id", nullable = false)
     private InstitutionEntity institution;
@@ -88,6 +91,7 @@ public class EducationEntity {
                 educationEndEs,
                 educationPosition,
                 educationDeleted,
+                true,
                 institution,
                 null
         );

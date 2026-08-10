@@ -60,6 +60,7 @@ public class UpdateCourseUseCaseImpl implements UpdateCourseUseCase {
                 course.getCourseCertificateUrl()
         ));
         existingCourse.setCoursePosition(course.getCoursePosition());
+        existingCourse.setCourseVisible(Objects.requireNonNullElse(course.getCourseVisible(), true));
         existingCourse.setInstitutionId(course.getInstitutionId());
         return courseRepositoryPort.updateCourse(existingCourse);
     }

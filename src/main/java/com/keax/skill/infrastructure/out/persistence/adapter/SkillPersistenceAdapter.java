@@ -47,6 +47,13 @@ public class SkillPersistenceAdapter implements SkillRepositoryPort {
     }
 
     @Override
+    public List<Skill> findVisible() {
+        return jpaSkillRepository.findAllBySkillVisibleTrueOrderBySkillPositionAsc().stream()
+                .map(SkillPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<Skill> findByName(String skillName) {
         return jpaSkillRepository.findBySkillName(skillName)
                 .map(SkillPersistenceMapper::toDomain);

@@ -47,8 +47,9 @@ public class CourseDTO {
     @Min(value = 1, message = "The course position must be greater than 0")
     private Integer coursePosition;
 
-    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
-    private Boolean courseDeleted = false;
+    @JsonProperty("visible")
+    @NotNull(message = "The course visibility is required")
+    private Boolean courseVisible = true;
 
     @JsonProperty("institution")
     @NotNull(message = "The institution is required")

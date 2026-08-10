@@ -16,8 +16,7 @@ public final class TechnologyWebMapper {
     public static TechnologyDTO fromDomain(Technology technology) {
         return new TechnologyDTO(
                 technology.getTechnologyId(),
-                technology.getTechnologyName(),
-                false
+                technology.getTechnologyName()
         );
     }
 

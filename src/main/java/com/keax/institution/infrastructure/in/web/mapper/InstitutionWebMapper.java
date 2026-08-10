@@ -20,8 +20,7 @@ public final class InstitutionWebMapper {
                 institution.getInstitutionId(),
                 institution.getInstitutionName(),
                 institution.getInstitutionNameEs(),
-                institution.getInstitutionUrl(),
-                false
+                institution.getInstitutionUrl()
         );
     }
 

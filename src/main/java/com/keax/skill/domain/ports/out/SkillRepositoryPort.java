@@ -10,6 +10,7 @@ public interface SkillRepositoryPort {
     Skill updateSkill(Skill skill);
     Skill deleteSkill(Skill skill);
     List<Skill> findAll();
+    List<Skill> findVisible();
     Optional<Skill> findByName(String skillName);
     Optional<Skill> findById(Long skillId);
     Optional<Skill> findByPosition(int position);

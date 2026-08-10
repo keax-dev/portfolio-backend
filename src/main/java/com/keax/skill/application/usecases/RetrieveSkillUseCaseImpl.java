@@ -21,4 +21,9 @@ public class RetrieveSkillUseCaseImpl implements RetrieveSkillUseCase {
         return skillRepositoryPort.findAll();
     }
 
+    @Override
+    public List<Skill> getVisibleSkills() {
+        return skillRepositoryPort.findVisible();
+    }
+
 }

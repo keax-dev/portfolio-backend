@@ -53,4 +53,24 @@ public class ProfileDTO {
     @JsonProperty("image")
     private String profilePicture;
 
+    @JsonProperty("specialties")
+    @Size(max = 500, message = "The profile specialties must not exceed 500 characters")
+    private String profileSpecialties;
+
+    @JsonProperty("summary")
+    @Size(max = 600, message = "The English profile summary must not exceed 600 characters")
+    private String profileSummary;
+
+    @JsonProperty("summary_es")
+    @Size(max = 600, message = "The Spanish profile summary must not exceed 600 characters")
+    private String profileSummaryEs;
+
+    @JsonProperty("about")
+    @Size(max = 2500, message = "The English about text must not exceed 2500 characters")
+    private String profileAbout;
+
+    @JsonProperty("about_es")
+    @Size(max = 2500, message = "The Spanish about text must not exceed 2500 characters")
+    private String profileAboutEs;
+
 }

@@ -15,6 +15,11 @@ public final class ProfileWebMapper {
                 dto.getProfileCv(),
                 dto.getProfileCvEs(),
                 dto.getProfilePicture(),
+                dto.getProfileSpecialties(),
+                dto.getProfileSummary(),
+                dto.getProfileSummaryEs(),
+                dto.getProfileAbout(),
+                dto.getProfileAboutEs(),
                 null
         );
     }
@@ -28,7 +33,12 @@ public final class ProfileWebMapper {
                 profile.getProfileTitleEs(),
                 profile.getProfileCv(),
                 profile.getProfileCvEs(),
-                profile.getProfilePicture()
+                profile.getProfilePicture(),
+                profile.getProfileSpecialties(),
+                profile.getProfileSummary(),
+                profile.getProfileSummaryEs(),
+                profile.getProfileAbout(),
+                profile.getProfileAboutEs()
         );
     }
 

@@ -19,6 +19,11 @@ public class Profile {
     private String profileCv;
     private String profileCvEs;
     private String profilePicture;
+    private String profileSpecialties;
+    private String profileSummary;
+    private String profileSummaryEs;
+    private String profileAbout;
+    private String profileAboutEs;
     private Long version;
 
     public Profile(
@@ -40,6 +45,11 @@ public class Profile {
                 profileCv,
                 profileCvEs,
                 profilePicture,
+                "",
+                "",
+                "",
+                "",
+                "",
                 null
         );
     }

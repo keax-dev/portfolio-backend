@@ -33,7 +33,4 @@ public class InstitutionDTO {
     @Size(max = 2048, message = "The institution url must not exceed 2048 characters")
     private String institutionUrl;
 
-    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
-    private Boolean institutionDeleted = false;
-
 }

@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import com.keax.skill.domain.model.SkillCategory;
+import jakarta.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -30,7 +32,12 @@ public class SkillDTO {
     @Min(value = 1, message = "The skill position must be greater than 0")
     private int skillPosition;
 
-    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
-    private Boolean skillDeleted = false;
+    @JsonProperty("category")
+    @NotNull(message = "The skill category is required")
+    private SkillCategory skillCategory = SkillCategory.OTHER;
+
+    @JsonProperty("visible")
+    @NotNull(message = "The skill visibility is required")
+    private Boolean skillVisible = true;
 
 }

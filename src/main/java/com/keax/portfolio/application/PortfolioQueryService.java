@@ -4,6 +4,8 @@ import com.keax.course.domain.model.Course;
 import com.keax.course.domain.ports.in.RetrieveCourseUseCase;
 import com.keax.education.domain.model.Education;
 import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
+import com.keax.experience.domain.model.Experience;
+import com.keax.experience.domain.ports.in.RetrieveExperienceUseCase;
 import com.keax.portfolio.domain.ports.in.PortfolioQueryUseCase;
 import com.keax.profile.domain.model.Profile;
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
@@ -28,6 +30,7 @@ public class PortfolioQueryService implements PortfolioQueryUseCase {
 
     private final RetrieveProfileUseCase profile;
     private final RetrieveEducationUseCase education;
+    private final RetrieveExperienceUseCase experiences;
     private final RetrieveCourseUseCase courses;
     private final RetrieveSkillUseCase skills;
     private final RetrieveTechnologyUseCase technologies;
@@ -41,17 +44,22 @@ public class PortfolioQueryService implements PortfolioQueryUseCase {
 
     @Override
     public List<Education> getEducation() {
-        return education.getListEducation();
+        return education.getVisibleEducation();
+    }
+
+    @Override
+    public List<Experience> getExperiences() {
+        return experiences.getVisibleExperiences();
     }
 
     @Override
     public List<Course> getCourses() {
-        return courses.getListCourse();
+        return courses.getVisibleCourses();
     }
 
     @Override
     public List<Skill> getSkills() {
-        return skills.getListSkill();
+        return skills.getVisibleSkills();
     }
 
     @Override

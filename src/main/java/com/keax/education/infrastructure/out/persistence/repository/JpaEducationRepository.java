@@ -12,6 +12,9 @@ public interface JpaEducationRepository extends JpaRepository<EducationEntity, L
     List<EducationEntity> findAllByOrderByEducationPositionAsc();
 
     @EntityGraph(attributePaths = "institution")
+    List<EducationEntity> findAllByEducationVisibleTrueOrderByEducationPositionAsc();
+
+    @EntityGraph(attributePaths = "institution")
     Optional<EducationEntity> findByEducationTitleAndInstitution_InstitutionId(
             String educationTitle,
             Long institutionId

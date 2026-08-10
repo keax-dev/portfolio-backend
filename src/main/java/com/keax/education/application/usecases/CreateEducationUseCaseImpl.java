@@ -11,6 +11,7 @@ import com.keax.education.domain.model.Education;
 import com.keax.shared.domain.text.TextNormalizer;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -53,6 +54,7 @@ public class CreateEducationUseCaseImpl implements CreateEducationUseCase {
         education.setEducationEndEs(TextNormalizer.uppercase(education.getEducationEndEs()));
 
         education.setEducationId(null);
+        education.setEducationVisible(Objects.requireNonNullElse(education.getEducationVisible(), true));
 
         return educationRepositoryPort.createEducation(education);
     }

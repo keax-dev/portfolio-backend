@@ -24,8 +24,7 @@ public final class SocialNetworkWebMapper {
                 socialNetwork.getSocialNetworkIcon(),
                 socialNetwork.getSocialNetworkColor(),
                 socialNetwork.getSocialNetworkPosition(),
-                socialNetwork.getSocialNetworkUrl(),
-                false
+                socialNetwork.getSocialNetworkUrl()
         );
     }
 

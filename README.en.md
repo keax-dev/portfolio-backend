@@ -22,7 +22,7 @@ Main routes:
 
 - `/api/auth/login`: admin authentication.
 - `/api/portfolio/*`: public portfolio consumption.
-- `/api/profile`, `/api/education`, `/api/course`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: admin CRUD.
+- `/api/profile`, `/api/education`, `/api/course`, `/api/experience`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: admin CRUD.
 - `/api/image/*`: image upload and deletion endpoints.
 - `/api/visitor` and `/api/visitor/dashboard`: visitor registration and reporting.
 
@@ -134,7 +134,7 @@ The project is organized with a hexagonal architecture approach:
 
 Each functional module follows the same idea. For example:
 
-- `profile`, `education`, `project`, `technology`, `skill`, `institution`, `socialnetwork`, `visitor`, `auth`, `email`, `uploadimage`
+- `profile`, `education`, `experience`, `project`, `technology`, `skill`, `institution`, `socialnetwork`, `visitor`, `auth`, `email`, `uploadimage`
 
 This helps:
 
@@ -261,8 +261,10 @@ Current migrations:
 - `src/main/resources/db/migration/V9__courses.sql`
 - `src/main/resources/db/migration/V10__course_bilingual_name_and_certificate_links.sql`
 - `src/main/resources/db/migration/V11__course_position.sql`
+- `src/main/resources/db/migration/V12__optimistic_locking.sql`
+- `src/main/resources/db/migration/V13__professional_portfolio_content.sql`
 
-These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, remove the global technology catalog position, add bilingual CV support, introduce bilingual and orderable institution-linked courses, separate certificate images from their optional public URLs, and harden constraints, project publication, visitor privacy, and deferred external-resource cleanup.
+These migrations create the technology and link relationships, unify previously separated projects, migrate images to the ordered collection, remove the global technology catalog position, add bilingual CV support, introduce bilingual and orderable institution-linked courses, separate certificate images from their optional public URLs, add optimistic locking, and support professional profile content, categorized skills, public visibility, and employment experience.
 
 Administrative entities use `@SQLDelete` and `@SQLRestriction`: a JPA `delete()` updates the `deleted` flag, preserves the row, and automatically excludes deleted records from ordinary queries.
 

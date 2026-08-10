@@ -20,10 +20,46 @@ public class Education {
     private  String educationEnd;
     private  String educationEndEs;
     private int educationPosition;
+    private Boolean educationVisible;
     private Long institutionId;
     private String institutionName;
     private String institutionNameEs;
     private String institutionUrl;
     private Long version;
+
+    public Education(
+            Long educationId,
+            String educationTitle,
+            String educationTitleEs,
+            String educationPlace,
+            String educationStart,
+            String educationStartEs,
+            String educationEnd,
+            String educationEndEs,
+            int educationPosition,
+            Long institutionId,
+            String institutionName,
+            String institutionNameEs,
+            String institutionUrl,
+            Long version
+    ) {
+        this(
+                educationId,
+                educationTitle,
+                educationTitleEs,
+                educationPlace,
+                educationStart,
+                educationStartEs,
+                educationEnd,
+                educationEndEs,
+                educationPosition,
+                true,
+                institutionId,
+                institutionName,
+                institutionNameEs,
+                institutionUrl,
+                version
+        );
+    }
 
 }
