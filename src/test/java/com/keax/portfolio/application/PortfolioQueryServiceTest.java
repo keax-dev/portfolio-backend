@@ -4,6 +4,8 @@ import com.keax.course.domain.model.Course;
 import com.keax.course.domain.ports.in.RetrieveCourseUseCase;
 import com.keax.education.domain.model.Education;
 import com.keax.education.domain.ports.in.RetrieveEducationUseCase;
+import com.keax.experience.domain.model.Experience;
+import com.keax.experience.domain.ports.in.RetrieveExperienceUseCase;
 import com.keax.profile.domain.model.Profile;
 import com.keax.profile.domain.ports.in.RetrieveProfileUseCase;
 import com.keax.project.domain.model.Project;
@@ -28,6 +30,7 @@ class PortfolioQueryServiceTest {
     void delegatesEveryPublicSectionToItsApplicationPort() {
         RetrieveProfileUseCase profilePort = mock(RetrieveProfileUseCase.class);
         RetrieveEducationUseCase educationPort = mock(RetrieveEducationUseCase.class);
+        RetrieveExperienceUseCase experiencePort = mock(RetrieveExperienceUseCase.class);
         RetrieveCourseUseCase coursePort = mock(RetrieveCourseUseCase.class);
         RetrieveSkillUseCase skillPort = mock(RetrieveSkillUseCase.class);
         RetrieveTechnologyUseCase technologyPort = mock(RetrieveTechnologyUseCase.class);
@@ -36,6 +39,7 @@ class PortfolioQueryServiceTest {
 
         Profile profile = new Profile();
         List<Education> education = List.of(new Education());
+        List<Experience> experiences = List.of(new Experience());
         List<Course> courses = List.of(new Course());
         List<Skill> skills = List.of(new Skill());
         List<Technology> technologies = List.of(new Technology());
@@ -43,9 +47,10 @@ class PortfolioQueryServiceTest {
         List<SocialNetwork> socialNetworks = List.of(new SocialNetwork());
 
         when(profilePort.getProfile()).thenReturn(profile);
-        when(educationPort.getListEducation()).thenReturn(education);
-        when(coursePort.getListCourse()).thenReturn(courses);
-        when(skillPort.getListSkill()).thenReturn(skills);
+        when(educationPort.getVisibleEducation()).thenReturn(education);
+        when(experiencePort.getVisibleExperiences()).thenReturn(experiences);
+        when(coursePort.getVisibleCourses()).thenReturn(courses);
+        when(skillPort.getVisibleSkills()).thenReturn(skills);
         when(technologyPort.getListTechnology()).thenReturn(technologies);
         when(projectPort.getPublishedProjects()).thenReturn(projects);
         when(socialNetworkPort.getListSocialNetwork()).thenReturn(socialNetworks);
@@ -53,6 +58,7 @@ class PortfolioQueryServiceTest {
         PortfolioQueryService service = new PortfolioQueryService(
                 profilePort,
                 educationPort,
+                experiencePort,
                 coursePort,
                 skillPort,
                 technologyPort,
@@ -62,6 +68,7 @@ class PortfolioQueryServiceTest {
 
         assertSame(profile, service.getProfile());
         assertSame(education, service.getEducation());
+        assertSame(experiences, service.getExperiences());
         assertSame(courses, service.getCourses());
         assertSame(skills, service.getSkills());
         assertSame(technologies, service.getTechnologies());

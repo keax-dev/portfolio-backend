@@ -15,6 +15,8 @@ import com.keax.project.infrastructure.in.web.dto.ProjectDTO;
 import com.keax.project.infrastructure.in.web.mapper.ProjectWebMapper;
 import com.keax.skill.infrastructure.in.web.mapper.SkillWebMapper;
 import com.keax.education.infrastructure.in.web.dto.EducationDTO;
+import com.keax.experience.infrastructure.in.web.dto.ExperienceDTO;
+import com.keax.experience.infrastructure.in.web.mapper.ExperienceWebMapper;
 import com.keax.email.infrastructure.in.web.ratelimit.ContactRateLimiter;
 import com.keax.portfolio.domain.ports.in.PortfolioQueryUseCase;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,6 +88,19 @@ public class PortfolioController {
                 "Technology information found successfully",
                 portfolioQuery.getTechnologies()
                         .stream().map(TechnologyWebMapper::fromDomain).toList()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/experience")
+    public ResponseEntity<ApiResponseDTO<List<ExperienceDTO>>> getExperience() {
+        ApiResponseDTO<List<ExperienceDTO>> response = new ApiResponseDTO<>(
+                true,
+                "Professional experience found successfully",
+                portfolioQuery.getExperiences().stream()
+                        .map(ExperienceWebMapper::fromDomain)
+                        .toList()
         );
 
         return ResponseEntity.ok(response);

@@ -10,6 +10,7 @@ import com.keax.shared.domain.text.TextNormalizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -48,6 +49,7 @@ public class CreateCourseUseCaseImpl implements CreateCourseUseCase {
         course.setCourseNameEn(normalizedNameEn);
         course.setCourseCertificateImg(null);
         course.setCourseCertificateUrl(TextNormalizer.trimToNull(course.getCourseCertificateUrl()));
+        course.setCourseVisible(Objects.requireNonNullElse(course.getCourseVisible(), true));
 
         return courseRepositoryPort.createCourse(course);
     }

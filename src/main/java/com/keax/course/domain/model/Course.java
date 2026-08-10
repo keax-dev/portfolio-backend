@@ -17,8 +17,36 @@ public class Course {
     private String courseCertificateImg;
     private String courseCertificateUrl;
     private int coursePosition;
+    private Boolean courseVisible;
     private Long institutionId;
     private String institutionName;
     private String institutionNameEs;
     private Long version;
+
+    public Course(
+            Long courseId,
+            String courseName,
+            String courseNameEn,
+            String courseCertificateImg,
+            String courseCertificateUrl,
+            int coursePosition,
+            Long institutionId,
+            String institutionName,
+            String institutionNameEs,
+            Long version
+    ) {
+        this(
+                courseId,
+                courseName,
+                courseNameEn,
+                courseCertificateImg,
+                courseCertificateUrl,
+                coursePosition,
+                true,
+                institutionId,
+                institutionName,
+                institutionNameEs,
+                version
+        );
+    }
 }

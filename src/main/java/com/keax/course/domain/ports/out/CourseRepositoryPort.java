@@ -15,6 +15,8 @@ public interface CourseRepositoryPort {
 
     List<Course> findAll();
 
+    List<Course> findVisible();
+
     Optional<Course> findById(Long courseId);
 
     Optional<Course> findByNameAndInstitutionId(

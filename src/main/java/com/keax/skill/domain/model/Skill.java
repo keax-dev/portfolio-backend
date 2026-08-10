@@ -15,6 +15,26 @@ public class Skill {
     private String skillName;
     private String skillPicture;
     private int skillPosition;
+    private SkillCategory skillCategory;
+    private Boolean skillVisible;
     private Long version;
+
+    public Skill(
+            Long skillId,
+            String skillName,
+            String skillPicture,
+            int skillPosition,
+            Long version
+    ) {
+        this(
+                skillId,
+                skillName,
+                skillPicture,
+                skillPosition,
+                SkillCategory.OTHER,
+                true,
+                version
+        );
+    }
 
 }

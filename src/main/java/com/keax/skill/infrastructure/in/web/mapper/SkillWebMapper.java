@@ -11,6 +11,8 @@ public final class SkillWebMapper {
                 dto.getSkillName(),
                 dto.getSkillPicture(),
                 dto.getSkillPosition(),
+                dto.getSkillCategory(),
+                dto.getSkillVisible(),
                 null
         );
     }
@@ -21,7 +23,8 @@ public final class SkillWebMapper {
                 skill.getSkillName(),
                 skill.getSkillPicture(),
                 skill.getSkillPosition(),
-                false
+                skill.getSkillCategory(),
+                skill.getSkillVisible()
         );
     }
 

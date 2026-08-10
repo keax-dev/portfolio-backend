@@ -38,7 +38,6 @@ public final class ProjectWebMapper {
                 project.getProjectDescription(),
                 project.getProjectDescriptionEs(),
                 project.getProjectPosition(),
-                false,
                 project.getProjectPublished(),
                 project.getProjectTechnologies().stream().map(ProjectWebMapper::technologyFromDomain).toList(),
                 project.getProjectLinks().stream().map(ProjectWebMapper::linkFromDomain).toList(),

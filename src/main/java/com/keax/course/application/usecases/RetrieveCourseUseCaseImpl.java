@@ -20,4 +20,9 @@ public class RetrieveCourseUseCaseImpl implements RetrieveCourseUseCase {
     public List<Course> getListCourse() {
         return courseRepositoryPort.findAll();
     }
+
+    @Override
+    public List<Course> getVisibleCourses() {
+        return courseRepositoryPort.findVisible();
+    }
 }

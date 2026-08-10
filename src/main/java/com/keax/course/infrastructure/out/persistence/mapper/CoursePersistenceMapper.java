@@ -17,6 +17,7 @@ public final class CoursePersistenceMapper {
                 entity.getCourseCertificateImg(),
                 entity.getCourseCertificateUrl(),
                 entity.getCoursePosition(),
+                entity.getCourseVisible(),
                 entity.getInstitution().getInstitutionId(),
                 entity.getInstitution().getInstitutionName(),
                 entity.getInstitution().getInstitutionNameEs(),
@@ -32,6 +33,7 @@ public final class CoursePersistenceMapper {
                 course.getCourseCertificateImg(),
                 course.getCourseCertificateUrl(),
                 course.getCoursePosition(),
+                course.getCourseVisible(),
                 false,
                 InstitutionPersistenceMapper.toReference(course.getInstitutionId()),
                 course.getVersion()

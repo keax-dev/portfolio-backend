@@ -50,6 +50,14 @@ public class CoursePersistenceAdapter implements CourseRepositoryPort {
     }
 
     @Override
+    public List<Course> findVisible() {
+        return jpaCourseRepository.findAllByCourseVisibleTrueOrderByCoursePositionAsc()
+                .stream()
+                .map(CoursePersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<Course> findById(Long courseId) {
         return jpaCourseRepository.findById(courseId)
                 .map(CoursePersistenceMapper::toDomain);

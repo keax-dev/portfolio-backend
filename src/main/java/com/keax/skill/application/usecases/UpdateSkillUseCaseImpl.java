@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
 import com.keax.shared.domain.text.TextNormalizer;
+import com.keax.skill.domain.model.SkillCategory;
 import java.util.Objects;
 
 @Service
@@ -46,6 +47,12 @@ public class UpdateSkillUseCaseImpl implements UpdateSkillUseCase {
                     }
                 }
         );
+
+        skillUpdate.setSkillCategory(Objects.requireNonNullElse(
+                skill.getSkillCategory(),
+                SkillCategory.OTHER
+        ));
+        skillUpdate.setSkillVisible(Objects.requireNonNullElse(skill.getSkillVisible(), true));
 
         return skillRepositoryPort.updateSkill(skillUpdate);
     }

@@ -7,4 +7,6 @@ public interface RetrieveSkillUseCase {
 
     List<Skill> getListSkill();
 
+    List<Skill> getVisibleSkills();
+
 }

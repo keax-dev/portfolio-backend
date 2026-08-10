@@ -22,7 +22,7 @@ Rutas principales:
 
 - `/api/auth/login`: autenticación administrativa.
 - `/api/portfolio/*`: consumo público del portafolio.
-- `/api/profile`, `/api/education`, `/api/course`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: CRUD administrativo.
+- `/api/profile`, `/api/education`, `/api/course`, `/api/experience`, `/api/skill`, `/api/technology`, `/api/project`, `/api/institution`, `/api/socialNetwork`: CRUD administrativo.
 - `/api/image/*`: carga y eliminación de imágenes.
 - `/api/visitor` y `/api/visitor/dashboard`: registro y consulta de visitantes.
 
@@ -134,7 +134,7 @@ El proyecto está organizado con enfoque hexagonal:
 
 Cada módulo funcional sigue la misma idea. Por ejemplo:
 
-- `profile`, `education`, `project`, `technology`, `skill`, `institution`, `socialnetwork`, `visitor`, `auth`, `email`, `uploadimage`.
+- `profile`, `education`, `experience`, `project`, `technology`, `skill`, `institution`, `socialnetwork`, `visitor`, `auth`, `email`, `uploadimage`.
 
 Esto permite:
 
@@ -261,6 +261,8 @@ Migraciones actuales:
 - `src/main/resources/db/migration/V9__courses.sql`
 - `src/main/resources/db/migration/V10__course_bilingual_name_and_certificate_links.sql`
 - `src/main/resources/db/migration/V11__course_position.sql`
+- `src/main/resources/db/migration/V12__optimistic_locking.sql`
+- `src/main/resources/db/migration/V13__professional_portfolio_content.sql`
 
 Estas migraciones crean las relaciones de tecnologías y links, unifican proyectos previamente separados, migran las imágenes al arreglo ordenado, eliminan la posición global del catálogo de tecnologías, agregan el CV bilingüe, incorporan cursos bilingües y ordenables vinculados a instituciones, separan la imagen del certificado de su URL pública opcional y endurecen restricciones, publicación de proyectos, privacidad de visitantes y limpieza diferida de recursos externos.
 

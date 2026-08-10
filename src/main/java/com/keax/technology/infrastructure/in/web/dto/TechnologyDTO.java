@@ -22,7 +22,4 @@ public class TechnologyDTO {
     @Size(max = 80, message = "The technology name must not exceed 80 characters")
     private String technologyName;
 
-    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
-    private Boolean technologyDeleted = false;
-
 }

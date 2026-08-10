@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import com.keax.skill.domain.model.Skill;
 import com.keax.shared.domain.text.TextNormalizer;
+import com.keax.skill.domain.model.SkillCategory;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -38,6 +40,8 @@ public class CreateSkillUseCaseImpl implements CreateSkillUseCase {
         );
 
         skill.setSkillPicture(null);
+        skill.setSkillCategory(Objects.requireNonNullElse(skill.getSkillCategory(), SkillCategory.OTHER));
+        skill.setSkillVisible(Objects.requireNonNullElse(skill.getSkillVisible(), true));
         skill.setSkillId(null);
         return skillRepositoryPort.createSkill(skill);
     }

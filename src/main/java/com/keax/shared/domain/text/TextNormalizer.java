@@ -20,4 +20,9 @@ public final class TextNormalizer {
         String normalized = value.trim();
         return normalized.isEmpty() ? null : normalized;
     }
+
+    public static String trimToEmpty(String value) {
+        String normalized = trimToNull(value);
+        return normalized == null ? "" : normalized;
+    }
 }

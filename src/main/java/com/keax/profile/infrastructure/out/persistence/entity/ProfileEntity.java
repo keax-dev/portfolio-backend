@@ -40,6 +40,21 @@ public class ProfileEntity {
     @Column(name = "profile_picture", length = 2048)
     private String profilePicture;
 
+    @Column(name = "profile_specialties", nullable = false, length = 500)
+    private String profileSpecialties;
+
+    @Column(name = "profile_summary", nullable = false, columnDefinition = "text")
+    private String profileSummary;
+
+    @Column(name = "profile_summary_es", nullable = false, columnDefinition = "text")
+    private String profileSummaryEs;
+
+    @Column(name = "profile_about", nullable = false, columnDefinition = "text")
+    private String profileAbout;
+
+    @Column(name = "profile_about_es", nullable = false, columnDefinition = "text")
+    private String profileAboutEs;
+
     @Version
     @Column(name = "version", nullable = false)
     private Long version;
@@ -63,6 +78,11 @@ public class ProfileEntity {
                 profileCv,
                 profileCvEs,
                 profilePicture,
+                "",
+                "",
+                "",
+                "",
+                "",
                 null
         );
     }

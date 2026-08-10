@@ -46,6 +46,14 @@ public class EducationPersistenceAdapter implements EducationRepositoryPort {
     }
 
     @Override
+    public List<Education> findVisible() {
+        return jpaEducationRepository.findAllByEducationVisibleTrueOrderByEducationPositionAsc()
+                .stream()
+                .map(EducationPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<Education> findByTitleAndInstitutionId(String educationTitle, Long institutionId) {
         return jpaEducationRepository.findByEducationTitleAndInstitution_InstitutionId(
                 educationTitle,
