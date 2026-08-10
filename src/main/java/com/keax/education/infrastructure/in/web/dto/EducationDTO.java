@@ -56,8 +56,9 @@ public class EducationDTO {
     @Min(value = 1, message = "The education position must be greater than 0")
     private int educationPosition;
 
-    @JsonProperty(value = "deleted", access = JsonProperty.Access.READ_ONLY)
-    private Boolean educationDeleted = false;
+    @JsonProperty("visible")
+    @NotNull(message = "The education visibility is required")
+    private Boolean educationVisible = true;
 
     @JsonProperty("institution")
     @NotNull(message = "The institution is required")

@@ -62,6 +62,10 @@ public class UpdateEducationUseCaseImpl implements UpdateEducationUseCase {
         educationUpdate.setEducationEndEs(TextNormalizer.uppercase(education.getEducationEndEs()));
         educationUpdate.setEducationStart(toUpperCaseOrNull(education.getEducationStart()));
         educationUpdate.setEducationStartEs(toUpperCaseOrNull(education.getEducationStartEs()));
+        educationUpdate.setEducationVisible(Objects.requireNonNullElse(
+                education.getEducationVisible(),
+                true
+        ));
         return educationRepositoryPort.updateEducation(educationUpdate);
     }
 

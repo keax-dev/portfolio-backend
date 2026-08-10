@@ -53,6 +53,9 @@ public class CourseEntity {
     @Column(name = "course_position", nullable = false)
     private int coursePosition;
 
+    @Column(name = "course_visible", nullable = false)
+    private Boolean courseVisible = true;
+
     @Column(name = "course_deleted", nullable = false)
     private Boolean courseDeleted = false;
 
@@ -81,6 +84,7 @@ public class CourseEntity {
                 courseCertificateImg,
                 courseCertificateUrl,
                 coursePosition,
+                true,
                 courseDeleted,
                 institution,
                 null

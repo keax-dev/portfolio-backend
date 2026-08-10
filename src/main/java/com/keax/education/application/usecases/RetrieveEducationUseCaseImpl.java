@@ -21,4 +21,9 @@ public class RetrieveEducationUseCaseImpl implements RetrieveEducationUseCase {
         return educationRepositoryPort.findAll();
     }
 
+    @Override
+    public List<Education> getVisibleEducation() {
+        return educationRepositoryPort.findVisible();
+    }
+
 }
